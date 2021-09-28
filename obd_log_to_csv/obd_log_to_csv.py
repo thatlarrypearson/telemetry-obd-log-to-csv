@@ -112,7 +112,7 @@ def main():
         help="""Command name list to include in CSV output record generation.
                 Comma separated list.  e.g. "SPEED,RPM,FUEL_RATE".
                 In the JSON input, "command_name" labelled items will be used.
-                Defaults to all distinct command names in the set of files.
+                No default value provided.
                 """,
         nargs="?",
     )
