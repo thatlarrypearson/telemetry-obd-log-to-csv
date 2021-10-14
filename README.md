@@ -1,4 +1,3 @@
-
 # Telemetry OBD Data To CSV File
 
 Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd) output to CSV format files suitable for importation into Python [Pandas](https://pandas.pydata.org/)  ```dataframe```s using the ```from_csv()``` method.
@@ -6,6 +5,11 @@ Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd
 ## Features
 
 - Intelligently aggregates multiple vehicle OBD command responses into a record format for importing into common data analysis libraries such as Python Pandas
+- Comes with Python Pandas data analysis examples
+- Comes with post processing programs that add in
+  - rates of change in numeric columns - e.g. ```SPEED``` can become ```ACCELERATION```
+  - ratios in pairs of columns - e.g. ```RPM/SPEED``` provides a current gear ratio
+  - replaces numeric column sparse ```"no response"```  or ```None``` values in CSV with an average of its nearest neighbors
 - Uses Python 3.8 or newer
 - Runs on Windows, Mac and Linux
 - Runs on [CPython](https://en.wikipedia.org/wiki/CPython) and [Anaconda Python](https://www.anaconda.com/)
@@ -17,6 +21,8 @@ Time stamps are handled in the following way:
 - ```iso_ts_pre```, the ISO format time stamp from right before an OBD command request is made to the vehicle, is set by the first OBD command included in the output record.
 
 - ```iso_ts_post```, the ISO format time stamp from right after an OBD command response is received from the vehicle, is set by the last OBD command included in the output record.
+
+- ```duration```, the number of seconds between ```iso_ts_pre``` and ```iso_ts_post```.
 
 ## Installation
 
@@ -64,7 +70,15 @@ optional arguments:
 
 ## Documentation
 
-At this time, this [README](./README.md) is the documentation.
+This [README](./README.md) has other companion documents as shown below in [Post Processing](#Post-Processing) and [Data Analysis](#Data-Analysis).
+
+### Post Processing
+
+Additional data manipulation tools are available as part of this library and are described in [CSV File Post Processing](./docs/POST_PROCESSING.md).
+
+### Data Analysis
+
+Simple analysis tools based on [Python Pandas](https://pandas.pydata.org/) are shown in [CSV File Data Analysis](./docs/DATA_ANALYSIS.md).
 
 ## Related
 
@@ -97,50 +111,6 @@ Similarly, on Windows using PowerShell, the following will also process a group 
 ```powershell
 $VIN ="FT8W4DT5HED00000"
 python3.8 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEED,FUEL_RATE data/${VIN}/*.json
-```
-
-To load data into Python [Pandas](https://pandas.pydata.org/) and see the data types of each of the columns in the CSV file:
-
-```Python
-import pandas as pd
-df = pd.read_csv('FT8W4DT5HED00000.csv', parse_dates=['iso_ts_pre', 'iso_ts_post', 'duration', ])
-```
-
-Missing values in the CSV input are translated into ```NaN``` or Not a Number in Pandas.
-
-Note the ```parse_dates``` named argument in the ```read_csv()``` method call. The generated CSV file data from ```obd_log_to_csv``` always includes:
-
-- ```iso_ts_pre```, an ISO formatted time stamp for when the first OBD command was found in the input for this record
-- ```iso_ts_post```, an ISO formatted time stamp for when the last OBD command was found in the input for this record
-- ```duration```, the difference in seconds between ```iso_ts_post``` and ```iso_ts_pre```
-
-```parse_dates``` lets Pandas know that it should process those fields as dates.  As a result, the output data from ```df.types``` is
-
-```python
-df.dtypes
-ACCELERATOR_POS_D                        float64
-ACCELERATOR_POS_E                        float64
-AMBIANT_AIR_TEMP                         float64
-BAROMETRIC_PRESSURE                        int64
-COMMANDED_EGR                            float64
-CONTROL_MODULE_VOLTAGE                   float64
-COOLANT_TEMP                             float64
-DISTANCE_SINCE_DTC_CLEAR                 float64
-DISTANCE_W_MIL                           float64
-ENGINE_LOAD                              float64
-FUEL_LEVEL                               float64
-FUEL_INJECT_TIMING                       float64
-FUEL_RAIL_PRESSURE_ABS                   float64
-FUEL_RAIL_PRESSURE_DIRECT                float64
-INTAKE_PRESSURE                            int64
-INTAKE_TEMP                                int64
-MAF                                      float64
-OIL_TEMP                                   int64
-RELATIVE_ACCEL_POS                       float64
-RUN_TIME                                 float64
-iso_ts_pre                   datetime64[ns, UTC]
-iso_ts_post                  datetime64[ns, UTC]
-duration                          datetime64[ns]
 ```
 
 ## License

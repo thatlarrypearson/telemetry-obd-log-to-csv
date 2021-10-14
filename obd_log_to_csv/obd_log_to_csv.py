@@ -25,13 +25,13 @@ def pint_to_value(obd_response_value:str, verbose:bool=False):
         - single space and
         - units,
        they will be translated to just a number.
-       Sometimes obd_response_values are 'not supported' in which case
+       Sometimes obd_response_values are 'no response' in which case
        they will be replaced with None.
        Othertimes obd_response_values will be a string which may or may not
        contain commas.  In this case, the string will be wrapped with double
        quotes.
     """
-    if obd_response_value == 'not supported':
+    if obd_response_value == 'no response':
         return None
 
     try:
@@ -46,19 +46,23 @@ def pint_to_value(obd_response_value:str, verbose:bool=False):
 
     return (pint_value.to_tuple())[0]
 
-def null_out_output_record(output_record:dict, commands:list) -> None:
+def null_out_output_record(output_record:dict, commands:list, delta:list, ratio:list) -> None:
     """Nulls out the values within the output record dictionary.
     """
-    for command in commands:
-        output_record[command] = None
-    output_record['iso_ts_pre'] = None
-    output_record['iso_ts_post'] = None
-    output_record['duration'] = None
+    for column_name in csv_header(commands, delta, ratio):
+        output_record[column_name] = None
 
-def csv_header(commands:list) -> list:
-    return commands + ['iso_ts_pre', 'iso_ts_post', 'duration', ]
+def delta_to_column_name(delta):
+    """Makes the column name for delta fields 'delta-COMMAND_NAME'
+    """
+    return ['delta-' + column_name for column_name in delta]
 
-def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper, header:bool=True, verbose:bool=False) -> None:
+def csv_header(commands:list, delta:list, ratio:list) -> list:
+    return commands + delta_to_column_name(delta) + ratio + date_time_fields
+
+def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper,
+                delta:list, ratio:list,
+                header:bool=True, verbose:bool=False) -> None:
     """process input file given an open file handle for input,
         a list of OBD commands to include in the output and
         an output file handle for the CSV output file.
@@ -66,9 +70,9 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
     output_record = {}
     null_out_output_record(output_record, commands)
     output_record_is_nulled_out = True
-    field_names = commands + date_time_fields
 
-    writer = csv.DictWriter(csv_output, fieldnames=field_names)
+    writer = csv.DictWriter(csv_output,
+                    fieldnames=csv_header(commands, delta, ratio))
 
     if header:
         writer.writeheader()
@@ -90,21 +94,21 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
             print(f"input_record: {command_name} value: {input_record['obd_response_value']}")
 
         if output_record[command_name]:
-            output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
+            output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_post']
 
             writer.writerow(output_record)
 
-            null_out_output_record(output_record, commands)
+            null_out_output_record(output_record, commands, delta, ratio)
             output_record_is_nulled_out = True
 
         if output_record_is_nulled_out:
             output_record_is_nulled_out = False
-            output_record['iso_ts_pre'] = parser.isoparse(input_record['iso_ts_pre'])
+            output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_post'])
 
         output_record[command_name] = pint_to_value(input_record['obd_response_value'], verbose)
         output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_post'])
 
-def main():
+def command_line_options()->dict:
     parser = ArgumentParser(prog="obd_log_to_csv", description="Telemetry OBD Log To CSV")
 
     parser.add_argument(
@@ -114,7 +118,32 @@ def main():
                 In the JSON input, "command_name" labelled items will be used.
                 No default value provided.
                 """,
-        nargs="?",
+    )
+
+    parser.add_argument(
+        "--delta",
+        help="""
+        Comma separated list of commands where successive pairs of non-null return values would
+        be used to calculate the rate of change between the two return values.  e.g.
+        "SPEED,FUEL_LEVEL,THROTTLE_POSITION".  Calculated using
+        "(second-return-value - first-return-value) / (second-iso_ts_post - first-iso_ts_post)".
+        Applied in this way, delta SPEED would represent acceleration.
+        The results will be in a column headed by delta-COMMAND_NAME.  e.g. delta SPEED column name
+        would be "delta-SPEED".
+        """,
+    )
+
+    parser.add_argument(
+        "--ratio",
+        help="""
+        Comma separated list of command pairs to be used in making ratios.  e.g. the ratio
+        for SPEED/RPM would be represented by "SPEED/RPM" with the resulting ratio being
+        SPEED divided by RPM. Null/NaN values ignored.  The divisor can't be zero.
+        A comma separated command list might look like
+        "SPEED/RPM,FUEL_RATE/RELATIVE_ACCELERATOR_POSITION,MAF/ENGINE_LOAD".
+        In the CSV file, the column name will be "COMMAND_NAME1/COMMAND_NAME2".
+        e.g. "SPEED/RPM".
+        """,
     )
 
     parser.add_argument(
@@ -150,7 +179,11 @@ def main():
         nargs="+",
     )
 
-    args = vars(parser.parse_args())
+    return vars(parser.parse_args())
+
+
+def main():
+    args = command_line_options()
 
     json_input_files = args['files']
     csv_output_file_name = args['csv']
@@ -158,19 +191,25 @@ def main():
     verbose = args['verbose']
     commands = (args['commands']).split(sep=',')
 
+    delta = (args['delta']).split(sep=',') if args['delta'] else []
+    ratio = (args['ratio']).split(sep=',') if args['ratio'] else []
+
     if verbose:
         print(f"verbose: {args['verbose']}")
         print(f"commands: {args['commands']}")
         print(f"header: {header}")
         print(f"files: {json_input_files}")
         print(f"csv: {csv_output_file_name}")
+        print(f"delta: {delta}")
+        print(f"ratio: {ratio}")
 
     with open(csv_output_file_name, "w") as csv_output_file:
         for json_input_file_name in json_input_files:
             if verbose:
                 print("processing input file {json_input_file_name}")
             with open(json_input_file_name, "r") as json_input:
-                input_file(json_input, commands, csv_output_file, header=header, verbose=verbose)
+                input_file(json_input, commands, csv_output_file,
+                            delta, ratio, header=header, verbose=verbose)
             header = False
 
 if __name__ == "__main__":
