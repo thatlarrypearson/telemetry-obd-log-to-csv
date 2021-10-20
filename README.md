@@ -70,7 +70,11 @@ optional arguments:
 
 ## Documentation
 
-This [README](./README.md) has other companion documents as shown below in [Post Processing](#Post-Processing) and [Data Analysis](#Data-Analysis).
+This [README](./README.md) has other companion documents as shown below in [OBD Log Evaluation](#OBD_LOG_EVALUATION), [Post Processing](#Post-Processing) and [Data Analysis](#Data-Analysis).
+
+### OBD Log Evaluation
+
+As an aid to determining which OBD commands should be in ```obd_logger``` configuration files, [```obd_log_evaluation```](./docs/OBD_LOG_EVALUATION.md) analyses output from  ```telemetry_obd.obd_command_tester``` and ```telemetry_obd.obd_logger```.
 
 ### Post Processing
 
