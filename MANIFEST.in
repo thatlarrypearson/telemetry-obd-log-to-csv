@@ -1,0 +1,4 @@
+graft obd_log_to_csv/*.py
+global-exclude *.py[co]
+prune .mypy_cache
+prune .pytest_cache

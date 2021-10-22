@@ -1,6 +1,6 @@
 # Telemetry OBD Data To CSV File
 
-Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd) output to CSV format files suitable for importation into Python [Pandas](https://pandas.pydata.org/)  ```dataframe```s using the ```from_csv()``` method.
+Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd) output to CSV format files suitable for importation into Python [Pandas](https://pandas.pydata.org/)  ```dataframe``` using the ```from_csv()``` method.
 
 ## Features
 
@@ -9,7 +9,7 @@ Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd
 - Comes with post processing programs that add in
   - rates of change in numeric columns - e.g. ```SPEED``` can become ```ACCELERATION```
   - ratios in pairs of columns - e.g. ```RPM/SPEED``` provides a current gear ratio
-  - replaces numeric column sparse ```"no response"```  or ```None``` values in CSV with an average of its nearest neighbors
+  - replaces numeric column containing ```"no response"```  or ```None``` values in CSV with an average of its nearest neighbors
 - Uses Python 3.8 or newer
 - Runs on Windows, Mac and Linux
 - Runs on [CPython](https://en.wikipedia.org/wiki/CPython) and [Anaconda Python](https://www.anaconda.com/)
