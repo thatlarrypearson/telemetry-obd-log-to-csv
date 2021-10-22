@@ -31,7 +31,7 @@ Pull this repository down from `git` then install using Python pip where the Pyt
 ```bash
 git clone https://github.com/thatlarrypearson/telemetry-obd-log-to-csv.git
 python3.8 --version
-python3.8 -m pip install --user pint python-dateutil
+python3.8 -m pip install --user pint python-dateutil rich
 cd telemetry-obd-log-to-csv
 python3.8 -m pip install --user .
 ```
@@ -40,6 +40,7 @@ When running Anaconda versions of Python, modify the ```pip install``` for ```pi
 
 ```bash
 conda install -c conda-forge pint
+conda install -c conda-forge rich
 conda install python-dateutil
 ```
 
