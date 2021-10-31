@@ -9,10 +9,8 @@ Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd
 - Comes with post processing programs that add in
   - rates of change in numeric columns - e.g. ```SPEED``` can become ```ACCELERATION```
   - ratios in pairs of columns - e.g. ```RPM/SPEED``` provides a current gear ratio
-  - replaces numeric column containing ```"no response"```  or ```None``` values in CSV with an average of its nearest neighbors
 - Uses Python 3.8 or newer
 - Runs on Windows, Mac and Linux
-- Runs on [CPython](https://en.wikipedia.org/wiki/CPython) and [Anaconda Python](https://www.anaconda.com/)
 
 When aggregating multiple OBD commands into records, ```obd_log_to_csv``` considers a record complete when it finds another entry for an OBD command already placed into the record.  OBD commands not found in the input by the time the record is complete are set to ```None``` in Python and that is translated to missing values in the CSV file.  In Pandas, such missing values get changed to ```NaN``` or Not a Number.
 
@@ -26,22 +24,15 @@ Time stamps are handled in the following way:
 
 ## Installation
 
-Pull this repository down from `git` then install using Python pip where the Python version is 3.8 or higher.
+Clone this repository from `git` and install using Python pip where the Python version is 3.8 or higher.
 
 ```bash
 git clone https://github.com/thatlarrypearson/telemetry-obd-log-to-csv.git
 python3.8 --version
-python3.8 -m pip install --user pint python-dateutil rich
+python3.8 -m pip install --user build setuptools wheel python-dateutil
 cd telemetry-obd-log-to-csv
-python3.8 -m pip install --user .
-```
-
-When running Anaconda versions of Python, modify the ```pip install``` for ```pint``` and ```dateutil``` to be as follows:
-
-```bash
-conda install -c conda-forge pint
-conda install -c conda-forge rich
-conda install python-dateutil
+python3.8 -m build
+python3.8 -m pip install --user dist/telemetry_obd_log_to_csv-0.2.1-py3-none-any.whl
 ```
 
 ## Command Line Arguments

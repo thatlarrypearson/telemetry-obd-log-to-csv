@@ -6,11 +6,13 @@ from sys import stdout
 from argparse import ArgumentParser
 from rich.console import Console
 from rich.table import Table
-from .obd_log_common import get_command_name, pint_to_value_type
+from .obd_log_common import get_command_name, pint_to_value_type, get_mode_pid_from_command_name
 
 def csv_print(raw_data:dict, verbose=False):
     field_names = [
         'command',
+        'mode',
+        'pid',
         'count',
         'no response',
         'data type',
@@ -23,6 +25,9 @@ def csv_print(raw_data:dict, verbose=False):
         if verbose:
             print(f"csv_print(): key {key}")
         value['command'] = key
+        mode, pid = get_mode_pid_from_command_name(key)
+        value['mode'] = f"0x{mode}"
+        value['pid'] = f"0x{pid}"
         writer.writerow(value)
 
 def rich_output(raw_data:dict, verbose=False):
@@ -30,6 +35,8 @@ def rich_output(raw_data:dict, verbose=False):
 
     table = Table(show_header=True, header_style="bold magenta")
     table.add_column("OBD Command", justify='left')
+    table.add_column("Mode")
+    table.add_column("PID")
     table.add_column("Count", justify='right')
     table.add_column("No Response", justify='right')
     table.add_column('Data Type', justify='left')
@@ -43,6 +50,9 @@ def rich_output(raw_data:dict, verbose=False):
         no_response_total += value['no response']
 
         value_key = key
+        mode, pid = get_mode_pid_from_command_name(key)
+        value_mode = f"0x{mode}"
+        value_pid = f"0x{pid}"
         value_count = str(value['count'])
         value_no_response = str(value['no response'])
 
@@ -54,6 +64,8 @@ def rich_output(raw_data:dict, verbose=False):
 
         table.add_row(
             value_key,
+            value_mode,
+            value_pid,
             value_count,
             value_no_response,
             value['data type'],
@@ -62,6 +74,8 @@ def rich_output(raw_data:dict, verbose=False):
 
     table.add_row(
         '[bold]TOTALS[/bold]',
+        '',
+        '',
         f"[bold]{count_total}[/bold]",
         f"[bold red]{no_response_total}[/bold red]",
         '',
