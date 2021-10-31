@@ -59,6 +59,8 @@ def rich_output(raw_data:dict, verbose=False):
         if value['count'] == value['no response']:
             value_key = f"[bold red]{key}[/bold red]"
             value_count = f"[bold red]{value['count']}[/bold red]"
+            value_mode = f"[bold red]0x{mode}[/bold red]"
+            value_pid = f"[bold red]0x{pid}[/bold red]"
         if value['no response'] > 0:
             value_no_response = f"[bold red]{value['no response']}[/bold red]"
 
