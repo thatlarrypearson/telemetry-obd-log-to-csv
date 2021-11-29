@@ -114,13 +114,29 @@ def input_file(json_input_files, verbose=False)->dict:
                     break
 
                 obd_response_value = input_record['obd_response_value']
-                if not isinstance(obd_response_value, list):
-                    obd_response_values = [obd_response_value, ]
-                else:
+                if isinstance(obd_response_value, list):
                     obd_response_values = obd_response_value
+                    # The following is just to get the list return into the output
+                    if input_record['command_name'] not in raw_data:
+                        raw_data[input_record['command_name']] = {
+                            'count': 1,
+                            'no response': 0,
+                            'data type': "list",
+                            'units': None,
+                        }
+                    else:
+                        raw_data[input_record['command_name']]['count'] += 1
+                else:
+                    obd_response_values = [obd_response_value, ]
 
                 for obd_response_index, obd_response_value in enumerate(obd_response_values, start=0):
-                    command_name = get_command_name(input_record['command_name'], obd_response_index)
+                    if len(obd_response_values) < 2:
+                        # need to use original command name
+                        command_name = input_record['command_name']
+                    else:
+                        # command returned two or more values
+                        command_name = get_command_name(input_record['command_name'], obd_response_index)
+
                     if command_name not in raw_data:
                         raw_data[command_name] = {
                             'count': 0,
@@ -132,15 +148,16 @@ def input_file(json_input_files, verbose=False)->dict:
                     raw_data[command_name]['count'] += 1
                     if obd_response_value in ['no response', 'not supported']:
                         raw_data[command_name]['no response'] += 1
-                    else:
-                        value, pint_units = pint_to_value_type(obd_response_value, verbose)
-                        data_type = get_data_type(value)
-                        if verbose:
-                            print(f"command_name: {command_name} value: {value}, pint_units: {pint_units} data_type: {data_type}")
-                        if data_type:
-                            raw_data[command_name]['data type'] = data_type
-                        if pint_units:
-                            raw_data[command_name]['units'] = pint_units
+                        break
+
+                    value, pint_units = pint_to_value_type(obd_response_value, verbose)
+                    data_type = get_data_type(value)
+                    if verbose:
+                        print(f"command_name: {command_name} value: {value}, pint_units: {pint_units} data_type: {data_type}")
+                    if data_type:
+                        raw_data[command_name]['data type'] = data_type
+                    if pint_units:
+                        raw_data[command_name]['units'] = pint_units
     return raw_data
 
 def command_line_options()->dict:
