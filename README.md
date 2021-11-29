@@ -62,7 +62,7 @@ optional arguments:
 
 ## Documentation
 
-This [README](./README.md) has other companion documents as shown below in [OBD Log Evaluation](#OBD_LOG_EVALUATION), [Post Processing](#Post-Processing) and [Data Analysis](#Data-Analysis).
+This [README](./README.md) has other companion documents as shown below in [OBD Log Evaluation](#OBD-LOG-EVALUATION), [Post Processing](#Post-Processing) and [Data Analysis](#Data-Analysis).
 
 ### OBD Log Evaluation
 
