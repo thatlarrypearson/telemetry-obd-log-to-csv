@@ -806,6 +806,9 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
     ):
         return obd_response_value, None
 
+    if isinstance(obd_response_value, str) and len(obd_response_value) == 0:
+        return obd_response_value, None
+
     try:
         value, units = pint_value.to_tuple()
     except AttributeError as e:
@@ -813,6 +816,12 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
             print(f"Pint to_tuple error on {obd_response_value}. ",
                     f"AttributeError: {e}")
         return pint_value, None
+
+    if verbose:
+        print(f"response_value {pint_value} value {value} units {units}")
+
+    if len(units) == 0:
+        return value, 'dimensionless'
 
     return value, units[0][0]
 

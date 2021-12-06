@@ -109,6 +109,13 @@ $VIN ="FT8W4DT5HED00000"
 python3.8 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEED,FUEL_RATE data/${VIN}/*.json
 ```
 
+## Known Problems
+
+Vehicle Identification Number (VIN) is not always correct.
+
+- 2017 Ford F-450 VIN is missing leading ```1``` digit/letter
+- 2021 Toyota Sienna Hybrid LE is missing the trailing ```0``` digit/letter
+
 ## License
 
 [MIT](./LICENSE.md)
