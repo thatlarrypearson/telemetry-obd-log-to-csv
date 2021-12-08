@@ -54,11 +54,24 @@ python3.8 -m telemetry_obd.obd_command_tester --cycles 100
 #### Output
 
 - OBD log evaluation program run on collected input data.
-- Output was in CSV format for importation into [Microsoft Visual Studio Code](https://code.visualstudio.com/).
-- Output can be viewed in table format at [TESTVIN012345678](OBD_LOG_EVALUATION-FrematicsEmulatorOutout.md)
+- Output in CSV format for importation into applications
+  - [Microsoft Visual Studio Code](https://code.visualstudio.com/)
+  - [CSV to Markdown Table](https://marketplace.visualstudio.com/items?itemName=Marchiore.csvtomarkdown)
+  - [Microsoft Excel](https://www.microsoft.com/en-us/microsoft-365/excel)
+- Output examples in table format
+  - [Frematics OBD Emulator](OBD_LOG_EVALUATION-FrematicsEmulatorOutout.md)
+  - [2013 Jeep Wrangler Rubicon](OBD_LOG_EVALUATION-2013JeepWranglerRubicon.md)
 
 ```python
 python3.8 -m obd_log_to_csv.obd_log_evaluation --csv ./TESTVIN012345678-TEST-20211127145538.json
+```
+
+### Generating OBD Command Lists
+
+```bash
+python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
+awk -F "\"*,\"*" '{print $1}' | \
+grep -v command | grep -v '-'
 ```
 
 ## Related
