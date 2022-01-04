@@ -16,6 +16,7 @@ COMMAND_TO_MODE_PID = {}
 
 PSEUDO_COMMANDS = [
     'ELM_VERSION',
+    'ELM_VOLTAGE',
 ]
 
 # The following units aren't included in the base pint package
