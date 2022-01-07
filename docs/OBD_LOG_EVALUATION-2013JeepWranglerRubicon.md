@@ -199,9 +199,6 @@ The following list was generated using data gathered by [telemetry_obd.obd_comma
 |STATUS-01|0x01|0x01|100|0|string||
 |STATUS-02|0x01|0x01|100|0|string||
 |STATUS_DRIVE_CYCLE|0x01|0x41|100|0|list||
-|STATUS_DRIVE_CYCLE-00|0x01|0x41|100|0|string||
-|STATUS_DRIVE_CYCLE-01|0x01|0x41|100|0|string||
-|STATUS_DRIVE_CYCLE-02|0x01|0x41|100|0|string||
 |THROTTLE_ACTUATOR|0x01|0x4C|100|0|float|percent|
 |THROTTLE_POS|0x01|0x11|100|0|float|percent|
 |THROTTLE_POS_B|0x01|0x47|100|0|float|percent|
