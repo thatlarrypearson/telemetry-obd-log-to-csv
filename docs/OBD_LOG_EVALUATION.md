@@ -61,6 +61,7 @@ python3.8 -m telemetry_obd.obd_command_tester --cycles 100
 - Output examples in table format
   - [Frematics OBD Emulator](OBD_LOG_EVALUATION-FrematicsEmulatorOutout.md)
   - [2013 Jeep Wrangler Rubicon](OBD_LOG_EVALUATION-2013JeepWranglerRubicon.md)
+  - [2017 Ford F-450 Dually 4 Door Long Bed](OBD_LOG_EVALUATION-2017FordF450.md)
   - [2019 Ford EcoSport](OBD_LOG_EVALUATION-2019FordEcoSport.md)
 
 ```python
@@ -69,9 +70,27 @@ python3.8 -m obd_log_to_csv.obd_log_evaluation --csv ./TESTVIN012345678-TEST-202
 
 ### Generating OBD Command Lists
 
+#### Complete Command List
+
 ```bash
 python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
 awk -F "\"*,\"*" '{print $1}' | \
+grep -v command | grep -v '-'
+```
+
+#### Valid Command List
+
+```bash
+python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
+awk -F ',' '// { if ($4 != $5) {print $1}}' \
+grep -v command | grep -v '-'
+```
+
+#### Invalid Command List
+
+```bash
+python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
+awk -F ',' '// { if ($4 == $5) {print $1}}' \
 grep -v command | grep -v '-'
 ```
 
