@@ -31,6 +31,9 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
     writer = csv.DictWriter(csv_output,
                     fieldnames=csv_header(commands))
 
+    if verbose:
+        print(f"CSV field names: {csv_header(commands)}")
+
     if header:
         writer.writeheader()
 
@@ -49,34 +52,59 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         if verbose:
             print(f"input_record: {input_record['command_name']} value: {input_record['obd_response_value']}")
 
-        if not isinstance(input_record['obd_response_value'], list):
-            obd_response_values = [input_record['obd_response_value'], ]
-        else:
-            obd_response_values = input_record['obd_response_value']
-
         write_row = False
-        for obd_response_index, obd_response_value in enumerate(obd_response_values, start=0):
-            command_name = get_command_name(input_record['command_name'], obd_response_index)
+        if isinstance(input_record['obd_response_value'], list):
+            for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
+                command_name = get_command_name(input_record['command_name'], obd_response_index)
+                if verbose:
+                    print(f"list: {input_record['command_name']} to {command_name}: value: {obd_response_value}")
+                if output_record[command_name]:
+                    output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
+                    write_row = True
+                    break
+        else:
+            command_name = input_record['command_name']
+            if verbose:
+                print(f"{command_name}: value: {input_record['obd_response_value']}")
+
             if output_record[command_name]:
                 output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
                 write_row = True
-                break
 
         if write_row:
+            if verbose:
+                print(f"====================================\noutput_record: {output_record}\n====================================")
             writer.writerow(output_record)
+
             null_out_output_record(output_record, commands)
             output_record_is_nulled_out = True
 
-        for obd_response_index, obd_response_value in enumerate(obd_response_values, start=0):
-            command_name = get_command_name(input_record['command_name'], obd_response_index)
+        if isinstance(input_record['obd_response_value'], list):
+            for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
+                command_name = get_command_name(input_record['command_name'], obd_response_index)
+
+                if output_record_is_nulled_out:
+                    output_record['iso_ts_pre'] = parser.isoparse(input_record['iso_ts_pre'])
+                    output_record_is_nulled_out = False
+
+                output_record[command_name], pint_value = pint_to_value_type(obd_response_value, verbose)
+        else:
+            command_name = input_record['command_name']
 
             if output_record_is_nulled_out:
                 output_record['iso_ts_pre'] = parser.isoparse(input_record['iso_ts_pre'])
                 output_record_is_nulled_out = False
 
-            output_record[command_name], pint_value = pint_to_value_type(obd_response_value, verbose)
+            output_record[command_name], pint_value = pint_to_value_type(input_record['obd_response_value'], verbose)
 
         output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_post'])
+
+    output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
+
+    if verbose:
+        print(f"====================================\noutput_record: {output_record}\n====================================")
+    writer.writerow(output_record)
+
 
 def command_line_options()->dict:
     parser = ArgumentParser(prog="obd_log_to_csv", description="Telemetry OBD Log To CSV")
