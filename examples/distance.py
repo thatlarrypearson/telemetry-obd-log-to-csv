@@ -42,7 +42,7 @@ def process_file(csv_input:TextIOWrapper, csv_output_file:TextIOWrapper, header:
         writer.writeheader()
 
     distance_sum = 0.0
-    miles_since_dtc_clear = 0.0
+    miles_since_dtc_clear = None
 
     for line_count, in_row in enumerate(reader, 2):
         if verbose:
