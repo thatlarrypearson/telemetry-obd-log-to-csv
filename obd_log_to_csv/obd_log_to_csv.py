@@ -59,7 +59,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
                 if verbose:
                     print(f"list: {input_record['command_name']} to {command_name}: value: {obd_response_value}")
                 if output_record[command_name]:
-                    output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
+                    output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
                     write_row = True
                     break
         else:
@@ -68,12 +68,13 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
                 print(f"{command_name}: value: {input_record['obd_response_value']}")
 
             if output_record[command_name]:
-                output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
+                output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
                 write_row = True
 
         if write_row:
             if verbose:
                 print(f"====================================\noutput_record: {output_record}\n====================================")
+            output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
             writer.writerow(output_record)
 
             null_out_output_record(output_record, commands)
@@ -97,13 +98,12 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
 
             output_record[command_name], pint_value = pint_to_value_type(input_record['obd_response_value'], verbose)
 
-        output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_post'])
-
-    output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
-
-    if verbose:
-        print(f"====================================\noutput_record: {output_record}\n====================================")
-    writer.writerow(output_record)
+    if not output_record_is_nulled_out: 
+        if verbose:
+            print(f"====================================\noutput_record: {output_record}\n====================================")
+        output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
+        output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
+        writer.writerow(output_record)
 
 
 def command_line_options()->dict:
