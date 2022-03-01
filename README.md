@@ -115,7 +115,7 @@ Vehicle Identification Number (VIN) is not always correct.
 
 - 2013 Jeep Wrangler Rubicon is missing leading ```1``` digit/letter
 - 2017 Ford F-450 VIN is missing leading ```1``` digit/letter
-- 2021 Toyota Sienna Hybrid LE is missing the trailing ```0``` digit/letter
+- 2021 Toyota Sienna Hybrid LE is missing the trailing ```0``` digit/letter while another 2021 Sienna Hybrid LE (VIN: 5TDKRKEC6MS043967) was not missing any digits or letters.
 
 ## License
 
