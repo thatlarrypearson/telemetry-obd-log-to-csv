@@ -1,5 +1,6 @@
 # CSV To Ration CSV
 # telemetry-obd-log-to-csv/ogd_log_to_csv/csv_to_ratio_csv.py
+from sys import stdout, stderr
 import csv
 from argparse import ArgumentParser
 from io import TextIOWrapper
@@ -43,8 +44,9 @@ def command_line_options()->dict:
                 File can be either a full or relative path name.
                 If the file already exists, it will be overwritten.
                 Do not make the input and output file the same.
-                Bad things will happen.
+                Bad things will happen.  Defaults to terminal output (stdout).
                 """,
+        default="stdout",
     )
 
     parser.add_argument(
@@ -90,10 +92,10 @@ def ratio(input_csv_file, output_csv_file, ratio_column_pairs, verbose=False):
     writer.writeheader()
 
     ratio_map = ratio_divisor_to_dividend_mapper(ratio_column_pairs)
-    
+
     for in_row in reader:
         if verbose:
-            print(f"in_row: {in_row}")
+            print(f"in_row: {in_row}", file=stderr)
 
         # the original row passes through unmolested
         out_row = deepcopy(in_row)
@@ -101,18 +103,17 @@ def ratio(input_csv_file, output_csv_file, ratio_column_pairs, verbose=False):
         # delta columns are added and set to None
         for divisor in ratio_map:
             for dividend in ratio_map[divisor]:
-                out_row[dividend + '/' + divisor] = None
+                out_row[f"{dividend}/'{divisor}"] = None
                 if in_row[divisor] is None:
                     continue
                 if in_row[dividend] is None:
                     continue
                 if not float(in_row[divisor]):
                     continue
-                out_row[dividend + '/' + divisor] = float(in_row[dividend]) / float(in_row[divisor])
-
+                out_row[f"{dividend}/'{divisor}"] = float(in_row[dividend]) / float(in_row[divisor])
 
         if verbose:
-            print(f"out_row: {out_row}")
+            print(f"out_row: {out_row}", file=stderr)
 
         writer.writerow(out_row)
 
@@ -126,14 +127,18 @@ def main():
     ratio_column_pairs = (args['ratio']).split(sep=',') if args['ratio'] else []
 
     if verbose:
-        print(f"verbose: {args['verbose']}")
-        print(f"input csv file: {input_csv_file_name}")
-        print(f"output csv file: {output_csv_file_name}")
-        print(f"ratio_columns: {ratio_column_pairs}")
+        print(f"verbose: {args['verbose']}", file=stderr)
+        print(f"input csv file: {input_csv_file_name}", file=stderr)
+        print(f"output csv file: {output_csv_file_name}", file=stderr)
+        print(f"ratio_columns: {ratio_column_pairs}", file=stderr)
 
-    with open(output_csv_file_name, "w") as output_csv_file:
+    if output_csv_file_name != "stdout":
+        with open(output_csv_file_name, "w") as output_csv_file:
+            with open(input_csv_file_name, "r") as input_csv_file:
+                ratio(input_csv_file, output_csv_file, ratio_column_pairs, verbose=verbose)
+    else:
         with open(input_csv_file_name, "r") as input_csv_file:
-            ratio(input_csv_file, output_csv_file, ratio_column_pairs, verbose=verbose)
+            ratio(input_csv_file, stdout, ratio_column_pairs, verbose=verbose)
 
 if __name__ == "__main__":
     main()

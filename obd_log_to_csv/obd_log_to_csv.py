@@ -2,6 +2,7 @@
 # obd_log_to_csv/obd_log_to_csv.py
 import json
 import csv
+from sys import stdout, stderr
 from argparse import ArgumentParser
 from io import TextIOWrapper
 from pint import UnitRegistry, UndefinedUnitError, OffsetUnitCalculusError
@@ -32,7 +33,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
                     fieldnames=csv_header(commands))
 
     if verbose:
-        print(f"CSV field names: {csv_header(commands)}")
+        print(f"CSV field names: {csv_header(commands)}", file=stderr)
 
     if header:
         writer.writeheader()
@@ -43,21 +44,21 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         except json.decoder.JSONDecodeError as e:
             # improperly closed JSON file
             if verbose:
-                print(f"Corrupted JSON info:\n{e}")
+                print(f"Corrupted JSON info:\n{e}", file=stderr)
             return
 
         if input_record['command_name'] not in commands:
             continue
 
         if verbose:
-            print(f"input_record: {input_record['command_name']} value: {input_record['obd_response_value']}")
+            print(f"input_record: {input_record['command_name']} value: {input_record['obd_response_value']}", file=stderr)
 
         write_row = False
         if isinstance(input_record['obd_response_value'], list):
             for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
                 command_name = get_command_name(input_record['command_name'], obd_response_index)
                 if verbose:
-                    print(f"list: {input_record['command_name']} to {command_name}: value: {obd_response_value}")
+                    print(f"list: {input_record['command_name']} to {command_name}: value: {obd_response_value}", file=stderr)
                 if output_record[command_name]:
                     output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
                     write_row = True
@@ -65,7 +66,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         else:
             command_name = input_record['command_name']
             if verbose:
-                print(f"{command_name}: value: {input_record['obd_response_value']}")
+                print(f"{command_name}: value: {input_record['obd_response_value']}", file=stderr)
 
             if output_record[command_name]:
                 output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
@@ -73,7 +74,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
 
         if write_row:
             if verbose:
-                print(f"====================================\noutput_record: {output_record}\n====================================")
+                print(f"====================================\noutput_record: {output_record}\n====================================", file=stderr)
             output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
             writer.writerow(output_record)
 
@@ -100,10 +101,19 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
 
     if not output_record_is_nulled_out: 
         if verbose:
-            print(f"====================================\noutput_record: {output_record}\n====================================")
+            print(f"====================================\noutput_record: {output_record}\n====================================", file=stderr)
         output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
         output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
         writer.writerow(output_record)
+
+def cycle_through_input_files(json_input_files:list, commands:list, header:bool, csv_output_file:TextIOWrapper, verbose=False):
+    for json_input_file_name in json_input_files:
+        if verbose:
+            print(f"processing input file {json_input_file_name}", file=stderr)
+        with open(json_input_file_name, "r") as json_input:
+            input_file(json_input, commands, csv_output_file,
+                        header=header, verbose=verbose)
+        header = False
 
 
 def command_line_options()->dict:
@@ -123,7 +133,9 @@ def command_line_options()->dict:
         help="""CSV output file.
                 File can be either a full or relative path name.
                 If the file already exists, it will be overwritten.
+                Defaults to standard output (stdout) instead of file.
                 """,
+        default="stdout",
     )
 
     parser.add_argument(
@@ -164,20 +176,17 @@ def main():
     commands = (args['commands']).split(sep=',')
 
     if verbose:
-        print(f"verbose: {args['verbose']}")
-        print(f"commands: {args['commands']}")
-        print(f"header: {header}")
-        print(f"files: {json_input_files}")
-        print(f"csv: {csv_output_file_name}")
+        print(f"verbose: {args['verbose']}", file=stderr)
+        print(f"commands: {args['commands']}", file=stderr)
+        print(f"header: {header}", file=stderr)
+        print(f"files: {json_input_files}", file=stderr)
+        print(f"csv: {csv_output_file_name}", file=stderr)
 
-    with open(csv_output_file_name, "w") as csv_output_file:
-        for json_input_file_name in json_input_files:
-            if verbose:
-                print(f"processing input file {json_input_file_name}")
-            with open(json_input_file_name, "r") as json_input:
-                input_file(json_input, commands, csv_output_file,
-                            header=header, verbose=verbose)
-            header = False
+    if csv_output_file_name != "stdout":
+        with open(csv_output_file_name, "w") as csv_output_file:
+            cycle_through_input_files(json_input_files, commands, header, csv_output_file, verbose=verbose)
+    else:
+        cycle_through_input_files(json_input_files, commands, header, stdout, verbose=verbose)
 
 if __name__ == "__main__":
     main()

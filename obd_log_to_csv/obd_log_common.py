@@ -1,9 +1,11 @@
 # OBD Log Common
 # telemetry-obd-log-to-csv/obd_log_to_csv/obd_log_common.py
+# sourcery skip: remove-duplicate-key
 """
 Data and Functions shared between different programs in the
 obd_log_to_csv package.
 """
+from sys import stderr
 from pint import UnitRegistry, UndefinedUnitError, OffsetUnitCalculusError
 from obd.commands import __mode1__, __mode9__
 from telemetry_obd.add_commands import NEW_COMMANDS
@@ -740,13 +742,12 @@ def get_command_name(command_name:str, obd_response_index:int)->str:
         obd_response_index in COMMANDS_RETURNING_LIST_RESULTS[command_name]
         ):
         return f"{command_name}-{COMMANDS_RETURNING_LIST_RESULTS[command_name][obd_response_index]}"
-    else:
-        # return f"{command_name}-{obd_response_index:2d}"
-        return f"{command_name}-{obd_response_index:0>2d}"
 
-    return command_name
+    # return f"{command_name}-{obd_response_index:2d}"
+    return f"{command_name}-{obd_response_index:0>2d}"
 
 def get_field_names(command_names:list)->list:
+    # sourcery skip: for-append-to-extend
     """
     from a list of commands, return the list of field names understanding that
     some commands will have multiple field names.
@@ -761,6 +762,7 @@ def get_field_names(command_names:list)->list:
     return field_names
 
 def pint_to_value_type(obd_response_value:str, verbose:bool=False):
+    # sourcery skip: simplify-empty-collection-comparison, simplify-len-comparison, simplify-str-len-comparison
     """Returns a workable obd_response_value.
        When obd_response_values are numeric, they are expressed as
         - number, 
@@ -780,7 +782,7 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
         return None, None
 
     if verbose:
-        print(f"pint_to_value_type.obd_response_value: {obd_response_value}")
+        print(f"pint_to_value_type.obd_response_value: {obd_response_value}", file=stderr)
 
     try:
         pint_value = unit_registry(obd_response_value)
@@ -790,18 +792,18 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
         if verbose:
             print(f"Pint unit_registry error on {obd_response_value}. " +
             f"Returning \"{(obd_response_value.split())[0]}\" as value. " +
-            f"OffsetUnitCalculusError: {e}")
+            f"OffsetUnitCalculusError: {e}", file=stderr)
         return (obd_response_value.split())[0], None
     except ValueError as e:
         if verbose:
             print(f"Pint unit_registry error on {obd_response_value}. " +
             f"Returning \"{obd_response_value}\" as value. " +
-            f"ValueError: {e}")
+            f"ValueError: {e}", file=stderr)
         return obd_response_value, None
     except AttributeError as e:
         if verbose:
             print(f"Pint unit_registry error on {obd_response_value}. ",
-                    f"AttributeError: {e}")
+                    f"AttributeError: {e}", file=stderr)
         return obd_response_value, None
 
     if (
@@ -819,11 +821,11 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
     except AttributeError as e:
         if verbose:
             print(f"Pint to_tuple error on {obd_response_value}. ",
-                    f"AttributeError: {e}")
+                    f"AttributeError: {e}", file=stderr)
         return pint_value, None
 
     if verbose:
-        print(f"response_value {pint_value} value {value} units {units}")
+        print(f"response_value {pint_value} value {value} units {units}", file=stderr)
 
     if len(units) == 0:
         return value, 'dimensionless'

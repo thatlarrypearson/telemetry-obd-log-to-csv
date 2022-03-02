@@ -1,5 +1,6 @@
 # CSV To Delta CSV
 # telemetry-obd-log-to-csv/obd_log_to_csv/csv_to_delta_csv.py
+from sys import stdout, stderr
 import csv
 from argparse import ArgumentParser
 from io import TextIOWrapper
@@ -43,8 +44,9 @@ def command_line_options()->dict:
                 File can be either a full or relative path name.
                 If the file already exists, it will be overwritten.
                 Do not make the input and output file the same.
-                Bad things will happen.
+                Bad things will happen.  Defaults to stdout (terminal output).
                 """,
+        default="stdout"
     )
 
     parser.add_argument(
@@ -57,7 +59,7 @@ def command_line_options()->dict:
     return vars(parser.parse_args())
 
 def delta_column_names(delta_columns:list) -> list:
-    return ['delta-' + name for name in delta_columns]
+    return [f"delta-{name}" for name in delta_columns]
 
 def delta(input_csv_file, output_csv_file, delta_columns, verbose=False):
     delta_column_name_list = delta_column_names(delta_columns)
@@ -79,7 +81,7 @@ def delta(input_csv_file, output_csv_file, delta_columns, verbose=False):
     
     for in_row in reader:
         if verbose:
-            print(f"in_row: {in_row}")
+            print(f"in_row: {in_row}", file=stderr)
 
         # the original row passes through unmolested
         out_row = deepcopy(in_row)
@@ -95,10 +97,10 @@ def delta(input_csv_file, output_csv_file, delta_columns, verbose=False):
                 v2 = float(in_row[name])
                 t1 = parser.isoparse(delta_first[name]['iso_ts_pre'])
                 t2 = parser.isoparse(in_row['iso_ts_post'])
-                out_row["delta-" + name] = (v2 - v1) / (float((t2 - t1) / timedelta(microseconds=1)) * 1000000.0)
+                out_row[f"delta-{name}"] = (v2 - v1) / (float((t2 - t1) / timedelta(microseconds=1)) * 1000000.0)
 
             else:
-                out_row["delta-" + name] = None
+                out_row[f"delta-{name}"] = None
 
             if in_row[name]:       
                 delta_first[name] = {
@@ -108,7 +110,7 @@ def delta(input_csv_file, output_csv_file, delta_columns, verbose=False):
                 }
 
         if verbose:
-            print(f"out_row: {out_row}")
+            print(f"out_row: {out_row}", file=stderr)
 
         writer.writerow(out_row)
 
@@ -120,18 +122,20 @@ def main():
     verbose = args['verbose']
 
     delta_columns = (args['delta']).split(sep=',') if args['delta'] else []
-    # ratio_columns = (args['ratio']).split(sep=',') if args['ratio'] else []
 
     if verbose:
-        print(f"verbose: {args['verbose']}")
-        print(f"input csv file: {input_csv_file_name}")
-        print(f"output csv file: {output_csv_file_name}")
-        print(f"delta: {delta_columns}")
-        # print(f"ratio_columns: {ratio_columns}")
+        print(f"verbose: {args['verbose']}", file=stderr)
+        print(f"input csv file: {input_csv_file_name}", file=stderr)
+        print(f"output csv file: {output_csv_file_name}", file=stderr)
+        print(f"delta: {delta_columns}", file=stderr)
 
-    with open(output_csv_file_name, "w") as output_csv_file:
+    if output_csv_file_name != "stdout":
+        with open(output_csv_file_name, "w") as output_csv_file:
+            with open(input_csv_file_name, "r") as input_csv_file:
+                delta(input_csv_file, output_csv_file, delta_columns, verbose=verbose)
+    else:
         with open(input_csv_file_name, "r") as input_csv_file:
-            delta(input_csv_file, output_csv_file, delta_columns, verbose=verbose)
+            delta(input_csv_file, stdout, delta_columns, verbose=verbose)
 
 if __name__ == "__main__":
     main()

@@ -8,11 +8,12 @@ NOTE: The column names in the input CSV files must have the same column names an
 
 NOTE: Requires additional Python package
       https://pypi.org/project/pytimeparse/1.1.5/
-      python3.8 -m pip install pytieparse
+      python3.8 -m pip install pytimeparse
 
 SPEED is in kilometers per hour
 duration is in seconds
 """
+from sys import stdout, stderr
 from argparse import ArgumentParser
 from io import TextIOWrapper
 from csv import DictReader, DictWriter
@@ -31,7 +32,7 @@ def process_file(csv_input:TextIOWrapper, csv_output_file:TextIOWrapper, header:
         all_field_names += ['miles_since_dtc_clear', ]
 
     if verbose:
-        print(f"field_names: {field_names}, all_field_names: {all_field_names}")
+        print(f"field_names: {field_names}, all_field_names: {all_field_names}", file=stderr)
 
     if "SPEED" not in field_names or "duration" not in field_names:
         raise ValueError(f"SPEED and/or duration not in {field_names}")
@@ -46,7 +47,7 @@ def process_file(csv_input:TextIOWrapper, csv_output_file:TextIOWrapper, header:
 
     for line_count, in_row in enumerate(reader, 2):
         if verbose:
-            print(f"input line {line_count}: {in_row}")
+            print(f"input line {line_count}: {in_row}", file=stderr)
 
         # the original row passes through unmolested
         out_row = deepcopy(in_row)
@@ -54,7 +55,7 @@ def process_file(csv_input:TextIOWrapper, csv_output_file:TextIOWrapper, header:
         duration = parse(in_row['duration'])
 
         if not in_row['SPEED']:
-            print(f"input line {line_count}: SPEED has None value, skipping row")
+            print(f"input line {line_count}: SPEED has None value, skipping row", file=stderr)
             continue
         if not in_row['duration']:
             raise ValueError(f"input line {line_count}: duration has None or zero value")
@@ -75,9 +76,20 @@ def process_file(csv_input:TextIOWrapper, csv_output_file:TextIOWrapper, header:
         out_row['miles_sum'] = distance_sum * 0.62137119
 
         if verbose:
-            print(f"output line {line_count}: {out_row}")
+            print(f"output line {line_count}: {out_row}", file=stderr)
 
         writer.writerow(out_row)
+
+def cycle_through_input_files(csv_input_files:list, csv_output_file:TextIOWrapper, verbose=False):
+    for csv_input_file_name in csv_input_files:
+        if verbose:
+            print(f"processing input file {csv_input_file_name}", file=stderr)
+        with open(csv_input_file_name, "r") as csv_input:
+            process_file(csv_input, csv_output_file, header=header, verbose=verbose)
+
+        header = False
+
+
 
 def command_line_options():
     """parse command line options"""
@@ -88,8 +100,9 @@ def command_line_options():
         help="""CSV output file.
                 File can be either a full or relative path name.
                 If the file already exists, it will be overwritten.
+                Defaults to terminal output (stdout).
                 """,
-        default="DISTANCE.csv"
+        default="stdout"
     )
 
     parser.add_argument(
@@ -120,20 +133,17 @@ def main():
     verbose = args['verbose']
 
     if verbose:
-        print(f"verbose: {verbose}")
-        print(f"files: {csv_input_files}")
-        print(f"csv: {csv_output_file_name}")
+        print(f"verbose: {verbose}", file=stderr)
+        print(f"files: {csv_input_files}", file=stderr)
+        print(f"csv: {csv_output_file_name}", file=stderr)
 
     header = True
 
-    with open(csv_output_file_name, "w") as csv_output_file:
-        for csv_input_file_name in csv_input_files:
-            if verbose:
-                print(f"processing input file {csv_input_file_name}")
-            with open(csv_input_file_name, "r") as csv_input:
-                process_file(csv_input, csv_output_file, header=header, verbose=verbose)
-
-            header = False
+    if csv_output_file_name != "stdout":
+        with open(csv_output_file_name, "w") as csv_output_file:
+            cycle_through_input_files(csv_input_files, csv_output_file, verbose=verbose)
+    else:
+        cycle_through_input_files(csv_input_files, stdout, verbose=verbose)
 
 if __name__ == "__main__":
     main()

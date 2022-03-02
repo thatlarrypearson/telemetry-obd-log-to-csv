@@ -2,7 +2,7 @@
 # telemetry-obd-log-to-csv/obd_log_to_csv/obd_log_evaluation.py
 import json
 import csv
-from sys import stdout
+from sys import stdout, stderr
 from argparse import ArgumentParser
 from rich.console import Console
 from rich.table import Table
@@ -23,7 +23,7 @@ def csv_print(raw_data:dict, verbose=False):
     
     for key, value in sorted(raw_data.items()):
         if verbose:
-            print(f"csv_print(): key {key}")
+            print(f"csv_print(): key {key}", file=stderr)
         value['command'] = key
         mode, pid = get_mode_pid_from_command_name(key)
         value['mode'] = f"0x{mode}"
@@ -97,12 +97,12 @@ def get_data_type(data)->str:
     return None
 
 
-def input_file(json_input_files, verbose=False)->dict:
+def input_file(json_input_files:list, verbose=False)->dict:
     raw_data = {}
 
     for json_input_file_name in json_input_files:
         if verbose:
-            print(f"processing input file {json_input_file_name}")
+            print(f"processing input file {json_input_file_name}", file=stderr)
         with open(json_input_file_name, "r") as json_input:
             for json_record in json_input:
                 try:
@@ -110,7 +110,7 @@ def input_file(json_input_files, verbose=False)->dict:
                 except json.decoder.JSONDecodeError as e:
                     # improperly closed JSON file
                     if verbose:
-                        print(f"Corrupted JSON info:\n{e}")
+                        print(f"Corrupted JSON info:\n{e}", file=stderr)
                     break
 
                 obd_response_value = input_record['obd_response_value']
@@ -153,7 +153,7 @@ def input_file(json_input_files, verbose=False)->dict:
                     value, pint_units = pint_to_value_type(obd_response_value, verbose)
                     data_type = get_data_type(value)
                     if verbose:
-                        print(f"command_name: {command_name} value: {value}, pint_units: {pint_units} data_type: {data_type}")
+                        print(f"command_name: {command_name} value: {value}, pint_units: {pint_units} data_type: {data_type}", file=stderr)
                     if data_type:
                         raw_data[command_name]['data type'] = data_type
                     if pint_units:
@@ -203,9 +203,9 @@ def main():
     csv_output = args['csv']
 
     if verbose:
-        print(f"verbose: {verbose}")
-        print(f"csv: {csv_output}")
-        print(f"files: {json_input_files}")
+        print(f"verbose: {verbose}", file=stderr)
+        print(f"csv: {csv_output}", file=stderr)
+        print(f"files: {json_input_files}", file=stderr)
 
     raw_data = input_file(json_input_files, verbose=verbose)
 
