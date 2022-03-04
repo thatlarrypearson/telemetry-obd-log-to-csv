@@ -1,7 +1,7 @@
 # distance.sh
 
 # Change following line to get the desired data directory
-export DATA_DIR=data/C4*
+export DATA_DIR=../telemetry-obd/data
 
 # Change following line to get the desired path to distance.py
 export DISTANCE_PY="../telemetry-obd-log-to-csv/examples/distance.py"

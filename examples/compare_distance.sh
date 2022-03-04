@@ -2,13 +2,13 @@
 # compares distance calcualted by rate X time = distance to DISTANCE_SINCE_DTC_CLEAR
 
 # Change following line to get the desired data directory and data files
-export DATA_DIR=../telemetry-obd/data/C4*
+export DATA_DIR="../telemetry-obd/data/C4HJWCG5DL5214"
 export DATA_FILES='C4*-2022012[34]*-utc.json'
 
 # Change following line to get the desired path to distance.py
 export DISTANCE_PY="../telemetry-obd-log-to-csv/examples/distance.py"
 
-echo input_file_name,DISTANCE_SINCE_DTC_CLEAR_difference,calculated_from_SPEED_duration_distance,delta,percent
+echo input_file_name,first_distance,last_distance,DISTANCE_SINCE_DTC_CLEAR_difference,distance_calculated_from_SPEED_X_duration,difference,difference_percent
 for fname in $(find ${DATA_DIR} -name "${DATA_FILES}" | grep -v TEST)
 do
     export base_fname=$(basename "${fname}" .json)
@@ -17,6 +17,7 @@ do
 
     if [ "${RETURN_VALUE}" -ne 0 ]
     then
+        echo ERROR IN obd_log_to_csv.obd_log_to_csv
         exit 1
     fi
 
@@ -49,5 +50,5 @@ do
 
     rm tmp.csv distance_list.txt "${base_fname}.csv"
 
-    echo "${fname}",${difference_distance},${calculated_distance},${delta},${percent}
+    echo "$(basename ${fname})",${first_distance},${last_distance},${difference_distance},${calculated_distance},${delta},${percent}'%'
 done

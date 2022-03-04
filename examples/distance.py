@@ -81,6 +81,7 @@ def process_file(csv_input:TextIOWrapper, csv_output_file:TextIOWrapper, header:
         writer.writerow(out_row)
 
 def cycle_through_input_files(csv_input_files:list, csv_output_file:TextIOWrapper, verbose=False):
+    header = True
     for csv_input_file_name in csv_input_files:
         if verbose:
             print(f"processing input file {csv_input_file_name}", file=stderr)
