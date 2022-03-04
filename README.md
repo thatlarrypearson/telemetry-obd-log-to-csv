@@ -83,7 +83,7 @@ Here are some related projects
 - [telemetry-obd](https://github.com/thatlarrypearson/telemetry-obd): Telemetry OBDII (Onboard Diagnostic Data 2) Logger
 - [telemetry-django-obd](https://github.com/thatlarrypearson/telemetry-django-obd): Django database OBD/ECU data loader
 
-## Usage/Examples
+## Usage Examples
 
 The following example assumes data was collected using ```telemetry_obd.obd_logger``` and that the collected vehicle data is in the local directory ```data/{VehicleIdentificationNumber-VIN}```.  File names in the vehicle data directory will be in the form ```{VehicleIdentificationNumber-VIN}-{YYYYMMDDhhmmss}-utc.json``` where
 
@@ -108,6 +108,16 @@ Similarly, on Windows using PowerShell, the following will also process a group 
 $VIN ="FT8W4DT5HED00000"
 python3.8 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEED,FUEL_RATE data/${VIN}/*.json
 ```
+
+## Example Programs
+
+The repository's ```examples``` directory contains example programs showing how to extend and customize capabilities for different types of analysis.  The examples break down into two families of example programs:
+
+- [Distance](docs/EXAMPLES-distance.md):
+  Two methods for calculating distance travelled when target vehicle doesn't support ```ODOMETER``` OBD command.
+
+- [Initial Data Analysis](docs/EXAMPLES-data_analysis.md):
+  Simple data analysis creating artifacts assisting data analysts in identifying important or unexpected data relationships.
 
 ## Known Problems
 
