@@ -61,7 +61,7 @@ python3.8 -m telemetry_obd.obd_command_tester --cycles 100
 - Output examples in table format
   - [Frematics OBD Emulator](OBD_LOG_EVALUATION-FrematicsEmulatorOutout.md)
   - [2013 Jeep Wrangler Rubicon](OBD_LOG_EVALUATION-2013JeepWranglerRubicon.md)
-  - [2017 Ford F-450 Dually 4 Door Long Bed](OBD_LOG_EVALUATION-2017FordF450.md)
+  - [2017 Ford F-450 Diesel Dually 4 Door Long Bed](OBD_LOG_EVALUATION-2017FordF450.md)
   - [2019 Ford EcoSport](OBD_LOG_EVALUATION-2019FordEcoSport.md)
   - [2021 Toyota Sienna LE](OBD_LOG_EVALUATION-2021ToyotaSiennaLE.md)
 

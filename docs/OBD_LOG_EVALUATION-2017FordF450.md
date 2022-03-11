@@ -1,4 +1,4 @@
-# 2017 Ford F-450 Dually 4 Door Long Bed ```obd_log_to_csv.obd_log_evaluation``` Output
+# 2017 Ford F-450 Diesel Dually 4 Door Long Bed ```obd_log_to_csv.obd_log_evaluation``` Output
 
 The following list was generated using data gathered by [telemetry_obd.obd_command_tester](https://github.com/thatlarrypearson/telemetry-obd) version ```v0.3.0-beta```.  This list has been edited so that only OBD commands supported by the vehicle are included.
 
