@@ -2,8 +2,8 @@
 # compares distance calcualted by rate X time = distance to DISTANCE_SINCE_DTC_CLEAR
 
 # Change following line to get the desired data directory and data files
-export DATA_DIR="../telemetry-obd/data/C4HJWCG5DL5214"
-export DATA_FILES='C4*-2022012[34]*-utc.json'
+export DATA_DIR="/c/Users/runar/Dropbox/src/telemetry-obd/data/MAJ6S3KL0KC284184"
+export DATA_FILES='MAJ6S3KL0KC284184-2022031[456]*-utc.json'
 
 # Change following line to get the desired path to distance.py
 export DISTANCE_PY="../telemetry-obd-log-to-csv/examples/distance.py"
