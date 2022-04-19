@@ -1,0 +1,27 @@
+# PyGPSClient Installation and Usage
+
+[PyGPSClient](https://github.com/semuconsulting/PyGPSClient), a GUI based GPS testing, diagnostic and UBX © (u-blox ™) device configuration application, is especially useful in debugging [u-blox](https://www.u-blox.com/en) GPS units.
+
+The specific *u-blox* device used in this particular application is [Waveshare](https://www.waveshare.com)'s [NEO-M8T GNSS TIMING HAT for Raspberry Pi, Single-Satellite Timing, Concurrent Reception of GPS, Beidou, Galileo, GLONASS](https://www.waveshare.com/neo-m8t-gnss-timing-hat.htm).
+
+Since installing Python 3.8 from scratch is the recommended approach, the following libraries need to be instalation steps are needed before installing *PyGPSClient* on Raspberry Pi OS (version 11.3 Bullseye):
+
+```bash
+sudo apt-get install -y tk-dev
+sudo apt-get install -y libjpeg-dev
+sudo apt-get install -y zlib1g-dev zlibc
+sudo apt-get install -y libtiff-dev
+sudo apt-get install -y libfreetype6-dev
+sudo apt-get install -y liblcms-2-dev
+sudo apt-get install -y libwebp-dev
+sudo apt-get install -y libtk-img-dev
+sudo apt-get install -y libopenjpeg-dev
+sudo apt-get install -y libimagequant-dev
+sudo apt-get install -y libraqm-dev
+sudo apt-get install -y libxcb1-dev
+python3.8 -m pip install --user --upgrade pyubx2 pynmeagps
+python3.8 -m pip install --user --upgrade Pillow
+python3.8 -m pip install --user --upgrade pygpsclient
+
+
+```
