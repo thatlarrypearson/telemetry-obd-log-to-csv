@@ -4,7 +4,7 @@
 
 The specific *u-blox* device used in this particular application is [Waveshare](https://www.waveshare.com)'s [NEO-M8T GNSS TIMING HAT for Raspberry Pi, Single-Satellite Timing, Concurrent Reception of GPS, Beidou, Galileo, GLONASS](https://www.waveshare.com/neo-m8t-gnss-timing-hat.htm).
 
-Since installing Python 3.8 from scratch is the recommended approach, the following libraries need to be instalation steps are needed before installing *PyGPSClient* on Raspberry Pi OS (version 11.3 Bullseye):
+Since installing Python 3.10 from scratch is the recommended approach, the following additional Linux libraries are needed before installing *PyGPSClient* on Raspberry Pi OS (version 11.3 Bullseye):
 
 ```bash
 sudo apt-get install -y tk-dev
@@ -19,9 +19,15 @@ sudo apt-get install -y libopenjpeg-dev
 sudo apt-get install -y libimagequant-dev
 sudo apt-get install -y libraqm-dev
 sudo apt-get install -y libxcb1-dev
-python3.8 -m pip install --user --upgrade pyubx2 pynmeagps
-python3.8 -m pip install --user --upgrade Pillow
-python3.8 -m pip install --user --upgrade pygpsclient
+```
 
+The following Python Libraries are needed to finish off the installation:
 
+```bash
+python3.10 -m pip install --user --upgrade pyubx2 pynmeagps
+python3.10 -m pip install --user --upgrade Pillow
+python3.10 -m pip install --user --upgrade pygpsclient
+
+# Test using this command
+python3.10 -m pygpsclient
 ```

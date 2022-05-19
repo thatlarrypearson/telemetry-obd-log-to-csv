@@ -1,0 +1,36 @@
+    # ***************************************************************
+    # NMEA Standard message types (used by CFG-MSG)
+    # ***************************************************************
+    b"\xf0\x0a": "DTM",  # Datum Reference
+    b"\xf0\x45": "GAQ",  # Poll Standard Message - Talker ID GA (Galileo)
+    b"\xf0\x44": "GBQ",  # Poll Standard Message - Talker ID GB (BeiDou)
+    b"\xf0\x09": "GBS",  # GNSS Satellite Fault Detection
+    b"\xf0\x00": "GGA",  # Global positioning system fix data
+    b"\xf0\x01": "GLL",  # Latitude and longitude, with time of position fix and status
+    b"\xf0\x43": "GLQ",  # Poll Standard Message - Talker ID GL (GLONASS)
+    b"\xf0\x42": "GNQ",  # Poll Standard Message - Talker ID GN (Any GNSS)
+    b"\xf0\x0d": "GNS",  # GNSS Fix Data
+    b"\xf0\x40": "GPQ",  # Poll Standard Message - Talker ID GP (GPS, SBAS)
+    b"\xf0\x47": "GQQ",  # Poll Standard Message - Talker ID GQ (QZSS)
+    b"\xf0\x06": "GRS",  # GNSS Range Residuals
+    b"\xf0\x02": "GSA",  # GNSS DOP and Active Satellites
+    b"\xf0\x07": "GST",  # GNSS Pseudo Range Error Statistics
+    b"\xf0\x03": "GSV",  # GNSS Satellites in View
+    b"\xf0\x0b": "RLM",  # Return Link Message
+    b"\xf0\x04": "RMC",  # Recommended Minimum data
+    b"\xf0\x0e": "THS",  # TRUE Heading and Status
+    b"\xf0\x41": "TXT",  # Text Transmission
+    b"\xf0\x0f": "VLW",  # Dual Ground Water Distance
+    b"\xf0\x05": "VTG",  # Course over ground and Groundspeed
+    b"\xf0\x08": "ZDA",  # Time and Date
+    # ***************************************************************
+    # NMEA Proprietary message types (used by CFG-MSG)
+    # ***************************************************************
+    b"\xf1\x00": "UBX-00",  # aka PUBX-POSITION Lat/Long Position Data
+    b"\xf1\x03": "UBX-03",  # aka PUBX-SVSTATUS Satellite Status
+    b"\xf1\x04": "UBX-04",  # aka PUBX-TIME Time of Day and Clock Information
+    b"\xf1\x05": "UBX-05",  # Lat/Long Position Data
+    b"\xf1\x06": "UBX-06",  # Lat/Long Position Data
+    b"\xf1\x40": "UBX-40",  # Set NMEA message output rate
+    b"\xf1\x41": "UBX-41",  # aka PUBX-CONFIG Set Protocols and Baudrate
+    # ***************************************************************
