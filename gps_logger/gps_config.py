@@ -47,17 +47,6 @@ def parsed_data_to_dict(parsed_data) -> dict:
     """
     convert parsed_data (NMEAMessage and UBXMessage) to dictionary
     """
-    # 290         stg = f"<NMEA({self._talker}{self._msgID}"
-    # 291         stg += ", "
-    # 292         for i, att in enumerate(self.__dict__):
-    # 293             if att[0] != "_":  # only show public attributes
-    # 294                 val = self.__dict__[att]
-    # 295                 stg += att + "=" + str(val)
-    # 296                 if i < len(self.__dict__) - 1:
-    # 297                     stg += ", "
-    # 298         stg += ")>"
-    # 299
-    # 300         return stg
     if 'NMEAMessage' in str(type(parsed_data)):
         return_value = {
             "Message_Type": "NMEA",
@@ -65,7 +54,6 @@ def parsed_data_to_dict(parsed_data) -> dict:
             "sentence_formatter": parsed_data._msgID,
         }
     elif 'UBXMessage' in str(type(parsed_data)):
-        # logging.info(f"{parsed_data}")
         return_value = {
             "Message_Type": "UBX",
             "umsg_name": parsed_data.identity,
@@ -102,10 +90,6 @@ def turn_off_message_on_all_interfaces(io_handle:Serial, message_type:str, messa
     """
     Give messaging configuration commands to turn off all messages on all interfaces
     """
-    logging.debug(f"message_type: {message_type}: turn_off_message_on_all_interfaces")
-
-    # gps_reader = NMEAReader(io_handle, nmeaonly=False)
-
     message_class = int.from_bytes(message_type[:1], "little", signed=False)
     message_id = int.from_bytes(message_type[1:2], "little", signed=False)
 
@@ -115,19 +99,10 @@ def turn_off_message_on_all_interfaces(io_handle:Serial, message_type:str, messa
 
     io_handle.write(msg.serialize())
 
-    # (raw_data, parsed_data) = gps_reader.read()
-
-    # logging.debug(f"{message_type}: raw_data: {raw_data}")
-    # logging.debug(f"{message_type}: parsed_data: {parsed_data}")
-
 def turn_off_inf_messages(io_handle:Serial):
     """
     Using UBX, disable all informational (INF) messages
     """
-    logging.debug("turn_off_inf_messages")
-
-    # gps_reader = NMEAReader(io_handle, nmeaonly=False)
-
     for protocolID in (b"\x00", b"\x01"):   # UBX and NMEA protocols
         payload = protocolID + (3 * b"\x00") + (5 * b"\x01") + b"\x00"
 
@@ -135,49 +110,32 @@ def turn_off_inf_messages(io_handle:Serial):
 
         io_handle.write(msg.serialize())
 
-        # (raw_data, parsed_data) = gps_reader.read()
-
-        # logging.debug(f"{protocolID}: raw_data: {raw_data}")
-        # logging.debug(f"{protocolID}: parsed_data: {parsed_data}")
-
 def turn_off_all_messages_on_all_interfaces(io_handle:Serial):
     """
     Using UBX, disable all messaging for all interfaces
     """
-    logging.debug("turn_off_all_messages_on_all_interfaces")
     for message_type in UBX_MSGIDS:
         if message_type[:1] in MESSAGE_OFF_LIST:
                 turn_off_message_on_all_interfaces(io_handle, message_type, 0)
 
     turn_off_inf_messages(io_handle)
 
-def set_base_message_rate(io_handle:Serial, measRate=1000, navRate=5, timeRef=1):
+def set_base_message_rate(io_handle:Serial, measRate=1000, navRate=1, timeRef=1):
     """
     Sets the amount of time that a message_rate of 1 takes and the number of navigation
     solutions that go into each message.
     """
-    logging.debug("set_base_message_rate")
-
-    # gps_reader = NMEAReader(io_handle, nmeaonly=False)
-
     payload = measRate.to_bytes(2, "little") + navRate.to_bytes(2, "little") + timeRef.to_bytes(2, "little")
 
     msg = UBXMessage("CFG", "CFG-RATE", SET, payload=payload)
 
     io_handle.write(msg.serialize())
 
-    # (raw_data, parsed_data) = gps_reader.read()
-
-    # logging.debug(f"raw_data: {raw_data}")
-    # logging.debug(f"parsed_data: {parsed_data}")
-
 def set_port_configuration(io_handle, portID=INTERFACES['USB']):
     """
     Sets serial (UART) and USB ports.  Defaults to USB port configuration.
     """
     logging.debug("set_port_configuration")
-
-    # gps_reader = NMEAReader(io_handle, nmeaonly=False)
 
     if portID in (INTERFACES['SERIAL_1'], INTERFACES['SERIAL_2']):
         msg = UBXMessage("CFG", "CFG-PRT", SET,
@@ -189,11 +147,6 @@ def set_port_configuration(io_handle, portID=INTERFACES['USB']):
         )
 
         io_handle.write(msg.serialize())
-
-        # (raw_data, parsed_data) = gps_reader.read()
-
-        # logging.debug(f"raw_data: {raw_data}")
-        # logging.debug(f"parsed_data: {parsed_data}")
 
     elif portID == INTERFACES['USB']:
         return
@@ -211,10 +164,6 @@ def turn_on_nmea_message(io_handle:Serial, message_type:bytes, message_rate:int)
 
     message_rate must be less than 256 and greater than or equal to 0
     """
-    logging.debug(f"message_type: {message_type}: message_rate: {message_rate}: turn_on_nmea_message")
-
-    # gps_reader = NMEAReader(io_handle, nmeaonly=False)
-
     payload = message_type + message_rate.to_bytes(1, "little")
 
     msg = UBXMessage("CFG", "CFG-MSG", SET, payload=payload)
@@ -222,11 +171,6 @@ def turn_on_nmea_message(io_handle:Serial, message_type:bytes, message_rate:int)
     logging.debug(f"turn_on_nmea_message: {msg.serialize()}")
 
     io_handle.write(msg.serialize())
-
-    # (raw_data, parsed_data) = gps_reader.read()
-
-    # logging.debug(f"raw_data: {raw_data}")
-    # logging.debug(f"parsed_data: {parsed_data}")
 
 def turn_on_nmea_messages(io_handle:Serial, message_rate:int):
     """
@@ -238,16 +182,13 @@ def turn_on_nmea_messages(io_handle:Serial, message_rate:int):
 
     message_rate must be less than 256 and greater than or equal to 0
     """
-    logging.debug("turn_on_nmea_messages")
     for message_type in MESSAGE_ON_LIST:
         turn_on_nmea_message(io_handle, message_type, message_rate)
 
 def gps_software_version(io_handle:Serial):
     """
-    return the GPS's software version information (MON-VER)
+    get GPS's software version information (MON-VER)
     """
-    logging.debug("gps_software_version")
-
     msg = UBXMessage("MON", "MON-VER", POLL, payload=b"")
 
     io_handle.write(msg.serialize())
@@ -255,10 +196,8 @@ def gps_software_version(io_handle:Serial):
 
 def gps_hardware_version(io_handle:Serial):
     """
-    return the GPS's hardware version information (MON-HW)
+    get GPS's hardware version information (MON-HW)
     """
-    logging.debug("gps_hardware_version")
-
     msg = UBXMessage("MON", "MON-HW", POLL, payload=b"")
 
     io_handle.write(msg.serialize())

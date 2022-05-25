@@ -12,6 +12,13 @@ from .gps_config import (
     logger, INTERFACES
 )
 
+SHARED_DICTIONARY_COMMAND_LIST = [
+    "NMEA_GNGNS",       # Fix data
+    "NMEA_GNGST",       # Pseudorange error statistics
+    "NMEA_GNVTG",       # Course over ground and ground speed
+    "NMEA_GNZDA",       # Time and data
+]
+
 def connect_to_gps(device_path:str, **kwargs)->Serial:
     """
     Open USB/UART/Serial GPS and return serial IO handle
@@ -93,5 +100,5 @@ class SharedDictionaryManager(UltraDict):
             shared_lock=False,      # assume only one writer to shared memory/dictionary
             full_dump_size=None,    # change this value for Windows machines
             auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
-            recurse=True            # dictionaries can contain dictionaries
+            recurse=False           # dictionary can contain dictionaries but updates not nested
         )

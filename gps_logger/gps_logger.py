@@ -14,7 +14,7 @@ import json
 from .__init__ import __version__
 from .gps_config import logger, get_log_file_handle
 from .connection import (
-    initialize_gps, parsed_data_to_dict, dict_to_log_format,
+    SHARED_DICTIONARY_COMMAND_LIST, initialize_gps, parsed_data_to_dict, dict_to_log_format,
     SharedDictionaryManager
 )
 
@@ -87,13 +87,18 @@ def main():
     else:
         log_file_handle = None
 
-    if shared_dictionary_name:
-        shared_dictionary = SharedDictionaryManager(shared_dictionary_name)
-    else:
-        shared_dictionary = None
-    
     if shared_dictionary_command_list:
         shared_dictionary_command_list = shared_dictionary_command_list.split(sep=',')
+    else:
+        shared_dictionary_command_list = SHARED_DICTIONARY_COMMAND_LIST
+
+    if shared_dictionary_name:
+        shared_dictionary = SharedDictionaryManager(shared_dictionary_name)
+        logging.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
+    else:
+        shared_dictionary = None
+
+    logging.info(f"shared_dictionary_name {shared_dictionary_name})")
 
     io_handle = initialize_gps(serial_device, 4)
 
@@ -119,6 +124,7 @@ def main():
 
         if data_dict['Message_Type'] != "NMEA":
             "Skipping UBX and RTM messages"
+            logging.debug(f"skipping Message_Type {data_dict['Message_Type']}")
             iso_format_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
             continue
 
@@ -134,12 +140,9 @@ def main():
             log_file_handle.flush()
             fsync(log_file_handle.fileno())
 
-        if shared_dictionary:
-            if (
-                not shared_dictionary_command_list or (
-                shared_dictionary_command_list and log_value["command_name"] in shared_dictionary_command_list)
-            ):
-                shared_dictionary[log_value["command_name"]] = log_value
+        if shared_dictionary is not None and log_value["command_name"] in shared_dictionary_command_list:
+                logging.debug( f"writing to shared dictionary {log_value['command_name']}")
+                shared_dictionary[log_value['command_name']] = log_value
 
         iso_format_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
