@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [metadata]
 name = "telemetry-gps"
 url = "https://github.com/thatlarrypearson/telemetry-gps"
-version = "0.4.0"
+version = "0.1.0"
 description = "Telemetry GPS Data Logger"
 long_description = "file:README.md"
 authors = [

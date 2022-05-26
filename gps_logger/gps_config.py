@@ -191,6 +191,8 @@ def gps_software_version(io_handle:Serial):
     """
     msg = UBXMessage("MON", "MON-VER", POLL, payload=b"")
 
+    logging.debug(f"get GPS software version: {msg.serialize()}")
+
     io_handle.write(msg.serialize())
 
 
@@ -199,6 +201,8 @@ def gps_hardware_version(io_handle:Serial):
     get GPS's hardware version information (MON-HW)
     """
     msg = UBXMessage("MON", "MON-HW", POLL, payload=b"")
+
+    logging.debug(f"get GPS hardware version: {msg.serialize()}")
 
     io_handle.write(msg.serialize())
 

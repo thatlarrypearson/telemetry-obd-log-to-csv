@@ -2,7 +2,7 @@
 
 ## **STILL UNDER CONSTRUCTION** but it is getting closer
 
-The Telemetry GPS Logger captures location and time data using a GPS receiver. While the logger is running, lcationa dn time output is written files and/or shared memory.
+The Telemetry GPS Logger captures location and time data using a GPS receiver. While the logger is running, location and time output is written to files and/or shared memory.
 
 ## Motivation
 
@@ -11,11 +11,11 @@ Integrate GPS location and time data collection with vehicle engine data for bet
 ## Features
 
 - Logs location data to file and/or to shared memory
-- Works with a chip set family ([u-blox]((https://www.u-blox.com)) supporting GPS, GLONASS, Galileo and BeiDou Global Navigation Satellite System (GNSS)
+- Works with a chip set family ([u-blox]((https://www.u-blox.com)) supporting GPS, GLONASS, Galileo and BeiDou Global Navigation Satellite Systems (GNSS)
 - Works with large family of GNSS enabling multiple constellations of satellites transmitting positioning and timing data
 - Works with Python 3.10 and newer
-- Raspberry Pi 4 and Raspberry Pi OS target environments
-- When using the shared memory feature, it doesn't matter which program is started first - this program ```gps_logger.gps_logger```, the location data generator, can start first or consuming programs like ```obd_logger.obd_logger``` can start first
+- Raspberry Pi 4 hardware and Raspberry Pi OS target environment
+- When using the shared memory feature, it doesn't matter which program is started first - this program ```gps_logger.gps_logger```, the location data generator, can start first or consuming programs like ```telemetry_obd.obd_logger``` can start first
 
 ## Target System
 
@@ -93,7 +93,7 @@ Reflects the key/value pairs returned by the GPS.  The actual parsed NMEA output
 
 ### NMEA Sample Log Output
 
-In the sample output below, the format has been modified for readability.
+In the sample output below, the format has been modified for readability.  Below, the ```<LF>``` refers to Linux line feed and is used as a record terminator.
 
 ```bash
 $ cd teleletry-gps/data
@@ -114,7 +114,7 @@ $ cat NMEA-20220525142137-utc.json
     },
     "iso_format_pre": "2022-05-25T14:45:18.162234+00:00",
     "iso_format_post": "2022-05-25T14:45:22.121613+00:00"
-}
+}<LF>
 {
     "command_name": "NMEA_GNGNS",
     "obd_response_value":
@@ -134,7 +134,7 @@ $ cat NMEA-20220525142137-utc.json
     },
     "iso_format_pre": "2022-05-25T14:45:22.125739+00:00",
     "iso_format_post": "2022-05-25T14:45:22.128793+00:00"
-}
+}<LF>
 {
     "command_name": "NMEA_GNGST",
     "obd_response_value":
@@ -150,7 +150,7 @@ $ cat NMEA-20220525142137-utc.json
     },
     "iso_format_pre": "2022-05-25T14:45:22.133219+00:00",
     "iso_format_post": "2022-05-25T14:45:22.135003+00:00"
-}
+}<LF>
 {
     "command_name": "NMEA_GNZDA",
     "obd_response_value":
@@ -164,7 +164,7 @@ $ cat NMEA-20220525142137-utc.json
     },
     "iso_format_pre": "2022-05-25T14:45:22.141224+00:00",
     "iso_format_post": "2022-05-25T14:45:22.142981+00:00"
-}
+}<LF>
 $
 ```
 
@@ -213,9 +213,16 @@ Once the dependencies are installed and working, the shared memory features can 
 
 ### Building and Installing ```gps_logger``` Python Package
 
-
+```bash
+git clone https://github.com/thatlarrypearson/telemetry-gps.git
+cd telemetry-gps
+python3.10 -m build .
+python3.10 -m pip install dist/ telemetry_gps-0.1.0-py3-none-any.whl
+```
 
 ## Examples
+
+See the ```bin/gps_logger.sh``` ```bash``` shell program for an example.
 
 ## Known Problems
 
@@ -261,6 +268,14 @@ $
 
 ## Related
 
+- [Telemetry OBD Data To CSV File](https://github.com/thatlarrypearson/telemetry-obd-log-to-csv)
+  - Convert [Telemetry OBD Logger] and [Telemetry GPS Logger]() output to CSV format files suitable for importation into Python Pandas dataframes using the from_csv() method
+  - Provides initial data analysis programs for ```telemetry_obd.obd_command_tester```, ```telemetry_obd.obd_logger``` and ```gps_logger.gps_logger``` output
+
+- [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd)
+  - Logs vehicle engine data gathered using OBD interface
+  - Accepts shared dictionary/memory information from this library for integration into its own log files
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.md)

@@ -110,9 +110,7 @@ def main():
     for (raw_data, parsed_data) in gps_reader:
         data_dict = parsed_data_to_dict(parsed_data)
 
-        # logging.debug(f"raw_data type {type(raw_data)}")
-        logging.debug(f"parsed_data type {type(parsed_data)}")
-        logging.debug(f"{data_dict}\n")
+        logging.debug(f"GPS data {data_dict}\n")
 
         if 'umsg_name' in data_dict and data_dict['umsg_name'] == 'MON-VER':
             gps_software = data_dict
@@ -133,7 +131,7 @@ def main():
         log_value['iso_format_pre'] = iso_format_pre
         log_value['iso_format_post'] = datetime.isoformat(datetime.now(tz=timezone.utc))
 
-        logging.debug(f"log_value: {log_value}")
+        logging.debug(f"logging: {log_value}")
 
         if log_file_handle:
             log_file_handle.write(json.dumps(log_value) + "\n")

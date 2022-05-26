@@ -31,4 +31,4 @@ $ python3.10 -m pip install dist/UltraDict-0.0.4-cp310-cp310-linux_aarch64.whl
 $
 ```
 
-This build was done on a Raspberry Pi.  To build on a different architecture (like Intel X86), the ```pip install``` wheel (```dist/*.whl```) file name will need to be modified.
+This build was done on a Raspberry Pi.  To build on a different architecture (like Intel X86), the ```pip install``` command's wheel (```dist/*.whl```) file name will need to be modified.

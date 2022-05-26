@@ -23,14 +23,14 @@ def connect_to_gps(device_path:str, **kwargs)->Serial:
     """
     Open USB/UART/Serial GPS and return serial IO handle
     """
-    logging.debug("connect_to_gps")
+    logging.debug("open GPS serial port {device_path}")
     return Serial(port=device_path, **kwargs)
 
 def initialize_gps(device_path:str, message_rate:int, **kwargs)->Serial:
     """
     Initializes GPS for delivering stream of NMEA messages over interface
     """
-    logging.debug("initialize_gps")
+    logging.debug("initializing GPS at {device_path}")
     io_handle = connect_to_gps(device_path, **kwargs)
 
     set_port_configuration(io_handle, INTERFACES["USB"])
