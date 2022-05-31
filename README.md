@@ -54,7 +54,7 @@ options:
 $
 ```
 
-List of NMEA commands/sentences that are know to this application:
+List of NMEA commands/sentences that are known to this application:
 
 - ```NMEA_GNGNS```: Fix data
 - ```NMEA_GNGST```: Pseudorange error statistics
@@ -71,21 +71,26 @@ Records in the log files are separated by line feeds ```<LF>```.  Each record is
 
 #### ```command_name```
 
-Provides ```NMEA_<talker identifier><sentence formatter>``` identifying the GPS data source.  See **Section 31 NMEA Protocol** in the [u-blox 8 / u-blox M8 Receiver description Manual](https://content.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_UBX-13003221.pdf).  The current GPS data sources have a talker identifier of ```GN``` indicating any combination of GNSS (GPS, SBAS, QZSS, GLONASS, Galileo and/or BeiDou) as supported by the GPS unit will be used for positioning output data.  The supported sentence formatters are ```GNS```, ```GST```, ```THS``` and ```VTD```.
+The ```command_name``` identifies (```NMEA_<talker identifier><sentence formatter>```) the GPS data source.  See **Section 31 NMEA Protocol** in the [u-blox 8 / u-blox M8 Receiver description Manual](https://content.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_UBX-13003221.pdf).  The current GPS data sources have a talker identifier of ```GN``` indicating any combination of GNSS (GPS, SBAS, QZSS, GLONASS, Galileo and/or BeiDou) as supported by the GPS unit will be used for positioning output data.  The supported sentence formatters are ```GNS```, ```GST```, ```THS``` and ```VTD```.
 
-- ```NMEA_GNGNS```: Fix data
-- ```NMEA_GNGST```: Pseudorange error statistics
-- ```NMEA_GNTHS```: True heading and status
-- ```NMEA_GNZDA```: Time and date
+- ```NMEA_<talker identifier><sentence formatter>```
+  - ```NMEA_<GN><GNS>```: Fix data
+  - ```NMEA_<GN><GST>```: Pseudorange error statistics
+  - ```NMEA_<GN><THS>```: True heading and status
+  - ```NMEA_<GN><ZDA>```: Time and date
 
 #### ```obd_response_value```
 
-Reflects the key/value pairs returned by the GPS.  The actual parsed NMEA output is contained in the ```obd_response_value``` field as a dictionary (key/value pairs).  That is, ```obd_response_value``` is a field that contains an NMEA record which also contains fields.
+Reflects the key/value pairs returned by the GPS.  The actual parsed NMEA output is contained in the ```obd_response_value``` field as a dictionary (key/value pairs).  That is, ```obd_response_value``` is a field that contains an NMEA record which also contains fields.  The field name is the key portion of the field.  The field value is the value part of the field.  Each NMEA sentence has its own unique set of field names.
 
 - ```NMEA_GNGNS```: ```GNS``` Fix data
+  - ```field_name_0```: ```field_value_type_0```
 - ```NMEA_GNGST```: ```GST``` Pseudorange error statistics
+  - ```field_name_0```: ```field_value_type_0```
 - ```NMEA_GNTHS```: ```THS``` True heading and status
+  - ```field_name_0```: ```field_value_type_0```
 - ```NMEA_GNVTD```: ```VTD``` Time and data
+  - ```field_name_0```: ```field_value_type_0```
 
 ```iso_ts_pre``` ISO formatted timestamp taken before the GPS command was processed (```datetime.isoformat(datetime.now(tz=timezone.utc))```).
 
@@ -218,6 +223,119 @@ git clone https://github.com/thatlarrypearson/telemetry-gps.git
 cd telemetry-gps
 python3.10 -m build .
 python3.10 -m pip install dist/ telemetry_gps-0.1.0-py3-none-any.whl
+```
+
+### Raspberry Pi Headless Operation
+
+To access the GPS, the username running ```gps_logger``` will need to be a member of the ```dialout``` group.
+
+```bash
+# add dialout group to the current user's capabilities
+sudo adduser $(whoami) dialout
+```
+
+To start ```gps_logger.gps_logger``` at boot on a Raspberry Pi, add the section of code starting with ```# BEGIN TELEMETRY-GPS SUPPORT``` and ending with ```# END TELEMETRY-GPS SUPPORT``` to ```/etc/rc.local```.
+
+```bash
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+# BEGIN TELEMETRY-GPS SUPPORT
+# This section goes before the TELEMETRY_OBD section
+
+/bin/nohup "/root/bin/telemetry.rc.local.gps" &
+
+# END TELEMETRY-GPS SUPPORT
+
+# BEGIN TELEMETRY-OBD SUPPORT
+
+/bin/nohup "/root/bin/telemetry.rc.local" &
+
+# END TELEMETRY-OBD SUPPORT
+
+exit 0
+```
+
+```/etc/rc.local``` executes ```/root/bin/telemetry.rc.local```.  In this file, the value for ```GPS_USER``` will need to be changed to match the username responsible for running this application.
+
+```bash
+#!/usr/bin/bash
+#
+# telemetry.rc.local.gps - This script is executed by the system /etc/rc.local script on system boot
+
+export GPS_USER="human"
+export GPS_GROUP="dialout"
+export GPS_HOME="/home/${GPS_USER}"
+export DEBUG="True"
+export LOG_FILE="/tmp/telemetry-gps_$(date '+%Y-%m-%d_%H:%M:%S').log"
+
+# Debugging support
+if [ "${DEBUG}" == "True" ]
+then
+	# enable shell debug mode
+	set -x
+fi
+
+# turn off stdin
+0<&-
+
+# redirect all stdout and stderr to file
+exec &> "${LOG_FILE}"
+
+## Run the script gps_logger.sh as user "${GPS_USER}" and group "${GPS_GROUP}"
+runuser -u "${GPS_USER}" -g dialout "${GPS_HOME}/telemetry-gps/bin/gps_logger.sh" &
+
+exit 0
+```
+
+To ready the system to autostart GPS logging, copy ```telemetry.rc.local``` to ```/root/bin``` and set its file system permissions as shown below.
+
+```bash
+$ cd
+$ cd telemetry-gps/root/bin
+$ sudo mkdir /root/bin
+$ sudo cp telemetry.rc.local.gps /root/bin/
+$ sudo chmod 0755 /root/bin/telemetry0rc.local.gps
+$ sudo chmod 0755 /root/bin/telemetry.rc.local.gps
+$ cd
+```
+
+```/root/bin/telemetry.rc.local``` executes ```telemetry-gps/bin/gps_logger.sh```  Lines 47 and 48 of ```gps_logger.sh``` have ```--shared_dictionary_name``` and ```--log_file_directory``` arguments.
+
+If the shared dictionary/memory feature is going to be used, leave that line in place.  If logging to a file is needed, leave that line in place.  Otherwise, remove the unwanted argument lines.  One final note.  Lines ending in ```\``` indicate a line continuation in the shell environment.  The last line shouldn't have a ```\``` at the end as there wouldn't be any lines to continue to.
+
+If the GPS serial device isn't ```/dev/ttyACM0```, the serial device command line option will need to be added after lines 47 and 48.  If adding the default device, the added line might look like:
+
+```bash
+    --serial /dev/ttyACM0
+```
+
+Don't forget.  Lines ending in ```\``` indicate a line continuation.  A line continuation may be needed for the line above ```--serial```.
+
+Finally, set ```gps_logger.sh``` file permissions to executable.
+
+```bash
+$ cd telemetry-gps
+$ cd bin
+$ chmod 0755 gps_logger.sh
+$ cd
+$
 ```
 
 ## Examples
