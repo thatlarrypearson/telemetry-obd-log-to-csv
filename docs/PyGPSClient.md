@@ -9,13 +9,18 @@ Since installing Python 3.10 from scratch is the recommended approach, the follo
 ```bash
 sudo apt-get install -y tk-dev
 sudo apt-get install -y libjpeg-dev
-sudo apt-get install -y zlib1g-dev zlibc
+
+# Raspberry Pi
+sudo apt-get install -y zlib1g-dev
+# Ubuntu
+# sudo apt-get install -y zlibc
+
 sudo apt-get install -y libtiff-dev
 sudo apt-get install -y libfreetype6-dev
-sudo apt-get install -y liblcms-2-dev
+sudo apt-get install -y liblcms2-2 liblcms2-dev
 sudo apt-get install -y libwebp-dev
 sudo apt-get install -y libtk-img-dev
-sudo apt-get install -y libopenjpeg-dev
+sudo apt-get install -y libopenjp2-7-dev
 sudo apt-get install -y libimagequant-dev
 sudo apt-get install -y libraqm-dev
 sudo apt-get install -y libxcb1-dev
