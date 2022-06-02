@@ -105,7 +105,7 @@ def main():
     # reads NMEA, UBX and RTM input
     gps_reader = UBXReader(io_handle)
 
-    iso_format_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
+    iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
     for (raw_data, parsed_data) in gps_reader:
         data_dict = parsed_data_to_dict(parsed_data)
@@ -123,13 +123,13 @@ def main():
         if data_dict['Message_Type'] != "NMEA":
             "Skipping UBX and RTM messages"
             logging.debug(f"skipping Message_Type {data_dict['Message_Type']}")
-            iso_format_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
+            iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
             continue
 
         log_value = dict_to_log_format(data_dict)
 
-        log_value['iso_format_pre'] = iso_format_pre
-        log_value['iso_format_post'] = datetime.isoformat(datetime.now(tz=timezone.utc))
+        log_value['iso_ts_pre'] = iso_ts_pre
+        log_value['iso_ts_post'] = datetime.isoformat(datetime.now(tz=timezone.utc))
 
         logging.debug(f"logging: {log_value}")
 
@@ -142,7 +142,7 @@ def main():
                 logging.debug( f"writing to shared dictionary {log_value['command_name']}")
                 shared_dictionary[log_value['command_name']] = log_value
 
-        iso_format_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
+        iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
 if __name__ == "__main__":
     main()
