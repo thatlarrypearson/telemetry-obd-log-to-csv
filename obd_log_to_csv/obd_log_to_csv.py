@@ -7,7 +7,10 @@ from argparse import ArgumentParser
 from io import TextIOWrapper
 from pint import UnitRegistry, UndefinedUnitError, OffsetUnitCalculusError
 from dateutil import parser
-from .obd_log_common import get_command_name, pint_to_value_type, get_field_names, date_time_fields
+from .obd_log_common import (
+    get_list_command_name, base_command_name_filter, pint_to_value_type, get_field_names,
+    date_time_fields
+)
 
 def null_out_output_record(output_record:dict, commands:list) -> None:
     """Nulls out the values within the output record dictionary.
@@ -29,8 +32,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
     null_out_output_record(output_record, commands)
     output_record_is_nulled_out = True
 
-    writer = csv.DictWriter(csv_output,
-                    fieldnames=csv_header(commands))
+    writer = csv.DictWriter(csv_output, fieldnames=csv_header(commands), escapechar="\\")
 
     if verbose:
         print(f"CSV field names: {csv_header(commands)}", file=stderr)
@@ -38,7 +40,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
     if header:
         writer.writeheader()
 
-    for json_record in json_input:
+    for line_number, json_record in enumerate(json_input, start=1):
         try:
             input_record = json.loads(json_record)
         except json.decoder.JSONDecodeError as e:
@@ -47,19 +49,38 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
                 print(f"Corrupted JSON info:\n{e}", file=stderr)
             return
 
-        if input_record['command_name'] not in commands:
+        if not base_command_name_filter(input_record['command_name'], commands):
+            if verbose:
+                print(f"base_command_name_filter({input_record['command_name']}) returned False")
             continue
 
         if verbose:
             print(f"input_record: {input_record['command_name']} value: {input_record['obd_response_value']}", file=stderr)
 
         write_row = False
-        if isinstance(input_record['obd_response_value'], list):
+        if isinstance(input_record['obd_response_value'], dict):
+            for field_name, obd_response_value in input_record['obd_response_value'].items():
+                command_name = f"{input_record['command_name']}-{field_name}"
+                if command_name not in commands:
+                    if verbose:
+                        print(f"dict command_name {command_name} not in commands")
+                    continue
+                if verbose:
+                    print(f"dict: {input_record['command_name']} to {command_name}: value: {obd_response_value}", file=stderr)
+                if command_name in output_record and output_record[command_name]:
+                    output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
+                    write_row = True
+                    break
+        elif isinstance(input_record['obd_response_value'], list):
             for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
-                command_name = get_command_name(input_record['command_name'], obd_response_index)
+                command_name = get_list_command_name(input_record['command_name'], obd_response_index)
+                if command_name not in commands:
+                    if verbose:
+                        print(f"list command_name {command_name} not in commands")
+                    continue
                 if verbose:
                     print(f"list: {input_record['command_name']} to {command_name}: value: {obd_response_value}", file=stderr)
-                if output_record[command_name]:
+                if command_name in output_record and output_record[command_name]:
                     output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
                     write_row = True
                     break
@@ -81,22 +102,28 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
             null_out_output_record(output_record, commands)
             output_record_is_nulled_out = True
 
-        if isinstance(input_record['obd_response_value'], list):
+        if output_record_is_nulled_out:
+            try:
+                output_record['iso_ts_pre'] = parser.isoparse(input_record['iso_ts_pre'])
+            except KeyError:
+                print(f"KeyError: 'iso_ts_pre' {line_number}: {input_record}")
+                exit(1)
+            output_record_is_nulled_out = False
+
+        if isinstance(input_record['obd_response_value'], dict):
+            for field_name, obd_response_value in input_record['obd_response_value'].items():
+                command_name = f"{input_record['command_name']}-{field_name}"
+                if command_name not in commands:
+                    continue
+                output_record[command_name], pint_value = pint_to_value_type(obd_response_value, verbose)
+        elif isinstance(input_record['obd_response_value'], list):
             for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
-                command_name = get_command_name(input_record['command_name'], obd_response_index)
-
-                if output_record_is_nulled_out:
-                    output_record['iso_ts_pre'] = parser.isoparse(input_record['iso_ts_pre'])
-                    output_record_is_nulled_out = False
-
+                command_name = get_list_command_name(input_record['command_name'], obd_response_index)
+                if command_name not in commands:
+                    continue
                 output_record[command_name], pint_value = pint_to_value_type(obd_response_value, verbose)
         else:
             command_name = input_record['command_name']
-
-            if output_record_is_nulled_out:
-                output_record['iso_ts_pre'] = parser.isoparse(input_record['iso_ts_pre'])
-                output_record_is_nulled_out = False
-
             output_record[command_name], pint_value = pint_to_value_type(input_record['obd_response_value'], verbose)
 
     if not output_record_is_nulled_out: 

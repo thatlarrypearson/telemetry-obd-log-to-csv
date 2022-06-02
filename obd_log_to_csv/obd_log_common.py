@@ -1,10 +1,12 @@
 # OBD Log Common
 # telemetry-obd-log-to-csv/obd_log_to_csv/obd_log_common.py
-# sourcery skip: remove-duplicate-key
+# sourcery skip: remove-duplicate-dict-key, remove-duplicate-key
 """
 Data and Functions shared between different programs in the
 obd_log_to_csv package.
 """
+
+import contextlib
 from sys import stderr
 from pint import UnitRegistry, UndefinedUnitError, OffsetUnitCalculusError
 from obd.commands import __mode1__, __mode9__
@@ -28,7 +30,7 @@ unit_registry.define("ratio = []")
 unit_registry.define("gps = gram / second = GPS = grams_per_second")
 unit_registry.define("lph = liter / hour = LPH = liters_per_hour")
 unit_registry.define("ppm = count / 1000000 = PPM = parts_per_million")
-unit_registry.define("degC = Centigrade")
+# unit_registry.define("degC = Centigrade")
 
 date_time_fields = ['iso_ts_pre', 'iso_ts_post', 'duration', ]
 
@@ -729,7 +731,7 @@ COMMANDS_RETURNING_LIST_RESULTS = {
     },
 }
 
-def get_command_name(command_name:str, obd_response_index:int)->str:
+def get_list_command_name(command_name:str, obd_response_index:int)->str:
     """
     OBD commands can return lists of results.
     These results need to be handled as their own output.
@@ -743,8 +745,23 @@ def get_command_name(command_name:str, obd_response_index:int)->str:
         ):
         return f"{command_name}-{COMMANDS_RETURNING_LIST_RESULTS[command_name][obd_response_index]}"
 
-    # return f"{command_name}-{obd_response_index:2d}"
     return f"{command_name}-{obd_response_index:0>2d}"
+
+def base_command_name_filter(command_name:str, commands:list) -> bool:
+    """
+    Given a command name, see if the command name is the base command name
+    for one of the commands in the list.  If it is, return True otherwise False
+    """
+    return any(get_base_command_name(command) == command_name for command in commands)
+
+def get_base_command_name(command_name:str) -> str:
+    """
+    GPS and OBD commands can return lists or dictionaries of results.
+    These field names within the results are used to create field names
+    in a format like "NMEA_GNGNS-lat" where "NMEA_GNGNS" is the root
+    command name and "lat" is the field name.
+    """
+    return (command_name.split("-"))[0] if "-" in command_name else command_name
 
 def get_field_names(command_names:list)->list:
     # sourcery skip: for-append-to-extend
@@ -762,7 +779,7 @@ def get_field_names(command_names:list)->list:
     return field_names
 
 def pint_to_value_type(obd_response_value:str, verbose:bool=False):
-    # sourcery skip: simplify-empty-collection-comparison, simplify-len-comparison, simplify-str-len-comparison
+    # sourcery skip: hoist-repeated-if-condition, remove-unnecessary-else, simplify-empty-collection-comparison, simplify-len-comparison, simplify-str-len-comparison, swap-if-else-branches
     """Returns a workable obd_response_value.
        When obd_response_values are numeric, they are expressed as
         - number, 
@@ -771,18 +788,48 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
        they will be translated to just a number.
        Sometimes obd_response_values are 'no response' in which case
        they will be replaced with None.
-       Othertimes obd_response_values will be a string which may or may not
+       Other times obd_response_values will be a string which may or may not
        contain commas.  In this case, the string will be wrapped with double
        quotes.
     """
     if obd_response_value in {'no response', 'not supported'}:
         return None, None
 
-    if obd_response_value is None:
+    if obd_response_value is None or isinstance(obd_response_value, list) or isinstance(obd_response_value, dict):
         return None, None
 
     if verbose:
-        print(f"pint_to_value_type.obd_response_value: {obd_response_value}", file=stderr)
+        print(f"pint_to_value_type obd_response_value: {type(obd_response_value)}, {obd_response_value}", file=stderr)
+
+    # Test to see if this is a pure number
+    if isinstance(obd_response_value, str):
+        with contextlib.suppress(ValueError):
+            numeric_value = int(obd_response_value)
+            return numeric_value, None
+        with contextlib.suppress(ValueError):
+            numeric_value = float(obd_response_value)
+            return numeric_value, None
+
+    # Test to see if this is a boolean
+    if isinstance(obd_response_value, str) and obd_response_value.lower() in {"true"}:
+        return True, None
+    if isinstance(obd_response_value, str) and obd_response_value.lower() in {"false"}:
+        return False, None
+
+    if (
+        isinstance(obd_response_value, int) or
+        isinstance(obd_response_value, float) or
+        isinstance(obd_response_value, bool)
+    ):
+        return obd_response_value, None
+
+    if isinstance(obd_response_value, str) and len(obd_response_value) == 0:
+        return None, None
+
+    # Test to see if this is just a string and not a pint value: {numeric value}<SPACE>{non-numeric value}
+    if isinstance(obd_response_value, str) and len(obd_response_value.strip().split(" ")) <= 1:
+        # not a pint value
+        return obd_response_value, None
 
     try:
         pint_value = unit_registry(obd_response_value)
@@ -791,9 +838,11 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
     except OffsetUnitCalculusError as e:
         if verbose:
             print(f"Pint unit_registry error on {obd_response_value}. " +
-            f"Returning \"{(obd_response_value.split())[0]}\" as value. " +
-            f"OffsetUnitCalculusError: {e}", file=stderr)
-        return (obd_response_value.split())[0], None
+                f"Returning \"{(obd_response_value.split())[0]}\" as value. " +
+                f"OffsetUnitCalculusError: {e}", file=stderr)
+        # hack
+        value, non_value = pint_to_value_type(obd_response_value.split()[0])
+        return value, obd_response_value.split()[1]
     except ValueError as e:
         if verbose:
             print(f"Pint unit_registry error on {obd_response_value}. " +
@@ -804,16 +853,6 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
         if verbose:
             print(f"Pint unit_registry error on {obd_response_value}. ",
                     f"AttributeError: {e}", file=stderr)
-        return obd_response_value, None
-
-    if (
-        isinstance(obd_response_value, int) or
-        isinstance(obd_response_value, float) or
-        isinstance(obd_response_value, bool)
-    ):
-        return obd_response_value, None
-
-    if isinstance(obd_response_value, str) and len(obd_response_value) == 0:
         return obd_response_value, None
 
     try:
@@ -868,3 +907,4 @@ def get_mode_pid_from_command_name(command_name:str)->tuple:
         raise ValueError(f"{command_name} not in {COMMAND_TO_MODE_PID}")
 
     return COMMAND_TO_MODE_PID[command_name]
+
