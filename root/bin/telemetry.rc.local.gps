@@ -8,6 +8,9 @@ export GPS_HOME="/home/${GPS_USER}"
 export DEBUG="True"
 export LOG_FILE="/tmp/telemetry-gps_$(date '+%Y-%m-%d_%H:%M:%S').log"
 
+# redirect all stdout and stderr to file
+exec &> "${LOG_FILE}"
+
 # Debugging support
 if [ "${DEBUG}" == "True" ]
 then
@@ -17,9 +20,6 @@ fi
 
 # turn off stdin
 0<&-
-
-# redirect all stdout and stderr to file
-exec &> "${LOG_FILE}"
 
 ## Run the script gps_logger.sh as user "${GPS_USER}" and group "${GPS_GROUP}"
 runuser -u "${GPS_USER}" -g dialout "${GPS_HOME}/telemetry-gps/bin/gps_logger.sh" &
