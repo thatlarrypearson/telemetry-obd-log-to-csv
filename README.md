@@ -348,6 +348,16 @@ The ```gps_logger.gps_logger``` application fails periodically when noise on the
 
 ## Diagnosing UltraDict Related Problems
 
+```UltraDict``` can be difficult to install on some systems such as **Windows 10**.  This library will work without UltraDict installed.  However, there will be a log message on startup whenever the ```--shared_dictionary_name``` command line argument is used as shown below.
+
+```powershell
+PS C:\Users\human\src\telemetry-wthr> python3.10 -m gps_logger.gps_logger --shared_dictionary_name gps
+ERROR:gps_logger:import error: Shared Dictionary (gps) feature unsupported: UltraDict Not installed.
+...
+...
+...
+```
+
 The following provides a method to verify that the shared memory has been mapped into the ```gps_logger``` process space.  These commands work on most Linux based computers including Raspberry Pi's running Raspberry Pi OS.
 
 ```bash

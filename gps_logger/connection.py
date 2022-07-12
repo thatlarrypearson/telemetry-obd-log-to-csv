@@ -4,7 +4,6 @@ Manage gps connections through serial interfaces.
 """
 from serial import Serial
 import logging
-from UltraDict import UltraDict
 from .gps_config import (
     turn_off_all_messages_on_all_interfaces, turn_on_nmea_messages,
     set_base_message_rate, set_port_configuration, parsed_data_to_dict,
@@ -72,33 +71,46 @@ def dict_to_log_format(data_dict:dict)->dict:
 
     return log_value
 
-class SharedDictionaryManager(UltraDict):
-    """
-    Shared Dictionary Manager - Uses a dictionary as the shared memory metaphor.
-    Supports multiple instances within single process so long as 'name'
-    is distinct for each instance.  This is not enforced as this class doesn't
-    use the singleton pattern.
+try:
+    # Not making UltraDict a requirement.
+    from UltraDict import UltraDict
 
-    Different processes can share the same shared memory/dictionary so long as they use the
-    same value for the 'name' constructor variable.
-
-    Code assumes there is only one writer and one or more readers for each memory region.  If more
-    more than one writer is needed, create multiple instances, one for each writer.
-    """
-    # UltraDict(*arg, name=None, buffer_size=10000, serializer=pickle, shared_lock=False, full_dump_size=None, auto_unlink=True, recurse=False, **kwargs)
-
-    def __init__(self, name:str):
+    class SharedDictionaryManager(UltraDict):
         """
-        SharedDictionaryManager constructor
-        arguments
-            name
-                name of the shared memory/dictionary region
+        Shared Dictionary Manager - Uses a dictionary as the shared memory metaphor.
+        Supports multiple instances within single process so long as 'name'
+        is distinct for each instance.  This is not enforced as this class doesn't
+        use the singleton pattern.
+
+        Different processes can share the same shared memory/dictionary so long as they use the
+        same value for the 'name' constructor variable.
+
+        Code assumes there is only one writer and one or more readers for each memory region.  If more
+        more than one writer is needed, create multiple instances, one for each writer.
         """
-        super().__init__(
-            name=name,
-            buffer_size=1048576,    # 1 MB
-            shared_lock=False,      # assume only one writer to shared memory/dictionary
-            full_dump_size=None,    # change this value for Windows machines
-            auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
-            recurse=False           # dictionary can contain dictionaries but updates not nested
-        )
+        # UltraDict(*arg, name=None, buffer_size=10000, serializer=pickle, shared_lock=False, full_dump_size=None, auto_unlink=True, recurse=False, **kwargs)
+
+        def __init__(self, name:str):
+            """
+            SharedDictionaryManager constructor
+            arguments
+                name
+                    name of the shared memory/dictionary region
+            """
+            super().__init__(
+                name=name,
+                buffer_size=1048576,    # 1 MB
+                shared_lock=False,      # assume only one writer to shared memory/dictionary
+                full_dump_size=None,    # change this value for Windows machines
+                auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
+                recurse=False           # dictionary can contain dictionaries but updates not nested
+            )
+
+except ImportError:
+
+    def SharedDictionaryManager(name:str) -> dict:
+        """
+        Fake class replacement.
+        """
+        logger.error(f"import error: Shared Dictionary ({name}) feature unsupported: UltraDict Not installed. ")
+        return dict()
