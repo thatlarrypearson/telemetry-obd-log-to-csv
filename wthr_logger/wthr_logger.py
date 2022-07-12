@@ -1,31 +1,32 @@
-# telemetry-gps/gps_logger/gps_logger.py
+# telemetry-wthr/wthr_logger/wthr_logger.py
 """
-GPS Logger
+Weather Logger
 """
 from argparse import ArgumentParser
 import logging
 from sys import stdout, stderr
 from datetime import datetime, timezone
 from os import fsync
-from pyubx2 import UBXReader
+from pathlib import Path
 from datetime import datetime, timezone
 from os import fsync
 import json
 from .__init__ import __version__
-from .gps_config import logger, get_log_file_handle
-from .connection import (
-    SHARED_DICTIONARY_COMMAND_LIST, initialize_gps, parsed_data_to_dict, dict_to_log_format,
-    SharedDictionaryManager
-)
+from .udp import WeatherReports, WEATHER_REPORT_EXCLUDE_LIST
 
-DEFAULT_SERIAL_DEVICE="/dev/ttyACM0"
-TIMEOUT=1.0
+logger = logging.getLogger("wthr_logger")
 
-logger = logging.getLogger("gps_logger")
+SHARED_DICTIONARY_COMMAND_LIST = [
+    "WTHR_rapid_wind",          # Rapid Wind
+    "WTHR_hub_status",          # Hub Status
+    "WTHR_device_status",       # Time and data
+    "WTHR_obs_st",              # Tempest Observation
+    "WTHR_evt_strike",          # Lightning Strike Event
+]
 
 def argument_parsing()-> dict:
     """Argument parsing"""
-    parser = ArgumentParser(description="Telemetry GPS Logger")
+    parser = ArgumentParser(description="Telemetry Weather Logger")
     parser.add_argument(
         "--log_file_directory",
         default=None,
@@ -39,12 +40,7 @@ def argument_parsing()-> dict:
     parser.add_argument(
         "--shared_dictionary_command_list",
         default=None,
-        help="Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to all."
-    )
-    parser.add_argument(
-        "--serial",
-        default=DEFAULT_SERIAL_DEVICE,
-        help=f"Full path to the serial device where the GPS can be found, defaults to {DEFAULT_SERIAL_DEVICE}"
+        help="Comma separated list of WeatherFlow Tempest message types to be shared (no spaces), defaults to all."
     )
     parser.add_argument(
         "--verbose",
@@ -60,6 +56,97 @@ def argument_parsing()-> dict:
     )
     return vars(parser.parse_args())
 
+try:
+    # Not making UltraDict a requirement.
+    from UltraDict import UltraDict
+
+    class SharedDictionaryManager(UltraDict):
+        """
+        Shared Dictionary Manager - Uses a dictionary as the shared memory metaphor.
+        Supports multiple instances within single process so long as 'name'
+        is distinct for each instance.  This is not enforced as this class doesn't
+        use the singleton pattern.
+
+        Different processes can share the same shared memory/dictionary so long as they use the
+        same value for the 'name' constructor variable.
+
+        Code assumes there is only one writer and one or more readers for each memory region.  If more
+        more than one writer is needed, create multiple instances, one for each writer.
+        """
+        # UltraDict(*arg, name=None, buffer_size=10000, serializer=pickle, shared_lock=False, full_dump_size=None, auto_unlink=True, recurse=False, **kwargs)
+
+        def __init__(self, name:str):
+            """
+            SharedDictionaryManager constructor
+            arguments
+                name
+                    name of the shared memory/dictionary region
+            """
+            super().__init__(
+                name=name,
+                buffer_size=1048576,    # 1 MB
+                shared_lock=False,      # assume only one writer to shared memory/dictionary
+                full_dump_size=None,    # change this value for Windows machines
+                auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
+                recurse=False           # dictionary can contain dictionaries but updates not nested
+            )
+
+except ImportError:
+
+    def SharedDictionaryManager(name:str) -> dict:
+        """
+        Fake class replacement.
+        """
+        logger.error(f"import error: Shared Dictionary ({name}) feature unsupported: UltraDict Not installed. ")
+        return dict()
+
+def dict_to_log_format(weather_report:dict) -> dict:
+    """
+    Converts weather report output to obd-logger output format:
+    {
+        'command_name': "name identifier",
+        'obd_response_value': "result of said command",
+        'iso_ts_pre': "ISO format Linux time before running said command",
+        'iso_ts_post': "ISO format Linux time after running said command",
+    }
+    """
+    command_name = weather_report['type']
+
+    obd_response_value = {
+        "command_name": f"WTHR_{command_name}",
+        "obd_response_value": {},
+    }
+
+    for key, value in weather_report.items():
+        # filter out "command_name", and serial number values
+        if key in ("type", "message_type", "serial_number", "hub_sn"):
+            continue
+        if type(value) == str and not len(value):
+            # make empty strings into None
+            value = None
+        obd_response_value["obd_response_value"][key] = value
+
+    return obd_response_value
+
+def get_directory(base_path) -> Path:
+    """Generate directory where data files go."""
+    path = Path(base_path)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+def get_output_file_name(base_name) -> Path:
+    """Create an output file name."""
+    dt_now = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S")
+    return Path(f"{base_name}-{dt_now}-utc.json")
+
+def get_log_file_handle(base_path:str, base_name="WTHR"):
+    """return a file handle opened for writing to a log file"""
+    full_path = get_directory(base_path) / get_output_file_name(base_name)
+    
+    logger.info(f"log file full path: {full_path}")
+    
+    return open(full_path, mode='w', encoding='utf-8')
+
 def main():
     """Run main function."""
 
@@ -70,7 +157,6 @@ def main():
         exit(0)
 
     verbose = args['verbose']
-    serial_device = args['serial']
     log_file_directory = args['log_file_directory']
     shared_dictionary_name = args['shared_dictionary_name']
     shared_dictionary_command_list = args['shared_dictionary_command_list']
@@ -79,10 +165,10 @@ def main():
 
     logging.basicConfig(stream=stderr, level=logging_level)
 
-    logging.debug(f"argument --verbose: {verbose}")
+    logger.debug(f"argument --verbose: {verbose}")
 
     if log_file_directory:
-        logging.info(f"log_file_directory: {log_file_directory}")
+        logger.info(f"log_file_directory: {log_file_directory}")
         log_file_handle = get_log_file_handle(log_file_directory)
     else:
         log_file_handle = None
@@ -94,52 +180,43 @@ def main():
 
     if shared_dictionary_name:
         shared_dictionary = SharedDictionaryManager(shared_dictionary_name)
-        logging.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
+        logger.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
     else:
         shared_dictionary = None
 
-    logging.info(f"shared_dictionary_name {shared_dictionary_name})")
+    logger.info(f"shared_dictionary_name {shared_dictionary_name})")
 
-    io_handle = initialize_gps(serial_device, 4)
-
-    # reads NMEA, UBX and RTM input
-    gps_reader = UBXReader(io_handle)
+    # reads Weather input
+    weather_reports = WeatherReports(logger)
 
     iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
-    for (raw_data, parsed_data) in gps_reader:
-        data_dict = parsed_data_to_dict(parsed_data)
+    for raw_weather_report, weather_report in weather_reports:
+        if not weather_report:
+            # skipping invalid (None value) data
+            continue
 
-        logging.debug(f"GPS data {data_dict}\n")
-
-        if 'umsg_name' in data_dict and data_dict['umsg_name'] == 'MON-VER':
-            gps_software = data_dict
-            logging.info(f"GPS SOFTWARE: {data_dict}")
-
-        if 'umsg_name' in data_dict and data_dict['umsg_name'] == 'MON-HW':
-            gps_hardware = data_dict
-            logging.info(f"GPS HARDWARE: {data_dict}")
-
-        if data_dict['Message_Type'] != "NMEA":
-            "Skipping UBX and RTM messages"
-            logging.debug(f"skipping Message_Type {data_dict['Message_Type']}")
+        if weather_report['type'] in WEATHER_REPORT_EXCLUDE_LIST:
+            # skipping unwanted weather report types
+            logger.debug(f"skipping Message_Type {weather_report['type']}")
             iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
             continue
 
-        log_value = dict_to_log_format(data_dict)
+        log_value = dict_to_log_format(weather_report)
 
         log_value['iso_ts_pre'] = iso_ts_pre
         log_value['iso_ts_post'] = datetime.isoformat(datetime.now(tz=timezone.utc))
 
-        logging.debug(f"logging: {log_value}")
+        logger.debug(f"logging: {log_value}")
 
         if log_file_handle:
             log_file_handle.write(json.dumps(log_value) + "\n")
-            log_file_handle.flush()
-            fsync(log_file_handle.fileno())
+            # want a command line option to enable forced buffer write to disk with default off
+            # log_file_handle.flush()
+            # fsync(log_file_handle.fileno())
 
         if shared_dictionary is not None and log_value["command_name"] in shared_dictionary_command_list:
-                logging.debug( f"writing to shared dictionary {log_value['command_name']}")
+                logger.debug( f"writing to shared dictionary {log_value['command_name']}")
                 shared_dictionary[log_value['command_name']] = log_value
 
         iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
