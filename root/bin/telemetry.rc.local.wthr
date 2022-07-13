@@ -2,7 +2,7 @@
 #
 # telemetry.rc.local.wthr - This script is executed by the system /etc/rc.local script on system boot
 
-export WTHR_USER="lbp"
+export WTHR_USER="human"
 export WTHR_GROUP="dialout"
 export WTHR_HOME="/home/${WTHR_USER}"
 export DEBUG="True"

@@ -196,10 +196,12 @@ With some, little or no modification, the installation instructions should work 
   - provides the runtime environment for the application
   - follow the above link
 
-The following are optional packages and are only required if weather data is to be combined with vehicle engine data using shared memory/dictionary.
+The following are optional packages and are only required if weather data is to be combined with location and vehicle engine data using shared memory/dictionary.
 
 - [Telemetry OBD Logging](https://github.com/thatlarrypearson/telemetry-obd)
   - Engine data logger supporting shared memory
+- [Telemetry GPS Location and Time Logging](https://github.com/thatlarrypearson/telemetry-gps)
+  - Captures location and time data using a GPS receiver and supports shared memory
 - [UltraDict](docs/README-UltraDict.md)
   - Python library providing shared memory support
 
