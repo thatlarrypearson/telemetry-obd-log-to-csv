@@ -207,10 +207,12 @@ python3.10 -m pip install pyserial
 python3.10 -m pip install --user --upgrade pyubx2 pynmeagps
 ```
 
-The following are optional packages and are only required if vehicle location data is to be combined with vehicle engine data using shared memory.
+The following are optional packages and are only required if vehicle location data is to be combined with weather and vehicle engine data using shared memory.
 
 - [Telemetry OBD Logging](https://github.com/thatlarrypearson/telemetry-obd)
   - Engine data logger supporting shared memory
+- [Telemetry Weather Logging](https://github.com/thatlarrypearson/telemetry-wthr)
+  - Weather data logger supporting shared memory
 - [UltraDict](docs/README-UltraDict.md)
   - Python library providing shared memory support
 
@@ -403,6 +405,10 @@ $
 - [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd)
   - Logs vehicle engine data gathered using OBD interface
   - Accepts shared dictionary/memory information from this library for integration into its own log files
+
+- [Telemetry Weather Logging](https://github.com/thatlarrypearson/telemetry-wthr)
+  - Weather data logger supporting shared memory
+  - Uses shared memory to share data with **Telemetry OBD Logger**
 
 ## License
 
