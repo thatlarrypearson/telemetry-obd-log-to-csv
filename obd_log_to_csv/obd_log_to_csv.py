@@ -193,14 +193,18 @@ def command_line_options()->dict:
     return vars(parser.parse_args())
 
 
-def main():
-    args = command_line_options()
+def main(json_input_files=None, csv_output_file_name='stdout', header=True, verbose=False, commands=None):
+    if json_input_files is None:
+        args = command_line_options()
 
-    json_input_files = args['files']
-    csv_output_file_name = args['csv']
-    header = not args['no_header']
-    verbose = args['verbose']
-    commands = (args['commands']).split(sep=',')
+        json_input_files = args['files']
+        csv_output_file_name = args['csv']
+        header = not args['no_header']
+        verbose = args['verbose']
+        commands = (args['commands']).split(sep=',')
+
+    if not commands:
+        raise ValueError("required argument is None, should be a comma separated list of OBD commands")
 
     if verbose:
         print(f"verbose: {args['verbose']}", file=stderr)

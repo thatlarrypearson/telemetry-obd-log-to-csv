@@ -39,7 +39,7 @@ csv_to_ratio_csv and csv_to_delta_csv.
 ### ```initial_data_analysis.py``` Usage
 
 ```bash
-$ python3.8 examples/initial_data_analysis.py --help
+$ python3.10 examples/initial_data_analysis.py --help
 usage: initial_data_analysis [-h] [--verbose]
                           [--output_directory OUTPUT_DIRECTORY]
                           [--numeric_columns NUMERIC_COLUMNS] [--forward_fill]
@@ -97,7 +97,7 @@ When running on large data sets with a large number of columns, this program may
 $ bash examples/initial_data_analysis.sh $(find ../telemetry-obd/data/C4HJWCG5DL0000 -name '*-utc.json' -print  | grep -v TEST)
 Fail to create pixmap with Tk_GetPixmap in TkImgPhotoInstanceSetSize
 Following Command Failed With Code: 3
-python3.8 ../telemetry-obd-log-to-csv/examples/initial_data_analysis.py initial_data_analysis.csv
+python3.10 ../telemetry-obd-log-to-csv/examples/initial_data_analysis.py initial_data_analysis.csv
 $
 $ ls -l initial_data_analysis
 total 184
@@ -126,7 +126,7 @@ commands listed in the specified configuration section.
 ### ```load_config_file.py``` Usage
 
 ```bash
-$ python3.8 examples/load_config_file.py --help
+$ python3.10 examples/load_config_file.py --help
 usage: obd_log_evaluation [-h] [--verbose] [--startup] [--housekeeping]
                           [--cycle]
                           config_file

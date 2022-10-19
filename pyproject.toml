@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [metadata]
 name = "telemetry-obd-log-to-csv"
 url = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
-version = "0.3.0"
+version = "0.3.2"
 description = "Telemetry OBD Data To CSV File"
 long_description = "file:README.md"
 authors = [
@@ -13,14 +13,14 @@ authors = [
 ]
 license = "MIT"
 readme = "README.md"
-python = "^3.7"
+python = "^3.8"
 homepage = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
 repository = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
 documentation = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
 keywords = ["obd", "telematics", "vehicle"]
 dependencies = [
   'pint = 0.19.2',
-  'rich = 10.12.0',
+  'rich = 12.6.0',
 ]
 
 classifiers = [

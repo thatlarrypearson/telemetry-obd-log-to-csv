@@ -253,12 +253,18 @@ def command_line_options()->dict:
     return vars(parser.parse_args())
 
 
-def main():
-    args = command_line_options()
-
-    json_input_files = args['files']
-    verbose = args['verbose']
-    csv_output = args['csv']
+def main(json_input_files=None, verbose=False, csv_output=False):
+    if json_input_files:
+        args = {
+            'files': json_input_files,
+            'verbose': verbose,
+            'csv': csv_output,
+        }
+    else:
+        args = command_line_options()
+        json_input_files = args['files']
+        verbose = args['verbose']
+        csv_output = args['csv']
 
     if verbose:
         print(f"verbose: {verbose}", file=stderr)
@@ -271,7 +277,7 @@ def main():
         rich_output(raw_data, verbose=verbose)
     else:
         csv_print(raw_data, verbose=verbose)
-
+        
 
 if __name__ == "__main__":
     main()

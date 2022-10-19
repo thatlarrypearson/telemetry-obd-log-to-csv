@@ -154,7 +154,7 @@ Input for ```distance.py``` comes from ```obd_log_to_csv.obd_log_to_csv``` calle
 ### Usage
 
 ```bash
-$ python3.8 examples/distance.py --help
+$ python3.10 examples/distance.py --help
 usage: obd_log_to_csv [-h] [--csv CSV] [--verbose] files [files ...]
 
 distance = rate * time. Calculate distance from speed and time. Compare to
@@ -224,7 +224,7 @@ Simple Linux bash program to extract ```DISTANCE_SINCE_DTC_CLEAR``` from ```obd_
 For example:
 
 ```bash
-$ python3.8 -m obd_log_to_csv.obd_log_to_csv --csv tmp.csv --commands 'DISTANCE_SINCE_DTC_CLEAR,SPEED'  ../telemetry-obd/data/*/*.json
+$ python3.10 -m obd_log_to_csv.obd_log_to_csv --csv tmp.csv --commands 'DISTANCE_SINCE_DTC_CLEAR,SPEED'  ../telemetry-obd/data/*/*.json
 $ bash miles_since_dtc_clear.sh
 file_name,first_distance,last_distance
 tmp.csv,2448.82,3018

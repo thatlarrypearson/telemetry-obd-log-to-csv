@@ -9,7 +9,7 @@
 For example, an acceleration column can be added onto an input file containing a column ```SPEED``` as shown below.
 
 ```bash
-$ python3.8 -m obd_log_to_csv.csv_to_delta_csv \
+$ python3.10 -m obd_log_to_csv.csv_to_delta_csv \
                 --input_csv_file FT8W4DT5HED65995-cycle.csv \
                 --output_csv_file delta-speed.csv \
                 --delta SPEED

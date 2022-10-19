@@ -17,10 +17,10 @@ A vehicle's ```obd_logger``` configuration file should not contain unrecognizabl
     - The command name shown in the report output is hyphenated with the subfield position in the list
 - See [Examples](#examples) for more
 
-## Usage
+## Command Line Usage
 
 ```bash
-python3.8 -m obd_log_to_csv.obd_log_evaluation --help
+python3.10 -m obd_log_to_csv.obd_log_evaluation --help
 usage: obd_log_evaluation [-h] [--verbose] [--csv] files [files ...]
 
 OBD Log Evaluation performs simple analysis on telemetry_obd.obd_logger and telemetry_obd.obd_command_tester output
@@ -36,6 +36,29 @@ optional arguments:
   --csv       Output CSV on stdout. Default is to rich table print on stdout.
 ```
 
+## Jupyter Notebook Usage
+
+The following can be included in Jupyter notebooks and python programs.  The only **required** parameter to ```main``` in ```obd_log_to_csv.obd_log_evaluation``` is the ```json_input_files``` parameter.  The other paramters default the same as the command line options.
+
+```python
+from obd_log_to_csv.obd_log_evaluation import main as obd_log_evaluation_main
+from os import listdir
+
+# file names are based on vehicle identification number or vin
+vin = "the VIN number associated with this particular vehicle goes in here"
+
+# directory where "*.json" data files are held
+dname = f"../data/{vin}"
+
+files = [f"{dname}/{fname}" for fname in listdir(dname) if fname.endswith(".json")]
+
+obd_log_evaluation_main(json_input_files=files, verbose=False, csv_output=False) 
+```
+
+By default, [```rich```](https://rich.readthedocs.io/en/stable/introduction.html) will be used to display the results in table form.
+
+![Jupyter Notebook Example](JupyterNotebook-obd_log_evaluation.jpg)
+
 ## Examples
 
 ### ```obd_log_evaluation``` Processing Sample Output From Frematics OBD-II Emulator
@@ -48,12 +71,12 @@ optional arguments:
 
 ```python
 # Command Tester Collection Program
-python3.8 -m telemetry_obd.obd_command_tester --cycles 100
+python3.10 -m telemetry_obd.obd_command_tester --cycles 100
 ```
 
 #### Output
 
-- OBD log evaluation program run on collected input data.
+- OBD log evaluation program runs on collected input data.
 - Output in CSV format for importation into applications
   - [Microsoft Visual Studio Code](https://code.visualstudio.com/)
   - [CSV to Markdown Table](https://marketplace.visualstudio.com/items?itemName=Marchiore.csvtomarkdown)
@@ -66,7 +89,7 @@ python3.8 -m telemetry_obd.obd_command_tester --cycles 100
   - [2021 Toyota Sienna LE](OBD_LOG_EVALUATION-2021ToyotaSiennaLE.md)
 
 ```python
-python3.8 -m obd_log_to_csv.obd_log_evaluation --csv ./TESTVIN012345678-TEST-20211127145538.json
+python3.10 -m obd_log_to_csv.obd_log_evaluation --csv ./TESTVIN012345678-TEST-20211127145538.json
 ```
 
 ### Generating OBD Command Lists
@@ -74,7 +97,7 @@ python3.8 -m obd_log_to_csv.obd_log_evaluation --csv ./TESTVIN012345678-TEST-202
 #### Complete Command List
 
 ```bash
-python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
+python3.10 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
 awk -F "\"*,\"*" '{print $1}' | \
 grep -v command | grep -v '-'
 ```
@@ -82,7 +105,7 @@ grep -v command | grep -v '-'
 #### Valid Command List
 
 ```bash
-python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
+python3.10 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
 awk -F ',' '// { if ($4 != $5) {print $1}}' \
 grep -v command | grep -v '-'
 ```
@@ -90,7 +113,7 @@ grep -v command | grep -v '-'
 #### Invalid Command List
 
 ```bash
-python3.8 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
+python3.10 -m obd_log_to_csv.obd_log_evaluation --csv "${VIN}-TEST-${YYYYMMDDhhmmss}-utc.json | \
 awk -F ',' '// { if ($4 == $5) {print $1}}' \
 grep -v command | grep -v '-'
 ```
