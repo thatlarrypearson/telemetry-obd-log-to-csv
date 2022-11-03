@@ -255,12 +255,14 @@ def command_line_options()->dict:
 
 def main(json_input_files=None, verbose=False, csv_output=False):
     if json_input_files:
+        main_as_function = True
         args = {
             'files': json_input_files,
             'verbose': verbose,
             'csv': csv_output,
         }
     else:
+        main_as_function = False
         args = command_line_options()
         json_input_files = args['files']
         verbose = args['verbose']
@@ -277,6 +279,11 @@ def main(json_input_files=None, verbose=False, csv_output=False):
         rich_output(raw_data, verbose=verbose)
     else:
         csv_print(raw_data, verbose=verbose)
+    
+    if main_as_function:
+        return raw_data
+    
+    exit(0)
         
 
 if __name__ == "__main__":
