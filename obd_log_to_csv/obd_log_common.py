@@ -729,6 +729,12 @@ COMMANDS_RETURNING_LIST_RESULTS = {
         2: 'mass_flow_rate_a',
         3: 'mass_flow_rate_b',
     },
+    "VEHICLE_OPERATION_DATA": {
+        0: 'recent_distance_traveled',
+        1: 'lifetime_distance_traveled',
+        2: 'recent_fuel_consumed',
+        3: 'lifetime_fuel_consumed',
+    },
 }
 
 def get_list_command_name(command_name:str, obd_response_index:int)->str:

@@ -26,7 +26,11 @@ def csv_print(raw_data:dict, verbose=False):
             print(f"csv_print(): key {key}", file=stderr)
         value['command'] = key
         if not key.startswith("NMEA"):
-            mode, pid = get_mode_pid_from_command_name(key)
+            try:
+                mode, pid = get_mode_pid_from_command_name(key)
+            except ValueError:
+                mode, pid = '??', '??'
+
             value['mode'] = f"0x{mode}"
             value['pid'] = f"0x{pid}"
         else:
@@ -34,10 +38,13 @@ def csv_print(raw_data:dict, verbose=False):
             value['pid'] = ""
         writer.writerow(value)
 
-def rich_output(raw_data:dict, verbose=False):
+def rich_output(raw_data:dict, title=None, verbose=False):
     console = Console()
 
-    table = Table(show_header=True, header_style="bold magenta")
+    if not title:
+        table = Table(show_header=True, header_style="bold magenta", title="OBD Log Evaluation")
+    else:
+        table = Table(show_header=True, header_style="bold magenta", title=title)
     table.add_column("OBD Command", justify='left')
     table.add_column("Mode")
     table.add_column("PID")
@@ -55,7 +62,10 @@ def rich_output(raw_data:dict, verbose=False):
 
         value_key = key
         if not key.startswith("NMEA"):
-            mode, pid = get_mode_pid_from_command_name(key)
+            try:
+                mode, pid = get_mode_pid_from_command_name(key)
+            except ValueError:
+                mode, pid = '??', '??'
             value_mode = f"0x{mode}"
             value_pid = f"0x{pid}"
         else:
