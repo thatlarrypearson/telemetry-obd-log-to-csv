@@ -3,6 +3,10 @@
 #
 # Runs GPS Logger
 
+# Sometimes it takes 30 seconds before the OS gets the time correct.
+export START_DELAY
+sleep ${START_DELAY}
+
 # Need time for GPS interface recover after failure
 export RESTART_DELAY=10
 
@@ -30,7 +34,7 @@ fi
 0<&-
 
 # redirect all stdout and stderr to file
-exec &> "${APP_TMP_DIR}/${APP_LOG_FILE}"
+exec &>> "${APP_TMP_DIR}/${APP_LOG_FILE}"
 
 date '+%Y/%m/%d %H:%M:%S'
 

@@ -20,6 +20,7 @@ from .connection import (
 
 DEFAULT_SERIAL_DEVICE="/dev/ttyACM0"
 TIMEOUT=1.0
+MESSAGE_RATE=1
 
 logger = logging.getLogger("gps_logger")
 
@@ -40,6 +41,12 @@ def argument_parsing()-> dict:
         "--shared_dictionary_command_list",
         default=None,
         help="Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to all."
+    )
+    parser.add_argument(
+        "--message_rate",
+        default=MESSAGE_RATE,
+        type=int,
+        help=f"Number of whole seconds between each GPS fix.  Defaults to {MESSAGE_RATE}."
     )
     parser.add_argument(
         "--serial",
@@ -74,6 +81,7 @@ def main():
     log_file_directory = args['log_file_directory']
     shared_dictionary_name = args['shared_dictionary_name']
     shared_dictionary_command_list = args['shared_dictionary_command_list']
+    message_rate = args['message_rate']
 
     logging_level = logging.DEBUG if verbose else logging.INFO
 
@@ -100,7 +108,7 @@ def main():
 
     logging.info(f"shared_dictionary_name {shared_dictionary_name})")
 
-    io_handle = initialize_gps(serial_device, 4)
+    io_handle = initialize_gps(serial_device, message_rate)
 
     # reads NMEA, UBX and RTM input
     gps_reader = UBXReader(io_handle)

@@ -124,6 +124,7 @@ def set_base_message_rate(io_handle:Serial, measRate=1000, navRate=1, timeRef=1)
     """
     Sets the amount of time that a message_rate of 1 takes and the number of navigation
     solutions that go into each message.
+    The measurement rate (measRate) of 1,000 means 1 Hz cycle.
     """
     payload = measRate.to_bytes(2, "little") + navRate.to_bytes(2, "little") + timeRef.to_bytes(2, "little")
 
@@ -222,6 +223,7 @@ def get_log_file_handle(base_path:str, base_name="NMEA"):
     full_path = get_directory(base_path) / get_output_file_name(base_name)
     
     logger.info(f"log file full path: {full_path}")
-    
-    return open(full_path, mode='w', encoding='utf-8')
+
+   # open for exclusive creation, failing if the file already exists
+    return open(full_path, mode='x', encoding='utf-8')
 

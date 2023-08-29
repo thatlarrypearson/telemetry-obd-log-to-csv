@@ -48,6 +48,8 @@ options:
                         Enable shared memory/dictionary using this name
   --shared_dictionary_command_list SHARED_DICTIONARY_COMMAND_LIST
                         Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to all.
+  --message_rate MESSAGE_RATE
+                        Number of whole seconds between each GPS fix.  Defaults to 1.
   --serial SERIAL       Full path to the serial device where the GPS can be found, defaults to /dev/ttyACM0
   --verbose             Turn DEBUG logging on. Default is off.
   --version             Print version number and exit.
@@ -347,6 +349,89 @@ See the ```bin/gps_logger.sh``` ```bash``` shell program for an example.
 ## Known Problems
 
 The ```gps_logger.gps_logger``` application fails periodically when noise on the serial interfaces causes bit changes.  This extremely rare occurrence causes an ```NMEAParseError``` exception to be raised.  When ```NMEAParseError```s occur, the boot startup shell program ```bin/gps_logger.sh``` waits 20 seconds before restarting ```gps_logger.gps_logger```.
+
+Zero length data files can occur when the Raspberry Pi host isn't seeing the GPS device.  For example, when a USB GPS device either has a bad cable or wasn't plugged in properly, the log files found in the ```tmp``` directory off the telemetry-gps project directory will have entries similar to the following:
+
+```bash
+Traceback (most recent call last):
+  File "/home/human/.local/lib/python3.10/site-packages/serial/serialposix.py", line 322, in open
+    self.fd = os.open(self.portstr, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
+FileNotFoundError: [Errno 2] No such file or directory: '/dev/ttyACM0'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/human/telemetry-gps/gps_logger/gps_logger.py", line 148, in <module>
+    main()
+  File "/home/human/telemetry-gps/gps_logger/gps_logger.py", line 103, in main
+    io_handle = initialize_gps(serial_device, 4)
+  File "/home/human/telemetry-gps/gps_logger/connection.py", line 34, in initialize_gps
+    io_handle = connect_to_gps(device_path, **kwargs)
+  File "/home/human/telemetry-gps/gps_logger/connection.py", line 27, in connect_to_gps
+    return Serial(port=device_path, **kwargs)
+  File "/home/human/.local/lib/python3.10/site-packages/serial/serialutil.py", line 244, in __init__
+    self.open()
+  File "/home/human/.local/lib/python3.10/site-packages/serial/serialposix.py", line 325, in open
+    raise SerialException(msg.errno, "could not open port {}: {}".format(self._port, msg))
+serial.serialutil.SerialException: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+```
+
+Note the above places where it says ```No such file or directory: '/dev/ttyACM0'```.  ```/dev/ttypACM0``` is the default device file name for a Raspberry Pi USB GPS device.
+
+The following shows how to identify and then remove zero length JSON data files.
+
+```bash
+$ # From the telemetry-gps project directory
+$ cd data
+$ ls -l
+-rw-r--r-- 1 human 197609    3570 Aug 14 06:31 NMEA-20220814113106-utc.json
+-rw-r--r-- 1 human 197609  143497 Aug 26 08:39 NMEA-20220826133137-utc.json
+-rw-r--r-- 1 human 197609 1883662 Aug 26 10:34 NMEA-20220826134824-utc.json
+-rw-r--r-- 1 human 197609   81748 Aug 26 10:39 NMEA-20220826153428-utc.json
+-rw-r--r-- 1 human 197609  102988 Aug 26 10:56 NMEA-20220826155057-utc.json
+-rw-r--r-- 1 human 197609   18169 Aug 26 11:08 NMEA-20220826160759-utc.json
+-rw-r--r-- 1 human 197609 1617134 Aug 26 12:58 NMEA-20220826162732-utc.json
+-rw-r--r-- 1 human 197609  411207 Aug 26 13:21 NMEA-20220826175820-utc.json
+-rw-r--r-- 1 human 197609   19072 Sep  5 14:51 NMEA-20220905195019-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:08 NMEA-20220910170858-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:09 NMEA-20220910170909-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:09 NMEA-20220910170921-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:09 NMEA-20220910170931-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:09 NMEA-20220910170942-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:09 NMEA-20220910170952-utc.json
+-rw-r--r-- 1 human 197609       0 Sep 10 12:10 NMEA-20220910171003-utc.json
+$
+$ # Above, files starting with "NMEA-20220910" are all zero length
+$
+$ # To find zero length JSON files programmatically:
+$ find . -type f -name '*.json' -size 0 -print
+NMEA-20220910170858-utc.json
+NMEA-20220910170909-utc.json
+NMEA-20220910170921-utc.json
+NMEA-20220910170931-utc.json
+NMEA-20220910170942-utc.json
+NMEA-20220910170952-utc.json
+NMEA-20220910171003-utc.json
+$
+$ # To find and delete zero length JSON files programmatically:
+$ find . -type f -name '*.json' -size 0 -print | while read filename
+> do
+> echo "${fname}"
+> rm -f "${fname}"
+> done
+./NMEA-20220910170858-utc.json
+./NMEA-20220910170909-utc.json
+./NMEA-20220910170921-utc.json
+./NMEA-20220910170931-utc.json
+./NMEA-20220910170942-utc.json
+./NMEA-20220910170952-utc.json
+./NMEA-20220910171003-utc.json
+$
+```
 
 ## Diagnosing UltraDict Related Problems
 
