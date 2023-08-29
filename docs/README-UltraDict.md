@@ -14,20 +14,22 @@ The above issue and several others have been fixed in the [UltraDict](https://gi
 # UltraDict Dependencies
 sudo apt-get install -y cmake
 python3.10 -m pip install --user --upgrade pyrtcm
-python3.3.10 -m pip install --user --upgrade atomics
+python3.10 -m pip install --user --upgrade atomics
 ```
 
 ## Install UltraDict
 
 Here is how you access the development branch and install ```UltraDict``` on Linux.  I haven't taken the time to install on Windows (missing certain Microsoft development tools) and I'm not even trying to figure out what can be done on Macs.  These instructions assume that you have already downloaded Python 3.10 source code and then built and installed Python 3.10 from that code.  You need the development tools from that build.
 
+The following assumes that the current development version is ```0.0.6```.
+
 ```bash
 $ cd
 $ git clone https://github.com/ronny-rentner/UltraDict.git
 $ cd UltraDict
 $ git checkout dev
-$ python3.10 -m build .
-$ python3.10 -m pip install dist/UltraDict-0.0.4-cp310-cp310-linux_aarch64.whl
+$ python3.10 -m build
+$ python3.10 -m pip install dist/UltraDict-0.0.6-cp310-cp310-linux_aarch64.whl
 $
 ```
 
