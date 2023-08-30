@@ -211,7 +211,7 @@ With some, little or no modification, the installation instructions should work 
 
 *telemetry-gps* requires a number of Libraries and Python packages that need to be installed before installing this package.  Follow installation instruction links for the following:
 
-- [Python 3.10](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
+- [Python 3.10 and 3.11](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
   - provides the runtime environment for the application
   - follow the above link
 - [PyGPSClient](docs/PyGPSClient.md)
