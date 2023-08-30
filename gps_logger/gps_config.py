@@ -248,7 +248,7 @@ def get_output_file_name(base_path:str, base_name:str, output_file_name_counter=
 def get_log_file_handle(base_path:str, base_name="NMEA", output_file_name_counter=False):
     """return a file handle opened for writing to a log file"""
     full_path = get_directory(base_path) / get_output_file_name(
-        base_name, output_file_name_counter=output_file_name_counter
+        base_path, base_name, output_file_name_counter=output_file_name_counter
     )
 
     logger.info(f"log file full path: {full_path}")
