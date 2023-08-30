@@ -213,17 +213,46 @@ def get_directory(base_path)->Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def get_output_file_name(base_name)->Path:
+def get_counter_value(base_path:str, base_name:str)->int:
+    # get the counter value (integer) held in the file
+    # f"{base_path}/{base_name}-counter_value.txt"
+    path = Path(base_path) / Path(f".{base_name}-counter_value.txt")
+    if path.is_file():
+        with open(path,"r") as counter_file:
+            counter_value = int(counter_file.read())
+    else:
+        counter_value = 0
+
+    return counter_value
+
+def save_counter_value(base_path:str, base_name:str, counter_value:int):
+    # save the counter value (integer) as a string held in the file
+    # f"{base_path}/{base_name}-counter_value.txt"
+    path = Path(base_path) / Path(f".{base_name}-counter_value.txt")
+    with open(path, 'w') as counter_file:
+        counter_file.write(str(counter_value))
+    return
+
+def get_output_file_name(base_path:str, base_name:str, output_file_name_counter=False)->Path:
     """Create an output file name."""
+    if output_file_name_counter:
+        counter_value = get_counter_value(base_path, base_name)
+        counter_value += 1
+        save_counter_value(base_path, base_name, counter_value)
+        counter_string = (f"{counter_value:10d}").replace(' ', '0')
+        return Path(f"{base_name}-{counter_string}.json")
+
     dt_now = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S")
     return Path(f"{base_name}-{dt_now}-utc.json")
 
-def get_log_file_handle(base_path:str, base_name="NMEA"):
+def get_log_file_handle(base_path:str, base_name="NMEA", output_file_name_counter=False):
     """return a file handle opened for writing to a log file"""
-    full_path = get_directory(base_path) / get_output_file_name(base_name)
-    
+    full_path = get_directory(base_path) / get_output_file_name(
+        base_name, output_file_name_counter=output_file_name_counter
+    )
+
     logger.info(f"log file full path: {full_path}")
 
-   # open for exclusive creation, failing if the file already exists
+    # open for exclusive creation, failing if the file already exists
     return open(full_path, mode='x', encoding='utf-8')
 

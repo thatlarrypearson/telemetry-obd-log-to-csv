@@ -16,6 +16,7 @@ Integrate GPS location and time data collection with vehicle engine data for bet
 - Works with Python 3.10 and newer
 - Raspberry Pi 4 hardware and Raspberry Pi OS target environment
 - When using the shared memory feature, it doesn't matter which program is started first - this program ```gps_logger.gps_logger```, the location data generator, can start first or consuming programs like ```telemetry_obd.obd_logger``` can start first
+- Two forms of data file naming based on the existence of the parameter ```--output_file_name_counter```.  The first form without the parameter is ```data/NMEA-<YYYYMMDDhhmmss>-utc.json```.  The second form with the parameter is ```data/NMEA-<counter>``` where counter would be ```0000000001``` for the first file, ```0000000002``` for the second file and so on.
 
 ## Target System
 
@@ -50,11 +51,29 @@ options:
                         Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to all.
   --message_rate MESSAGE_RATE
                         Number of whole seconds between each GPS fix.  Defaults to 1.
+  --output_file_name_counter
+                        Base output file name on counter not timestamps
   --serial SERIAL       Full path to the serial device where the GPS can be found, defaults to /dev/ttyACM0
   --verbose             Turn DEBUG logging on. Default is off.
   --version             Print version number and exit.
 $
 ```
+
+### ```--output_file_name_counter```
+
+```--output_file_name_counter``` changes the way data files are named.  Without this flag, data file names are in the form ```<VIN>-YYYYMMDDhhmmss-utc.json```.  With this flag set, data files are named using the counter stored in a file named in the form ```<VIN>-counter_value.txt``` found in the ```base_path``` directory (defaults to ```data```).  The first time a particular VIN (vehicle identification number) is encountered, the first value will be ```1```.
+
+The **counter** values can be retrieved using the following ```bash``` commands:
+
+```bash
+cd ~/telemetry-obd/data
+for fname in *counter_value.txt
+do
+  echo ${fname}: $(cat ${fname})
+done
+```
+
+### ```--shared_dictionary_command_list```
 
 List of NMEA commands/sentences that are known to this application:
 
@@ -62,6 +81,10 @@ List of NMEA commands/sentences that are known to this application:
 - ```NMEA_GNGST```: Pseudorange error statistics
 - ```NMEA_GNTHS```: True heading and status
 - ```NMEA_GNZTD```: Time and data
+
+### ```--version```
+
+Responds with the version and exits.
 
 ## Log File Format
 
@@ -188,7 +211,7 @@ With some, little or no modification, the installation instructions should work 
 
 *telemetry-gps* requires a number of Libraries and Python packages that need to be installed before installing this package.  Follow installation instruction links for the following:
 
-- [Pythoon 3.10](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
+- [Python 3.10](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
   - provides the runtime environment for the application
   - follow the above link
 - [PyGPSClient](docs/PyGPSClient.md)

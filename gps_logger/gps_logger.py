@@ -54,6 +54,12 @@ def argument_parsing()-> dict:
         help=f"Full path to the serial device where the GPS can be found, defaults to {DEFAULT_SERIAL_DEVICE}"
     )
     parser.add_argument(
+        "--output_file_name_counter",
+        help="Base output file name on counter not timestamps",
+        default=False,
+        action='store_true'
+    )
+    parser.add_argument(
         "--verbose",
         default=False,
         action='store_true',
@@ -82,6 +88,7 @@ def main():
     shared_dictionary_name = args['shared_dictionary_name']
     shared_dictionary_command_list = args['shared_dictionary_command_list']
     message_rate = args['message_rate']
+    output_file_name_counter = args['output_file_name_counter']
 
     logging_level = logging.DEBUG if verbose else logging.INFO
 
@@ -91,7 +98,7 @@ def main():
 
     if log_file_directory:
         logging.info(f"log_file_directory: {log_file_directory}")
-        log_file_handle = get_log_file_handle(log_file_directory)
+        log_file_handle = get_log_file_handle(log_file_directory, output_file_name_counter=output_file_name_counter)
     else:
         log_file_handle = None
 
