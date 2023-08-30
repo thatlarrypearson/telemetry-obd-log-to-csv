@@ -49,6 +49,7 @@ while date '+%Y/%m/%d %H:%M:%S'
 do
 	${APP_PYTHON} -m gps_logger.gps_logger \
         --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
+		--output_file_name_counter \
         --log_file_directory "${APP_BASE_PATH}"
 
 	export RtnVal="$?"
