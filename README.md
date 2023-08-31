@@ -458,6 +458,14 @@ $
 
 ## Diagnosing UltraDict Related Problems
 
+When using ```UltraDict```, the most embarrassing **bug** to find is the one where ```--shared_dictionary_name``` is set in the consuming application (e.g. ```telemetry_obd.obd_logger```) but GPS or weather data just isn't showing up.  When the expected data isn't showing up, add one or more of the following to the command line of ```telemetry_obd.obd_logger```:
+
+- ```--shared_dictionary_command_list```
+- ```--gps_defaults```
+- ```--weather_defaults```
+
+Ask me how I know. :unamused:
+
 ```UltraDict``` can be difficult to install on some systems such as **Windows 10**.  This library will work without UltraDict installed.  However, there will be a log message on startup whenever the ```--shared_dictionary_name``` command line argument is used as shown below.
 
 ```powershell

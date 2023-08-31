@@ -100,7 +100,7 @@ try:
             super().__init__(
                 name=name,
                 buffer_size=1048576,    # 1 MB
-                shared_lock=False,      # assume only one writer to shared memory/dictionary
+                shared_lock=True,       # assume multiple writers to shared memory/dictionary
                 full_dump_size=None,    # change this value for Windows machines
                 auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
                 recurse=False           # dictionary can contain dictionaries but updates not nested
@@ -113,4 +113,4 @@ except ImportError:
         Fake class replacement.
         """
         logger.error(f"import error: Shared Dictionary ({name}) feature unsupported: UltraDict Not installed. ")
-        return dict()
+        return {}
