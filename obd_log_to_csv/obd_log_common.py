@@ -797,6 +797,8 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
        Other times obd_response_values will be a string which may or may not
        contain commas.  In this case, the string will be wrapped with double
        quotes.
+       In some cases a string will have a null character in it in which case
+       the null character will be deleted from the string.
     """
     if obd_response_value in {'no response', 'not supported'}:
         return None, None
@@ -835,6 +837,9 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
     # Test to see if this is just a string and not a pint value: {numeric value}<SPACE>{non-numeric value}
     if isinstance(obd_response_value, str) and len(obd_response_value.strip().split(" ")) <= 1:
         # not a pint value
+        if b'\x00' in obd_response_value:
+            # string contains null value
+            return obd_response_value.replace(chr(0), ''), None
         return obd_response_value, None
 
     try:
