@@ -837,7 +837,7 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
     # Test to see if this is just a string and not a pint value: {numeric value}<SPACE>{non-numeric value}
     if isinstance(obd_response_value, str) and len(obd_response_value.strip().split(" ")) <= 1:
         # not a pint value
-        if b'\x00' in obd_response_value:
+        if chr(0) in obd_response_value:
             # string contains null value
             return obd_response_value.replace(chr(0), ''), None
         return obd_response_value, None
