@@ -99,7 +99,7 @@ python3.10 --version
 python3.10 -m pip install --user build setuptools wheel python-dateutil
 cd telemetry-obd-log-to-csv
 python3.10 -m build
-python3.10 -m pip install --user dist/telemetry_obd_log_to_csv-0.2.1-py3-none-any.whl
+python3.10 -m pip install --user dist/telemetry_obd_log_to_csv-0.3.3-py3-none-any.whl
 ```
 
 ## Documentation
