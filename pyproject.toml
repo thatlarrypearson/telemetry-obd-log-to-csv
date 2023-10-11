@@ -19,7 +19,7 @@ repository = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
 documentation = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
 keywords = ["obd", "telematics", "vehicle"]
 dependencies = [
-  'pint = 0.19.2',
+  'pint > 0.20',
   'rich = 12.6.0',
 ]
 
