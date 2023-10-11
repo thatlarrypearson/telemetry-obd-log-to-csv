@@ -10,7 +10,7 @@ Convert [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd
 - Comes with post processing programs that add in
   - rates of change in numeric columns - e.g. ```SPEED``` can become ```ACCELERATION```
   - ratios in pairs of columns - e.g. ```RPM/SPEED``` provides a current gear ratio
-- Uses Python 3.8 or newer (Testing done with Python 3.10)
+- Uses Python 3.8 or newer (Testing done with Python 3.11)
 - Runs on Windows, Mac and Linux
 
 When aggregating multiple OBD commands into records, ```obd_log_to_csv``` considers a record complete when it finds another entry for an OBD command already placed into the record.  OBD commands not found in the input by the time the record is complete are set to ```None``` in Python and that is translated to missing values in the CSV file.  In Pandas, such missing values get changed to ```NaN``` or Not a Number.
@@ -28,7 +28,7 @@ Time stamps are handled in the following way:
 Given vehicle telemetry data files created by ```telemetry_obd.obd_logger```, create ```CSV``` files suitable for importation into spreadsheets (i.e. Microsoft Excel) or Python Pandas ecosystem components.
 
 ```bash
-$ python3.10 -m obd_log_to_csv.obd_log_to_csv --help
+$ python3.11 -m obd_log_to_csv.obd_log_to_csv --help
 usage: obd_log_to_csv [-h] [--commands COMMANDS] [--csv CSV] [--no_header]
                       [--verbose]
                       files [files ...]
@@ -69,7 +69,7 @@ On Linux/Mac, convert ```obd_logger``` generated data to Pandas compatible CSV f
 
 ```bash
 export VIN="FT8W4DT5HED00000"
-python3.10 -m obd_log_to_csv.obd_log_to_csv \
+python3.11 -m obd_log_to_csv.obd_log_to_csv \
         --csv="${VIN}.csv" \
         --commands=ACCELERATOR_POS_D,ACCELERATOR_POS_E,AMBIANT_AIR_TEMP,BAROMETRIC_PRESSURE,COMMANDED_EGR,CONTROL_MODULE_VOLTAGE,COOLANT_TEMP,DISTANCE_SINCE_DTC_CLEAR,DISTANCE_W_MIL,ENGINE_LOAD,FUEL_LEVEL,FUEL_INJECT_TIMING,FUEL_RAIL_PRESSURE_ABS,FUEL_RAIL_PRESSURE_DIRECT,INTAKE_PRESSURE,INTAKE_TEMP,MAF,OIL_TEMP,RELATIVE_ACCEL_POS,RUN_TIME \
         data/"${VIN}"/*.json
@@ -81,7 +81,7 @@ Similarly, on Windows using PowerShell, the following will also process a group 
 
 ```powershell
 $VIN ="FT8W4DT5HED00000"
-python3.10 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEED,FUEL_RATE data/${VIN}/*.json
+python3.11 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEED,FUEL_RATE data/${VIN}/*.json
 ```
 
 ## ```obd_log_to_csv.obd_log_to_csv``` Jupyter Notebook Usage Example
@@ -91,15 +91,20 @@ python3.10 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEE
 
 ## Installation
 
-Clone this repository from `git` and install using Python pip where the Python version is 3.10 or higher.
+Clone this repository from `git` and install using Python pip where the Python version is 3.11 or higher.
+
+In some newer version of Python, ```pip``` is handled differently and not necessarily better which is why the two following ```pip``` installations have the command line options they do.
 
 ```bash
 git clone https://github.com/thatlarrypearson/telemetry-obd-log-to-csv.git
-python3.10 --version
-python3.10 -m pip install --user build setuptools wheel python-dateutil
+python3.11 --version
+
+# Python pip Install Support
+python3.11 -m pip install --upgrade --force-reinstall --user pip
+python3.11 -m pip install --upgrade --force-reinstall --user wheel setuptools markdown build
 cd telemetry-obd-log-to-csv
-python3.10 -m build
-python3.10 -m pip install --user dist/telemetry_obd_log_to_csv-0.3.3-py3-none-any.whl
+python3.11 -m build
+python3.11 -m pip install --user dist/telemetry_obd_log_to_csv-0.3.3-py3-none-any.whl
 ```
 
 ## Documentation
