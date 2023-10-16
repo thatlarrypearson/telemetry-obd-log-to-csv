@@ -14,9 +14,9 @@ export APP_HOME="/home/$(whoami)/telemetry-gps"
 export APP_TMP_DIR="${APP_HOME}/tmp"
 export APP_BASE_PATH="${APP_HOME}/data"
 export APP_LOG_FILE="telemetry-$(date '+%Y-%m-%d %H_%M_%S').log"
-export APP_PYTHON=python3.10
+export APP_PYTHON=python3.11
 export DEBUG="True"
-export SHARED_DICTIONARY_NAME="GPS"
+export SHARED_DICTIONARY_NAME="TELEMETRY"
 
 # Debugging support
 if [ "${DEBUG}" == "True" ]
