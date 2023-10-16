@@ -5,17 +5,23 @@ GPS Logger
 from argparse import ArgumentParser
 import logging
 from sys import stdout, stderr
-from datetime import datetime, timezone
 from os import fsync
-from pyubx2 import UBXReader
 from datetime import datetime, timezone
-from os import fsync
 import json
+
+from pyubx2 import UBXReader
+
 from .__init__ import __version__
-from .gps_config import logger, get_log_file_handle
+from .gps_config import (
+    parsed_data_to_dict,
+    get_log_file_handle,
+)
 from .connection import (
-    SHARED_DICTIONARY_COMMAND_LIST, initialize_gps, parsed_data_to_dict, dict_to_log_format,
-    SharedDictionaryManager
+    initialize_gps, dict_to_log_format,
+)
+from obd_logger.telemetry_common_functions import (
+    default_shared_gps_command_list as SHARED_DICTIONARY_COMMAND_LIST,
+    SharedDictionaryManager,
 )
 
 DEFAULT_SERIAL_DEVICE="/dev/ttyACM0"
@@ -27,11 +33,6 @@ logger = logging.getLogger("gps_logger")
 def argument_parsing()-> dict:
     """Argument parsing"""
     parser = ArgumentParser(description="Telemetry GPS Logger")
-    parser.add_argument(
-        "--log_file_directory",
-        default=None,
-        help="Enable logging and place log files into this directory"
-    )
     parser.add_argument(
         "--shared_dictionary_name",
         default=None,
@@ -52,12 +53,6 @@ def argument_parsing()-> dict:
         "--serial",
         default=DEFAULT_SERIAL_DEVICE,
         help=f"Full path to the serial device where the GPS can be found, defaults to {DEFAULT_SERIAL_DEVICE}"
-    )
-    parser.add_argument(
-        "--output_file_name_counter",
-        help="Base output file name on counter not timestamps",
-        default=False,
-        action='store_true'
     )
     parser.add_argument(
         "--verbose",
@@ -84,11 +79,9 @@ def main():
 
     verbose = args['verbose']
     serial_device = args['serial']
-    log_file_directory = args['log_file_directory']
     shared_dictionary_name = args['shared_dictionary_name']
     shared_dictionary_command_list = args['shared_dictionary_command_list']
     message_rate = args['message_rate']
-    output_file_name_counter = args['output_file_name_counter']
 
     logging_level = logging.DEBUG if verbose else logging.INFO
 
@@ -96,11 +89,8 @@ def main():
 
     logging.debug(f"argument --verbose: {verbose}")
 
-    if log_file_directory:
-        logging.info(f"log_file_directory: {log_file_directory}")
-        log_file_handle = get_log_file_handle(log_file_directory, output_file_name_counter=output_file_name_counter)
-    else:
-        log_file_handle = None
+    log_file_handle = get_log_file_handle()
+    logging.info(f"log file name: {log_file_handle.name}")
 
     if shared_dictionary_command_list:
         shared_dictionary_command_list = shared_dictionary_command_list.split(sep=',')
