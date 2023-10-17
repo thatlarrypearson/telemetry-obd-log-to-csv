@@ -241,7 +241,7 @@ The following are optional packages and are only required if vehicle location da
   - Engine data logger supporting shared memory
 - [Telemetry Weather Logging](https://github.com/thatlarrypearson/telemetry-wthr)
   - Weather data logger supporting shared memory
-- [UltraDict](docs/README-UltraDict.md)
+- [UltraDict]([docs/README-UltraDict.md](https://github.com/thatlarrypearson/telemetry-obd/blob/master/docs/README-UltraDict.md))
   - Python library providing shared memory support
 
 Once the dependencies are installed and working, the shared memory features can be tested.
