@@ -46,7 +46,7 @@ def main():
         exit(0)
 
     if args['current_boot_count']:
-        print(f"Current Boot Count: {get_boot_count()}")
+        print(f"{get_boot_count()}")
         exit(0)
 
     if args['boot_count_file_location']:
