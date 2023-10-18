@@ -12,6 +12,9 @@ BASE_PATH = f"{HOME}/{DATA_PATH}"
 CONFIG_PATH = f"{HOME}/telemetry-obd/config"
 SYSTEM_BOOT_COUNT_APPLICATION_NAME = "system-boot-count"
 
+# Known application shortcuts
+APPLICATION_LIST = ['obd', 'gps', 'wthr', 'imu', ]
+
 # Default data file paths and names
 
 # - for telemetry-obd data
