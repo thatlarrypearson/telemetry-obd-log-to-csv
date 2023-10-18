@@ -46,14 +46,16 @@ def main():
         exit(0)
 
     if args['current_boot_count']:
-        print(f"{get_boot_count()}")
+        boot_count_string =  (f"{get_boot_count():10d}").replace(' ', '0')
+        print(boot_count_string)
         exit(0)
 
     if args['boot_count_file_location']:
         print(f"{get_boot_count_file_path()}")
         exit(0)
 
-    print(f"{get_next_boot_counter_value()}")
+    boot_count_string =  (f"{get_next_boot_counter_value():10d}").replace(' ', '0')
+    print(boot_count_string)
 
 if __name__ == "__main__":
     main()
