@@ -11,7 +11,52 @@ Updates the system boot count for use by other telemetry applications:
 
 ## Usage
 
+### ```counter.boot_counter```
+
+```bash
+$ python3.11 -m counter.boot_counter --help
+usage: boot_counter.py [-h] [--boot_count_file_location] [--current_boot_count] [--version]
+
+Telemetry Boot Counter
+
+options:
+  -h, --help            show this help message and exit
+  --boot_count_file_location
+                        Print boot count file location and exit.
+  --current_boot_count  Print current boot count and exit.
+  --version             Print version number and exit.
+$
+```
+
+### ```counter.app_counter```
+
+```bash
+$ python3.11 -m counter.app_counter --help
+usage: app_counter.py [-h] [--app_count_file_location] [--current_app_count] [--version] application_id
+
+Telemetry Application Start Counter
+
+positional arguments:
+  application_id        Application Identifier must be one of ['obd', 'gps', 'wthr', 'imu'].
+
+options:
+  -h, --help            show this help message and exit
+  --app_count_file_location
+                        Print application start count file location and exit.
+  --current_app_count   Print current application start count and exit.
+  --version             Print version number and exit.
+$
+```
+
 ## Installation
+
+```bash
+cd
+git clone https://github.com/thatlarrypearson/telemetry-counter.git
+cd telemetry-counter
+python3.11 -m build .
+python3.11 -m pip install dist/telemetry_counter-0.0.1-py3-none-any.whl
+```
 
 ## Common Library
 

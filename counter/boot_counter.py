@@ -30,7 +30,7 @@ def argument_parsing()-> dict:
 
     parser.add_argument(
         "--version",
-        help="Print version number and exit.",
+        help=f"Print version ({__version__}) number and exit.",
         default=False,
         action='store_true'
     )

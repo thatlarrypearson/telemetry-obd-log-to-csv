@@ -17,7 +17,7 @@ def argument_parsing()-> dict:
     parser.add_argument(
         "application_id",
         # nargs='?',
-        nargs='1',
+        nargs=1,
         metavar="application_id",
         # default=[None, ],
         help=f"Application Identifier must be one of {APPLICATION_LIST}."
@@ -39,7 +39,7 @@ def argument_parsing()-> dict:
 
     parser.add_argument(
         "--version",
-        help="Print version number and exit.",
+        help=f"Print version number ({__version__}) and exit.",
         default=False,
         action='store_true'
     )
@@ -52,7 +52,8 @@ def main():
 
     application_id = args['application_id'][0]
     if application_id not in APPLICATION_LIST:
-        raise ValueError(f"required argument application_id {application_id} not in {APPLICATION_LIST}")
+        print(f"ValueError: required argument application_id {application_id} not in {APPLICATION_LIST}")
+        exit(1)
 
     if args['version']:
         print(f"app_counter version: {__version__}")
