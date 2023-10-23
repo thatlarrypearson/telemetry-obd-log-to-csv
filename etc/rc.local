@@ -17,24 +17,34 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-# BEGIN TELEMETRY-WTHR SUPPORT
-# This section goes before the TELEMETRY_OBD and TELEMETRY_GPS sections
+# BEGIN TELEMETRY SUPPORT
 
-/bin/nohup "/root/bin/telemetry.rc.local.wthr" &
+if [ -x "/root/bin/telemetry.rc.local.counter" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.counter" &
+fi
 
-# END TELEMETRY-WTHR SUPPORT
+if [ -x "/root/bin/telemetry.rc.local.gps" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.gps" &
+fi
 
-# BEGIN TELEMETRY-GPS SUPPORT
-# This section goes before the TELEMETRY_OBD section
+if [ -x "/root/bin/telemetry.rc.local.imu" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.imu" &
+fi
 
-/bin/nohup "/root/bin/telemetry.rc.local.gps" &
+if [ -x "/root/bin/telemetry.rc.local.wthr" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.wthr" &
+fi
 
-# END TELEMETRY-GPS SUPPORT
+if [ -x "/root/bin/telemetry.rc.local.obd" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.obd" &
+fi
 
-# BEGIN TELEMETRY-OBD SUPPORT
+# END TELEMETRY SUPPORT
 
-/bin/nohup "/root/bin/telemetry.rc.local" &
-
-# END TELEMETRY-OBD SUPPORT
 
 exit 0

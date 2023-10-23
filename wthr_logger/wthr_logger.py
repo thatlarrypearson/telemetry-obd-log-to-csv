@@ -11,26 +11,33 @@ from pathlib import Path
 from datetime import datetime, timezone
 from os import fsync
 import json
+
+from counter.common import (
+    default_shared_wthr_command_list as SHARED_DICTIONARY_COMMAND_LIST,
+    SharedDictionaryManager,
+    BASE_PATH,
+)
+
 from .__init__ import __version__
 from .udp import WeatherReports, WEATHER_REPORT_EXCLUDE_LIST
 
 logger = logging.getLogger("wthr_logger")
 
-SHARED_DICTIONARY_COMMAND_LIST = [
-    "WTHR_rapid_wind",          # Rapid Wind
-    "WTHR_hub_status",          # Hub Status
-    "WTHR_device_status",       # Time and data
-    "WTHR_obs_st",              # Tempest Observation
-    "WTHR_evt_strike",          # Lightning Strike Event
-]
 
 def argument_parsing()-> dict:
     """Argument parsing"""
     parser = ArgumentParser(description="Telemetry Weather Logger")
     parser.add_argument(
+        "base_path",
+        nargs='?',
+        metavar="base_path",
+        default=[BASE_PATH, ],
+        help=f"Relative or absolute output data directory. Defaults to '{BASE_PATH}'."
+    )
+    parser.add_argument(
         "--log_file_directory",
-        default=None,
-        help="Enable logging and place log files into this directory"
+        default=BASE_PATH,
+        help=f"Place log files into this directory - defaults to {BASE_PATH}"
     )
     parser.add_argument(
         "--shared_dictionary_name",
@@ -55,50 +62,6 @@ def argument_parsing()-> dict:
         help="Print version number and exit."
     )
     return vars(parser.parse_args())
-
-try:
-    # Not making UltraDict a requirement.
-    from UltraDict import UltraDict
-
-    class SharedDictionaryManager(UltraDict):
-        """
-        Shared Dictionary Manager - Uses a dictionary as the shared memory metaphor.
-        Supports multiple instances within single process so long as 'name'
-        is distinct for each instance.  This is not enforced as this class doesn't
-        use the singleton pattern.
-
-        Different processes can share the same shared memory/dictionary so long as they use the
-        same value for the 'name' constructor variable.
-
-        Code assumes there is only one writer and one or more readers for each memory region.  If more
-        more than one writer is needed, create multiple instances, one for each writer.
-        """
-        # UltraDict(*arg, name=None, buffer_size=10000, serializer=pickle, shared_lock=False, full_dump_size=None, auto_unlink=True, recurse=False, **kwargs)
-
-        def __init__(self, name:str):
-            """
-            SharedDictionaryManager constructor
-            arguments
-                name
-                    name of the shared memory/dictionary region
-            """
-            super().__init__(
-                name=name,
-                buffer_size=1048576,    # 1 MB
-                shared_lock=False,      # assume only one writer to shared memory/dictionary
-                full_dump_size=None,    # change this value for Windows machines
-                auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
-                recurse=False           # dictionary can contain dictionaries but updates not nested
-            )
-
-except ImportError:
-
-    def SharedDictionaryManager(name:str) -> dict:
-        """
-        Fake class replacement.
-        """
-        logger.error(f"import error: Shared Dictionary ({name}) feature unsupported: UltraDict Not installed. ")
-        return dict()
 
 def dict_to_log_format(weather_report:dict) -> dict:
     """

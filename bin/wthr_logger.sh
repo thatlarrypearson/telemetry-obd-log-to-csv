@@ -6,13 +6,20 @@
 # Need time for Weather interface recover after failure
 export RESTART_DELAY=10
 
-export APP_HOME="/home/$(whoami)/telemetry-wthr"
+export APP_HOME="/home/$(whoami)/telemetry-data"
 export APP_TMP_DIR="${APP_HOME}/tmp"
 export APP_BASE_PATH="${APP_HOME}/data"
-export APP_LOG_FILE="telemetry-$(date '+%Y-%m-%d %H_%M_%S').log"
 export APP_PYTHON=python3.10
 export DEBUG="True"
 export SHARED_DICTIONARY_NAME="TELEMETRY"
+
+# get next application startup counter
+export APP_COUNT=$(${APP_PYTHON} -m counter.app_counter ${APP_ID})
+
+# get current system startup counter
+export BOOT_COUNT=$(${APP_PYTHON} -m counter.boot_counter)
+
+export APP_LOG_FILE="telemetry-${BOOT_COUNT}-${APP_ID}-${APP_COUNT}.log"
 
 # Debugging support
 if [ "${DEBUG}" == "True" ]
@@ -32,8 +39,6 @@ fi
 # redirect all stdout and stderr to file
 exec &> "${APP_TMP_DIR}/${APP_LOG_FILE}"
 
-date '+%Y/%m/%d %H:%M:%S'
-
 if [ ! -d "${APP_BASE_PATH}" ]
 then
 	mkdir --parents "${APP_BASE_PATH}"
@@ -49,7 +54,6 @@ do
 
 	export RtnVal="$?"
 	echo wthr_logger returns "${RtnVal}"
-	date '+%Y/%m/%d %H:%M:%S'
 
 	sleep "${RESTART_DELAY}"
 done
