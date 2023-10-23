@@ -2,7 +2,7 @@
 
 **UNDER CONSTRUCTION**
 
-Updates the system boot count for use by other telemetry applications:
+Increments and returns the *system boot* and *application start* counters for use by other telemetry applications:
 
 - [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd)
 - [Telemetry GPS Location and Time Logger](https://github.com/thatlarrypearson/telemetry-gps)
