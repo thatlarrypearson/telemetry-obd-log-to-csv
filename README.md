@@ -144,8 +144,8 @@ $ cat NMEA-20220525142137-utc.json
         "sogkUnit": "K",
         "posMode": "A"
     },
-    "iso_format_pre": "2022-05-25T14:45:18.162234+00:00",
-    "iso_format_post": "2022-05-25T14:45:22.121613+00:00"
+    "iso_ts_pre": "2022-05-25T14:45:18.162234+00:00",
+    "iso_ts_post": "2022-05-25T14:45:22.121613+00:00"
 }<LF>
 {
     "command_name": "NMEA_GNGNS",
@@ -164,8 +164,8 @@ $ cat NMEA-20220525142137-utc.json
         "diffAge": null,
         "diffStation": null
     },
-    "iso_format_pre": "2022-05-25T14:45:22.125739+00:00",
-    "iso_format_post": "2022-05-25T14:45:22.128793+00:00"
+    "iso_ts_pre": "2022-05-25T14:45:22.125739+00:00",
+    "iso_ts_post": "2022-05-25T14:45:22.128793+00:00"
 }<LF>
 {
     "command_name": "NMEA_GNGST",
@@ -180,8 +180,8 @@ $ cat NMEA-20220525142137-utc.json
         "stdLong": "1.1",
         "stdAlt": "2.4"
     },
-    "iso_format_pre": "2022-05-25T14:45:22.133219+00:00",
-    "iso_format_post": "2022-05-25T14:45:22.135003+00:00"
+    "iso_ts_pre": "2022-05-25T14:45:22.133219+00:00",
+    "iso_ts_post": "2022-05-25T14:45:22.135003+00:00"
 }<LF>
 {
     "command_name": "NMEA_GNZDA",
@@ -194,8 +194,8 @@ $ cat NMEA-20220525142137-utc.json
         "ltzh": "00",
         "ltzn": "00"
     },
-    "iso_format_pre": "2022-05-25T14:45:22.141224+00:00",
-    "iso_format_post": "2022-05-25T14:45:22.142981+00:00"
+    "iso_ts_pre": "2022-05-25T14:45:22.141224+00:00",
+    "iso_ts_post": "2022-05-25T14:45:22.142981+00:00"
 }<LF>
 $
 ```
@@ -265,7 +265,7 @@ To access the GPS, the username running ```gps_logger``` will need to be a membe
 sudo adduser $(whoami) dialout
 ```
 
-To start ```gps_logger.gps_logger``` at boot on a Raspberry Pi, add the section of code from below starting with ```# BEGIN TELEMETRY-GPS SUPPORT``` and ending with ```# END TELEMETRY-GPS SUPPORT``` to ```/etc/rc.local```.
+To start ```gps_logger.gps_logger``` at boot on a Raspberry Pi, add the section of code from below starting with ```# BEGIN TELEMETRY SUPPORT``` and ending with ```# END TELEMETRY SUPPORT``` to ```/etc/rc.local```.
 
 ```bash
 #!/bin/sh -e
@@ -287,64 +287,43 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-# BEGIN SYSTEM BOOT COUNTER
+# BEGIN TELEMETRY SUPPORT
 
-/bin/nohup "/root/bin/telemetry.rc.local.system" &
+if [ -x "/root/bin/telemetry.rc.local.counter" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.counter" &
+fi
 
-# END SYSTEM BOOT COUNTER
+if [ -x "/root/bin/telemetry.rc.local.gps" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.gps" &
+fi
 
-# BEGIN TELEMETRY-GPS SUPPORT
-# This section goes before the TELEMETRY_OBD section
+if [ -x "/root/bin/telemetry.rc.local.imu" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.imu" &
+fi
 
-/bin/nohup "/root/bin/telemetry.rc.local.gps" &
+if [ -x "/root/bin/telemetry.rc.local.wthr" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.wthr" &
+fi
 
-# END TELEMETRY-GPS SUPPORT
+if [ -x "/root/bin/telemetry.rc.local.obd" ]
+then
+  /bin/nohup "/root/bin/telemetry.rc.local.obd" &
+fi
 
-# BEGIN TELEMETRY-OBD SUPPORT
-
-/bin/nohup "/root/bin/telemetry.rc.local.obd" &
-
-# END TELEMETRY-OBD SUPPORT
+# END TELEMETRY SUPPORT
 
 exit 0
 ```
 
 ```/etc/rc.local``` executes both ```/root/bin/telemetry.rc.local.system``` and ```/root/bin/telemetry.rc.local.gps```.  In both files, the value for ```GPS_USER``` and ```SYSTEM_USER``` will need to be changed to match the username responsible for running this application.
 
-```bash
-#!/usr/bin/bash
-#
-# telemetry.rc.local.gps - This script is executed by the system /etc/rc.local script on system boot
-
-export GPS_USER="human"
-export GPS_GROUP="dialout"
-export GPS_HOME="/home/${GPS_USER}"
-export DEBUG="True"
-export LOG_FILE="/tmp/telemetry-gps_$(date '+%Y-%m-%d_%H:%M:%S').log"
-
-# Debugging support
-if [ "${DEBUG}" == "True" ]
-then
-	# enable shell debug mode
-	set -x
-fi
-
-# turn off stdin
-0<&-
-
-# redirect all stdout and stderr to file
-exec &> "${LOG_FILE}"
-
-## Run the script gps_logger.sh as user "${GPS_USER}" and group "${GPS_GROUP}"
-runuser -u "${GPS_USER}" -g dialout "${GPS_HOME}/telemetry-gps/bin/gps_logger.sh" &
-
-exit 0
-```
-
-To ready the system to autostart GPS logging, copy ```telemetry.rc.local``` to ```/root/bin``` and set its file system permissions as shown below.
+To ready the system to autostart GPS logging, copy ```telemetry.rc.local.gps``` to ```/root/bin``` and set its file system permissions as shown below.
 
 ```bash
-
 $ cd
 $ cd telemetry-gps/root/bin
 $ sudo mkdir /root/bin
@@ -354,11 +333,11 @@ $ sudo chmod 0755 /root/bin/telemetry.rc.local.gps
 $ cd
 ```
 
-```/root/bin/telemetry.rc.local``` executes ```telemetry-gps/bin/gps_logger.sh```  Lines 47 and 48 of ```gps_logger.sh``` have ```--shared_dictionary_name``` and ```--log_file_directory``` arguments.
+```/root/bin/telemetry.rc.local``` executes ```telemetry-gps/bin/gps_logger.sh```.  ```gps_logger.sh``` has ```--shared_dictionary_name``` and ```--log_file_directory``` arguments.  You may change these parameters as needed.
 
 If the shared dictionary/memory feature is going to be used, leave that line in place.  If logging to a file is needed, leave that line in place.  Otherwise, remove the unwanted argument lines.  One final note.  Lines ending in ```\``` indicate a line continuation in the shell environment.  The last line shouldn't have a ```\``` at the end as there wouldn't be any lines to continue to.
 
-If the GPS serial device isn't ```/dev/ttyACM0```, the serial device command line option will need to be added after lines 47 and 48.  If adding the default device, the added line might look like:
+If the GPS serial device isn't ```/dev/ttyACM0```, the serial device command line option will need to be added to the list of parameters (remember to at the line continuation backslash ```\``` if needed).  If adding the default device, the added line might look like:
 
 ```bash
     --serial /dev/ttyACM0
@@ -473,7 +452,8 @@ When using ```UltraDict```, the most embarrassing **bug** to find is the one whe
 
 - ```--shared_dictionary_command_list```
 - ```--gps_defaults```
-- ```--weather_defaults```
+- ```--wthr_defaults```
+- ```--imu_defaults```
 
 Ask me how I know. :unamused:
 

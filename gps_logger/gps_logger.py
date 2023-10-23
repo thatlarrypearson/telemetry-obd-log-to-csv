@@ -19,9 +19,10 @@ from .gps_config import (
 from .connection import (
     initialize_gps, dict_to_log_format,
 )
-from obd_logger.telemetry_common_functions import (
+from counter.common import (
     default_shared_gps_command_list as SHARED_DICTIONARY_COMMAND_LIST,
     SharedDictionaryManager,
+    BASE_PATH
 )
 
 DEFAULT_SERIAL_DEVICE="/dev/ttyACM0"
@@ -33,39 +34,54 @@ logger = logging.getLogger("gps_logger")
 def argument_parsing()-> dict:
     """Argument parsing"""
     parser = ArgumentParser(description="Telemetry GPS Logger")
+
+    parser.add_argument(
+        "base_path",
+        nargs='?',
+        metavar="base_path",
+        default=[BASE_PATH, ],
+        help=f"Relative or absolute output data directory. Defaults to '{BASE_PATH}'."
+    )
+
     parser.add_argument(
         "--shared_dictionary_name",
         default=None,
         help="Enable shared memory/dictionary using this name"
     )
+
     parser.add_argument(
         "--shared_dictionary_command_list",
         default=None,
-        help="Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to all."
+        help=f"Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to {SHARED_DICTIONARY_COMMAND_LIST}."
     )
+
     parser.add_argument(
         "--message_rate",
         default=MESSAGE_RATE,
         type=int,
         help=f"Number of whole seconds between each GPS fix.  Defaults to {MESSAGE_RATE}."
     )
+
     parser.add_argument(
         "--serial",
         default=DEFAULT_SERIAL_DEVICE,
         help=f"Full path to the serial device where the GPS can be found, defaults to {DEFAULT_SERIAL_DEVICE}"
     )
+
     parser.add_argument(
         "--verbose",
         default=False,
         action='store_true',
         help="Turn DEBUG logging on. Default is off."
     )
+
     parser.add_argument(
         "--version",
         default=False,
         action='store_true',
         help="Print version number and exit."
     )
+
     return vars(parser.parse_args())
 
 def main():
@@ -82,6 +98,7 @@ def main():
     shared_dictionary_name = args['shared_dictionary_name']
     shared_dictionary_command_list = args['shared_dictionary_command_list']
     message_rate = args['message_rate']
+    base_path = args['base_path'][0]
 
     logging_level = logging.DEBUG if verbose else logging.INFO
 
@@ -89,7 +106,7 @@ def main():
 
     logging.debug(f"argument --verbose: {verbose}")
 
-    log_file_handle = get_log_file_handle()
+    log_file_handle = get_log_file_handle(base_path=base_path)
     logging.info(f"log file name: {log_file_handle.name}")
 
     if shared_dictionary_command_list:
@@ -143,7 +160,7 @@ def main():
             log_file_handle.flush()
             fsync(log_file_handle.fileno())
 
-        if shared_dictionary is not None and log_value["command_name"] in shared_dictionary_command_list:
+        if shared_dictionary is not None and 'NMEA_' + log_value["command_name"] in shared_dictionary_command_list:
                 logging.debug( f"writing to shared dictionary {log_value['command_name']}")
                 shared_dictionary[log_value['command_name']] = log_value
 

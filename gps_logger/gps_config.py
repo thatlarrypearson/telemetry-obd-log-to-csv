@@ -12,6 +12,7 @@ from pynmeagps import NMEAReader
 from pyubx2.ubxhelpers import gnss2str, val2bytes
 from telemetry_obd import (
     get_output_file_name,
+    BASE_PATH
 )
 
 logger = logging.getLogger("gps_logger")
@@ -210,9 +211,9 @@ def gps_hardware_version(io_handle:Serial):
 
     io_handle.write(msg.serialize())
 
-def get_log_file_handle():
+def get_log_file_handle(base_path=BASE_PATH):
     """return a file handle opened for writing to a log file"""
-    full_path = get_output_file_name('gps')
+    full_path = get_output_file_name('gps', base_path=base_path)
 
     logger.info(f"log file full path: {full_path}")
 
