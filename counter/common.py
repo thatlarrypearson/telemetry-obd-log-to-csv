@@ -12,8 +12,32 @@ BASE_PATH = f"{HOME}/{DATA_PATH}"
 CONFIG_PATH = f"{HOME}/telemetry-obd/config"
 SYSTEM_BOOT_COUNT_APPLICATION_NAME = "system-boot-count"
 
+default_shared_gps_command_list = [
+    "NMEA_GNGNS",       # Fix data
+    "NMEA_GNGST",       # Pseudorange error statistics
+    "NMEA_GNVTG",       # Course over ground and ground speed
+    "NMEA_GNZDA",       # Time and data
+]
+
+default_shared_wthr_command_list = [
+    "WTHR_rapid_wind",
+    "WTHR_hub_status",
+    "WTHR_device_status",
+    "WTHR_obs_st",
+    "WTHR_evt_precip",
+]
+
+default_shared_imu_command_list = [
+    "IMU_accelerometer",
+    "IMU_gyroscope",
+    "IMU_gravity",
+    "IMU_linear_acceleration",
+    "IMU_magnetometer",
+    "IMU_rotation_vector",
+]
+
 # Known application shortcuts
-APPLICATION_LIST = ['obd', 'obd-cmd-test', gps', 'wthr', 'imu', ]
+APPLICATION_LIST = ['obd', 'obd-cmd-test', 'gps', 'wthr', 'imu', ]
 
 # Default data file paths and names
 
@@ -86,7 +110,7 @@ def get_next_application_counter_value(application_id:str)->int:
 def get_next_boot_counter_value()->int:
     return get_next_application_counter_value(SYSTEM_BOOT_COUNT_APPLICATION_NAME)
 
-def get_output_file_name(application_id:str, vin:str=None, base_Path=BASE_PATH) -> Path:
+def get_output_file_name(application_id:str, vin:str=None, base_path=BASE_PATH) -> Path:
     # sourcery skip: collection-into-set
     """Create output file name."""
     application_counter_value = get_application_counter_value(application_id)
@@ -129,30 +153,6 @@ try:
                 auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
                 recurse=True            # dictionary can contain dictionary and updates are nested
             )
-    
-    default_shared_gps_command_list = [
-        "NMEA_GNGNS",       # Fix data
-        "NMEA_GNGST",       # Pseudorange error statistics
-        "NMEA_GNVTG",       # Course over ground and ground speed
-        "NMEA_GNZDA",       # Time and data
-    ]
-
-    default_shared_wthr_command_list = [
-        "WTHR_rapid_wind",
-        "WTHR_hub_status",
-        "WTHR_device_status",
-        "WTHR_obs_st",
-        "WTHR_evt_precip",
-    ]
-
-    default_shared_imu_command_list = [
-        "IMU_ACCELEROMETER",
-        "IMU_GYROSCOPE",
-        "IMU_GRAVITY",
-        "IMU_LINEAR_ACCELERATION",
-        "IMU_MAGNETOMETER",
-        "IMU_ROTATION_VECTOR",
-    ]
 
     def shared_dictionary_to_dictionary(shared_dictionary:UltraDict)->dict:
         # sourcery skip: assign-if-exp, dict-comprehension
