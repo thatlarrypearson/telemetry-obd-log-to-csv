@@ -19,6 +19,7 @@ repository = "https://github.com/thatlarrypearson/telemetry-weather"
 documentation = "https://github.com/thatlarrypearson/telemetry-weather"
 keywords = ["weather", "telematics", "vehicle"]
 dependencies = [
+    'counter',
 ]
 
 classifiers = [
