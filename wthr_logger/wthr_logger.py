@@ -12,9 +12,10 @@ from datetime import datetime, timezone
 from os import fsync
 import json
 
-from counter.common import (
+from tcounter.common import (
     default_shared_wthr_command_list as SHARED_DICTIONARY_COMMAND_LIST,
     SharedDictionaryManager,
+    get_next_application_counter_value,
     BASE_PATH,
 )
 
@@ -102,13 +103,22 @@ def get_output_file_name(base_name) -> Path:
     dt_now = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S")
     return Path(f"{base_name}-{dt_now}-utc.json")
 
-def get_log_file_handle(base_path:str, base_name="WTHR"):
+def get_log_file_handle(base_path:str, base_name="wthr"):
     """return a file handle opened for writing to a log file"""
     full_path = get_directory(base_path) / get_output_file_name(base_name)
-    
+
     logger.info(f"log file full path: {full_path}")
+
+    try:
+        log_file_handle = open(full_path, mode='x', encoding='utf-8')
+
+    except FileExistsError:
+        logger.error(f"get_log_file_handle(): FileExistsError: {full_path}")
+        wthr_counter = get_next_application_counter_value('wthr')
+        logger.error(f"get_log_file_handle(): Incremented 'wthr' counter to {wthr_counter}")
+        return get_log_file_handle(base_path=base_path)
     
-    return open(full_path, mode='w', encoding='utf-8')
+    return log_file_handle
 
 def main():
     """Run main function."""
