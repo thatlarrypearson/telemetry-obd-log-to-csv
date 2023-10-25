@@ -12,6 +12,7 @@ from pynmeagps import NMEAReader
 from pyubx2.ubxhelpers import gnss2str, val2bytes
 from telemetry_obd import (
     get_output_file_name,
+    get_next_application_counter_value,
     BASE_PATH
 )
 
@@ -217,6 +218,14 @@ def get_log_file_handle(base_path=BASE_PATH):
 
     logger.info(f"log file full path: {full_path}")
 
-    # open for exclusive creation, failing if the file already exists
-    return open(full_path, mode='x', encoding='utf-8')
+    try:
+        # open for exclusive creation, failing if the file already exists
+        log_file_handle = open(full_path, mode='x', encoding='utf-8')
 
+    except FileExistsError:
+        logger.error(f"get_log_file_handle(): FileExistsError: {full_path}")
+        gps_counter = get_next_application_counter_value('gps')
+        logger.error(f"get_log_file_handle(): Incremented 'gps' counter to {gps_counter}")
+        return get_log_file_handle(base_path=BASE_PATH)
+
+    return log_file_handle
