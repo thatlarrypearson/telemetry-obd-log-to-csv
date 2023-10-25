@@ -1,6 +1,6 @@
 # Telemetry System Boot and Application Startup Counter
 
-**UNDER CONSTRUCTION**
+## **UNDER CONSTRUCTION**
 
 Increments and returns the *system boot* and *application start* counters for use by other telemetry applications:
 
