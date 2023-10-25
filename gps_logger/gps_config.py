@@ -10,7 +10,7 @@ from pyubx2 import UBX_MSGIDS, UBXMessage, UBXReader, SET, GET, POLL
 import pyubx2.ubxtypes_core as ubt
 from pynmeagps import NMEAReader
 from pyubx2.ubxhelpers import gnss2str, val2bytes
-from telemetry_obd import (
+from tcounter.common import (
     get_output_file_name,
     get_next_application_counter_value,
     BASE_PATH
