@@ -17,7 +17,8 @@ from .gps_config import (
     get_log_file_handle,
 )
 from .connection import (
-    initialize_gps, dict_to_log_format,
+    initialize_gps,
+    dict_to_log_format,
 )
 from tcounter.common import (
     default_shared_gps_command_list as SHARED_DICTIONARY_COMMAND_LIST,
@@ -104,10 +105,10 @@ def main():
 
     logging.basicConfig(stream=stderr, level=logging_level)
 
-    logging.debug(f"argument --verbose: {verbose}")
+    logging.debug(f"main(): argument --verbose: {verbose}")
 
     log_file_handle = get_log_file_handle(base_path=base_path)
-    logging.info(f"log file name: {log_file_handle.name}")
+    logging.info(f"main(): log file name: {log_file_handle.name}")
 
     if shared_dictionary_command_list:
         shared_dictionary_command_list = shared_dictionary_command_list.split(sep=',')
@@ -120,31 +121,33 @@ def main():
     else:
         shared_dictionary = None
 
-    logging.info(f"shared_dictionary_name {shared_dictionary_name})")
+    logging.info(f"main(): shared_dictionary_name {shared_dictionary_name}")
 
     io_handle = initialize_gps(serial_device, message_rate)
 
     # reads NMEA, UBX and RTM input
     gps_reader = UBXReader(io_handle)
 
+    logging.debug(f"main(): gps_reader active {data_dict}\n")
+
     iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
     for (raw_data, parsed_data) in gps_reader:
         data_dict = parsed_data_to_dict(parsed_data)
 
-        logging.debug(f"GPS data {data_dict}\n")
+        logging.debug(f"main(): GPS data {data_dict}\n")
 
         if 'umsg_name' in data_dict and data_dict['umsg_name'] == 'MON-VER':
             gps_software = data_dict
-            logging.info(f"GPS SOFTWARE: {data_dict}")
+            logging.info(f"main(): GPS SOFTWARE: {data_dict}")
 
         if 'umsg_name' in data_dict and data_dict['umsg_name'] == 'MON-HW':
             gps_hardware = data_dict
-            logging.info(f"GPS HARDWARE: {data_dict}")
+            logging.info(f"main(): GPS HARDWARE: {data_dict}")
 
         if data_dict['Message_Type'] != "NMEA":
-            "Skipping UBX and RTM messages"
-            logging.debug(f"skipping Message_Type {data_dict['Message_Type']}")
+            # "Skipping UBX and RTM messages"
+            logging.debug(f"main(): skipping Message_Type {data_dict['Message_Type']}")
             iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
             continue
 
@@ -153,7 +156,7 @@ def main():
         log_value['iso_ts_pre'] = iso_ts_pre
         log_value['iso_ts_post'] = datetime.isoformat(datetime.now(tz=timezone.utc))
 
-        logging.debug(f"logging: {log_value}")
+        logging.debug(f"main(): logging: {log_value}")
 
         if log_file_handle:
             log_file_handle.write(json.dumps(log_value) + "\n")
@@ -161,7 +164,7 @@ def main():
             fsync(log_file_handle.fileno())
 
         if shared_dictionary is not None and 'NMEA_' + log_value["command_name"] in shared_dictionary_command_list:
-                logging.debug( f"writing to shared dictionary {log_value['command_name']}")
+                logging.debug( f"main(): writing to shared dictionary {log_value['command_name']}")
                 shared_dictionary[log_value['command_name']] = log_value
 
         iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
