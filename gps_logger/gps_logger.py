@@ -19,7 +19,7 @@ from .gps_config import (
 from .connection import (
     initialize_gps, dict_to_log_format,
 )
-from counter.common import (
+from tcounter.common import (
     default_shared_gps_command_list as SHARED_DICTIONARY_COMMAND_LIST,
     SharedDictionaryManager,
     BASE_PATH
