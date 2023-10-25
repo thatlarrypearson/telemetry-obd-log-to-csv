@@ -11,10 +11,10 @@ Increments and returns the *system boot* and *application start* counters for us
 
 ## Usage
 
-### ```counter.boot_counter```
+### ```tcounter.boot_counter```
 
 ```bash
-$ python3.11 -m counter.boot_counter --help
+$ python3.11 -m tcounter.boot_counter --help
 usage: boot_counter.py [-h] [--boot_count_file_location] [--current_boot_count] [--version]
 
 Telemetry Boot Counter
@@ -28,10 +28,10 @@ options:
 $
 ```
 
-### ```counter.app_counter```
+### ```tcounter.app_counter```
 
 ```bash
-$ python3.11 -m counter.app_counter --help
+$ python3.11 -m tcounter.app_counter --help
 usage: app_counter.py [-h] [--app_count_file_location] [--current_app_count] [--version] application_id
 
 Telemetry Application Start Counter

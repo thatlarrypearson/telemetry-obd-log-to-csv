@@ -22,7 +22,7 @@ fi
 # turn off stdin
 0<&-
 
-export APP_LOG_FILE="telemetry-boot-counter-$(${APP_PYTHON} -m counter.boot_counter).log"
+export APP_LOG_FILE="telemetry-boot-counter-$(${APP_PYTHON} -m tcounter.boot_counter).log"
 
 # redirect all stdout and stderr to file
 exec &> "${APP_TMP_DIR}/${APP_LOG_FILE}"
