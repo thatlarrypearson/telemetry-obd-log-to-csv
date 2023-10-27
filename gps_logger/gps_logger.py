@@ -99,13 +99,15 @@ def main():
     shared_dictionary_name = args['shared_dictionary_name']
     shared_dictionary_command_list = args['shared_dictionary_command_list']
     message_rate = args['message_rate']
-    base_path = args['base_path'][0]
+    base_path = args['base_path']
 
     logging_level = logging.DEBUG if verbose else logging.INFO
 
     logging.basicConfig(stream=stderr, level=logging_level)
 
     logging.debug(f"main(): argument --verbose: {verbose}")
+
+    logging.info(f"main(): base path: {base_path}")
 
     log_file_handle = get_log_file_handle(base_path=base_path)
     logging.info(f"main(): log file name: {log_file_handle.name}")
