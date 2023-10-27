@@ -10,7 +10,7 @@ export APP_ID="gps"
 export APP_HOME="/home/$(whoami)/telemetry-data"
 export APP_TMP_DIR="${APP_HOME}/tmp"
 export APP_BASE_PATH="${APP_HOME}/data"
-export APP_PYTHON="/home/${whoami}/.local/bin/python3.11"
+export APP_PYTHON="/home/$(whoami)/.local/bin/python3.11"
 export DEBUG="True"
 export SHARED_DICTIONARY_NAME="TELEMETRY"
 
@@ -53,8 +53,7 @@ while date '+%Y/%m/%d %H:%M:%S'
 do
 	${APP_PYTHON} -m gps_logger.gps_logger \
         --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
-		--output_file_name_counter \
-        --log_file_directory "${APP_BASE_PATH}"
+        "${APP_BASE_PATH}"
 
 	export RtnVal="$?"
 	echo gps_logger returns "${RtnVal}"
