@@ -130,14 +130,14 @@ def main():
     # reads NMEA, UBX and RTM input
     gps_reader = UBXReader(io_handle)
 
-    logging.debug(f"main(): gps_reader active {data_dict}\n")
+    logging.debug("main(): gps_reader active.")
 
     iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
     for (raw_data, parsed_data) in gps_reader:
         data_dict = parsed_data_to_dict(parsed_data)
 
-        logging.debug(f"main(): GPS data {data_dict}\n")
+        logging.debug(f"main(): GPS data {data_dict}")
 
         if 'umsg_name' in data_dict and data_dict['umsg_name'] == 'MON-VER':
             gps_software = data_dict
