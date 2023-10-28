@@ -21,7 +21,7 @@ fi
 
 if [ -x "/root/bin/telemetry.rc.local.counter" ]
 then
-  /bin/nohup "/root/bin/telemetry.rc.local.counter" &
+  /bin/nohup "/root/bin/telemetry.rc.local.counter"
 fi
 
 if [ -x "/root/bin/telemetry.rc.local.gps" ]
