@@ -16,7 +16,6 @@ def argument_parsing()-> dict:
 
     parser.add_argument(
         "application_id",
-        # nargs='?',
         nargs=1,
         metavar="application_id",
         # default=[None, ],

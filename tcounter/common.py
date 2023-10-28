@@ -55,10 +55,10 @@ def get_data_file_path(base_path=BASE_PATH) -> Path:
     """If needed, Create data file directories and return the path."""
     return Path(base_path)
 
-def get_config_file_path(vin:str, base_path=BASE_PATH) -> Path:
+def get_config_file_path(vin:str, config="config", base_path=BASE_PATH) -> Path:
     """Return path to settings file."""
     for possible_path in [f"{vin}.ini", "default.ini"]:
-        path = Path(possible_path)
+        path = Path(f"config/{possible_path}")
         if path.is_file():
             return path
 
@@ -66,7 +66,7 @@ def get_config_file_path(vin:str, base_path=BASE_PATH) -> Path:
         if path.is_file():
             return path
 
-    raise ValueError(f"no default.ini or {vin}.ini available")
+    raise ValueError(f"no 'default.ini' or '{vin}.ini' available in '{base_path}/{config}/' or just '{config}/'.")
 
 def get_application_counter_value(application_id:str, base_path=BASE_PATH)->int:
     # get the counter value (integer) held in the hidden file
@@ -177,6 +177,7 @@ try:
         return return_value
 
 except ImportError:
+    logging.error(f"common.SharedDictionaryManager: ImportError")
     SharedDictionaryManager = None
     default_shared_gps_command_list = None
     default_shared_weather_command_list = None
