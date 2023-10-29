@@ -8,7 +8,7 @@ from socket import gethostname
 DATA_PATH = "telemetry-data"
 HOST_ID = gethostname()
 HOME = f"{expanduser('~')}"
-BASE_PATH = f"{HOME}/{DATA_PATH}"
+BASE_PATH = f"{HOME}/{DATA_PATH}/data"
 CONFIG_PATH = f"{HOME}/telemetry-obd/config"
 SYSTEM_BOOT_COUNT_APPLICATION_NAME = "system-boot-count"
 
