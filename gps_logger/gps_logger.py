@@ -117,10 +117,13 @@ def main():
     else:
         shared_dictionary_command_list = SHARED_DICTIONARY_COMMAND_LIST
 
+    logging.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
+
     if shared_dictionary_name:
+        logging.info(f"main(): enabling shared_dictionary_name {shared_dictionary_name}")
         shared_dictionary = SharedDictionaryManager(shared_dictionary_name)
-        logging.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
     else:
+        logging.info("main(): shared_dictionary disabled")
         shared_dictionary = None
 
     logging.info(f"main(): shared_dictionary_name {shared_dictionary_name}")
