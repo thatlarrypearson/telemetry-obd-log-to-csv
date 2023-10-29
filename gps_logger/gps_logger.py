@@ -165,7 +165,7 @@ def main():
             log_file_handle.flush()
             fsync(log_file_handle.fileno())
 
-        if shared_dictionary is not None and 'NMEA_' + log_value["command_name"] in shared_dictionary_command_list:
+        if shared_dictionary and 'GPS_' + log_value["command_name"] in shared_dictionary_command_list:
                 logging.debug( f"main(): writing to shared dictionary {log_value['command_name']}")
                 shared_dictionary[log_value['command_name']] = log_value
 

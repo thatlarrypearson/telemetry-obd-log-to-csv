@@ -49,7 +49,7 @@ def dict_to_log_format(data_dict:dict)->dict:
     }
     """
     log_value = {
-        "command_name": f"GPS_{data_dict['talker_identifier']}{data_dict['sentence_formatter']}",
+        "command_name": f"{data_dict['talker_identifier']}{data_dict['sentence_formatter']}",
         "obd_response_value": {},
     }
 
