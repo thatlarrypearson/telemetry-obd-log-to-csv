@@ -13,10 +13,10 @@ CONFIG_PATH = f"{HOME}/telemetry-obd/config"
 SYSTEM_BOOT_COUNT_APPLICATION_NAME = "system-boot-count"
 
 default_shared_gps_command_list = [
-    "NMEA_GNGNS",       # Fix data
-    "NMEA_GNGST",       # Pseudorange error statistics
-    "NMEA_GNVTG",       # Course over ground and ground speed
-    "NMEA_GNZDA",       # Time and data
+    "GPS_GNGNS",       # Fix data
+    "GPS_GNGST",       # Pseudorange error statistics
+    "GPS_GNVTG",       # Course over ground and ground speed
+    "GPS_GNZDA",       # Time and data
 ]
 
 default_shared_wthr_command_list = [
