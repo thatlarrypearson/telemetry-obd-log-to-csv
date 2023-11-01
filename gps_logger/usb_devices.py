@@ -30,7 +30,7 @@ def main():
             # not a USB device
             continue
         i += 1
-        print(f"\t+{i} {p.device}")
+        print(f"\n\t+{i} {p.device}")
         print(f"\t\tName: {p.name}")
         print(f"\t\tUSB VID: {p.vid}")
         print(f"\t\tUSB PID: {p.pid}")
@@ -45,7 +45,9 @@ def main():
     print(f"\nFound {i} USB Serial Device(s)")
 
     if sdn := get_serial_device_name():
-        print(f"USB Serial Device <{GPS_DEVICE_NAME}> Name {sdn} found")
+        print(f"\nUSB Serial Device <{GPS_DEVICE_NAME}> Name {sdn} found")
+    else:
+        print("\nUSB Serial Device NOT found")
 
 if __name__ == "__main__":
     main()

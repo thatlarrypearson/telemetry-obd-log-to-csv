@@ -355,6 +355,53 @@ $ cd
 $
 ```
 
+## What To Do When Your GPS Device Is Not Found
+
+You can tell when your GPS device is not being found when you receive the following two error logging messages from ```gps_logger.gps_logger```:
+
+- ```USB attached GPS device <u-blox GNSS receiver> not found.```
+- ```Trying serial port device </dev/ttyACM0>.```
+
+Telemetry GPS includes ```gps_logger.usb_devices```, a Python program that will tell you if it can find the correct device name and **it may help you find the correct device name**.
+
+With both the GPS (_u-blox GNSS receiver_) and IMU (_Unexpected Maker FeatherS3_) plugged into host USB ports, running ```gps_logger.usb_devices``` will show both devices and it will show that it did or did not find the GPS device.
+
+In the event that your ```u-blox``` GPS device is plugged in but it isn't showing as found, use ```gps_logger.usb_devices``` to get the correct values for ```DEFAULT_USB_VID``` and ```DEFAULT_USB_PID```.  Change these values in ```telemetry-gps/gps_logger/usb_devices.py``` and rebuild/reinstall the _Telemetry GPS_ package per the above instructions.
+
+```bash
+lbp@telemetry2:~ $ python3.11 -m gps_logger.usb_devices
+Candidate Serial Device List (non-USB devices excluded)
+
+	+1 /dev/ttyACM1
+		Name: ttyACM1
+		USB VID: 12346
+		USB PID: 32983
+		Description: FeatherS3 - CircuitPython CDC control
+		Hardware ID: USB VID:PID=303A:80D7 SER=CEADB3143BC5 LOCATION=1-1.1:1.0
+		Manufacturer: UnexpectedMaker
+		Product: FeatherS3
+		Serial Number: CEADB3143BC5
+		Location: 1-1.1:1.0
+		interface: CircuitPython CDC control
+
+	+2 /dev/ttyACM0
+		Name: ttyACM0
+		USB VID: 5446
+		USB PID: 424
+		Description: u-blox GNSS receiver
+		Hardware ID: USB VID:PID=1546:01A8 LOCATION=1-1.2:1.0
+		Manufacturer: u-blox AG - www.u-blox.com
+		Product: u-blox GNSS receiver
+		Serial Number: None
+		Location: 1-1.2:1.0
+		interface: None
+
+Found 2 USB Serial Device(s)
+
+USB Serial Device <u-blox GNSS receiver> Name /dev/ttyACM0 found
+lbp@telemetry2:~ $ 
+```
+
 ## Examples
 
 See the ```bin/gps_logger.sh``` ```bash``` shell program for an example.
