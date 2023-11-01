@@ -1,4 +1,4 @@
-# telemetry-imu/imu_logger/usb_devices.py
+# telemetry-gps/gps_logger/usb_devices.py
 
 from serial.tools.list_ports import comports
 
@@ -7,6 +7,9 @@ DEFAULT_USB_VID = 5446
 DEFAULT_USB_PID = 424
 GPS_DEVICE_NAME = "u-blox GNSS receiver"
 
+# This default is the default device name on a Raspberry Pi when the GPS is the only attached serial USB device.
+DEFAULT_SERIAL_DEVICE="/dev/ttyACM0"
+
 def get_serial_device_name(verbose=False)->str:
     """Get serial device name for GPS"""
 
@@ -14,14 +17,12 @@ def get_serial_device_name(verbose=False)->str:
         if p.vid and p.vid == DEFAULT_USB_VID and p.pid == DEFAULT_USB_PID:
             return p.device
 
-    print(f"Device <{GPS_DEVICE_NAME}> not found.")
+    logging.error(f"USB attached GPS device <{GPS_DEVICE_NAME}> not found.")
+    logging.error(f"Trying serial port device <{DEFAULT_SERIAL_DEVICE}>.")
 
-    return None
+    return DEFAULT_SERIAL_DEVICE
 
 def main():
-    if sdn := get_serial_device_name():
-        print(f"USB Serial Device <{GPS_DEVICE_NAME}> Name {sdn} found")
-
     print("Candidate Serial Device List (non-USB devices excluded)")
     i = 0
     for p in comports():
@@ -42,6 +43,9 @@ def main():
         print(f"\t\tinterface: {p.interface}")
 
     print(f"\nFound {i} USB Serial Device(s)")
+
+    if sdn := get_serial_device_name():
+        print(f"USB Serial Device <{GPS_DEVICE_NAME}> Name {sdn} found")
 
 if __name__ == "__main__":
     main()
