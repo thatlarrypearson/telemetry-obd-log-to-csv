@@ -1,5 +1,6 @@
 """telemetry_counter/common.py: functions used by other telemetry modules"""
 
+import logging
 from pathlib import Path
 from os.path import expanduser
 from socket import gethostname
@@ -54,6 +55,8 @@ APPLICATION_LIST = ['obd', 'obd-cmd-test', 'gps', 'wthr', 'imu', ]
 def get_data_file_path(base_path=BASE_PATH) -> Path:
     """If needed, Create data file directories and return the path."""
     return Path(base_path)
+
+logger = logging.getLogger("common")
 
 def get_config_file_path(vin:str, config="config", base_path=BASE_PATH) -> Path:
     """Return path to settings file."""
