@@ -20,13 +20,14 @@ from .connection import (
     initialize_gps,
     dict_to_log_format,
 )
+from .usb_devices import get_serial_device_name
 from tcounter.common import (
     default_shared_gps_command_list as SHARED_DICTIONARY_COMMAND_LIST,
     SharedDictionaryManager,
     BASE_PATH
 )
 
-DEFAULT_SERIAL_DEVICE="/dev/ttyACM0"
+DEFAULT_SERIAL_DEVICE=get_serial_device_name()
 TIMEOUT=1.0
 MESSAGE_RATE=1
 
@@ -40,7 +41,7 @@ def argument_parsing()-> dict:
         "base_path",
         nargs='?',
         metavar="base_path",
-        default=[BASE_PATH, ],
+        default=BASE_PATH,
         help=f"Relative or absolute output data directory. Defaults to '{BASE_PATH}'."
     )
 
@@ -170,7 +171,7 @@ def main():
 
         if shared_dictionary and 'GPS_' + log_value["command_name"] in shared_dictionary_command_list:
                 logging.debug( f"main(): writing to shared dictionary {log_value['command_name']}")
-                shared_dictionary[log_value['command_name']] = log_value
+                shared_dictionary['GPS_' + log_value['command_name']] = log_value
 
         iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
