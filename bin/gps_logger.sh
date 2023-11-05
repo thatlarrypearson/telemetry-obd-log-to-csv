@@ -49,6 +49,14 @@ fi
 
 cd "${APP_HOME}"
 
+${APP_PYTHON} -m gps_logger.usb_devices
+export RtnCode=$?
+
+if [ "${RtnCode}" -gt 0 ]
+then
+	exit 1
+fi
+
 while date '+%Y/%m/%d %H:%M:%S'
 do
 	${APP_PYTHON} -m gps_logger.gps_logger \
