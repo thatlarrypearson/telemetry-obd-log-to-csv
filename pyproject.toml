@@ -20,8 +20,8 @@ documentation = "https://github.com/thatlarrypearson/telemetry-obd-log-to-csv"
 keywords = ["obd", "telematics", "vehicle"]
 dependencies = [
   'pint == 0.20.1',
-  'rich = 13.6.0',
-  'dateutil',
+  'rich == 13.6.0',
+  'python-dateutil == 2.8.2',
 ]
 
 classifiers = [
