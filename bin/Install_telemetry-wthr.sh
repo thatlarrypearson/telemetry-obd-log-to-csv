@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Install_wthr.sh
+# Install_telemetry-wthr.sh
 #
 
 export APP_HOME="/home/$(whoami)/telemetry-wthr"
