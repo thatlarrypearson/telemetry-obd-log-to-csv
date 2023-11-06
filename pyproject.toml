@@ -21,6 +21,7 @@ keywords = ["obd", "telematics", "vehicle"]
 dependencies = [
   'pint == 0.20.1',
   'rich = 13.6.0',
+  'dateutil',
 ]
 
 classifiers = [
