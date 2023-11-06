@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Install_counter.sh
+# Install_telemetry-counter.sh
 #
 
 export APP_HOME="/home/$(whoami)/telemetry-counter"
