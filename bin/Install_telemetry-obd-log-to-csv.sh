@@ -2,7 +2,7 @@
 # Install_obd_log_to_csv.sh
 #
 
-export APP_HOME="/home/$(whoami)/telemetry-obd_log_to_csv"
+export APP_HOME="/home/$(whoami)/telemetry-obd-log-to-csv"
 export APP_PYTHON="/home/$(whoami)/.local/bin/python3.11"
 export DEBUG="True"
 
