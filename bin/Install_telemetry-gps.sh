@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Install_gps.sh
+# Install_telemetry-gps.sh
 #
 
 export APP_HOME="/home/$(whoami)/telemetry-gps"
