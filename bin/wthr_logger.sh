@@ -6,6 +6,7 @@
 # Need time for Weather interface recover after failure
 export RESTART_DELAY=10
 
+export APP_ID="wthr"
 export APP_HOME="/home/$(whoami)/telemetry-data"
 export APP_TMP_DIR="${APP_HOME}/tmp"
 export APP_BASE_PATH="${APP_HOME}/data"
