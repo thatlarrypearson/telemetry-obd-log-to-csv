@@ -20,10 +20,11 @@ then
 	rm -rf "${APP_HOME}/dist"
 fi
 
+${APP_PYTHON} -m pip uninstall telemetry-counter
+
 ${APP_PYTHON} -m build .
 ls -l dist/*.whl
-${APP_PYTHON} -m pip install --force-reinstall dist/*.whl
-
+${APP_PYTHON} -m pip install dist/*.whl
 
 ${APP_PYTHON} -m tcounter.boot_counter --help
 ${APP_PYTHON} -m tcounter.app_counter --help
