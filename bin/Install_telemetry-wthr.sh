@@ -20,9 +20,10 @@ then
 	rm -rf "${APP_HOME}/dist"
 fi
 
+${APP_PYTHON} -m pip uninstall telemetry-wthr
+
 ${APP_PYTHON} -m build .
 ls -l dist/*.whl
-${APP_PYTHON} -m pip install --force-reinstall dist/*.whl
-
+${APP_PYTHON} -m pip install dist/*.whl
 
 ${APP_PYTHON} -m wthr_logger.wthr_logger --help
