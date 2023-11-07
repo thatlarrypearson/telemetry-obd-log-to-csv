@@ -20,9 +20,11 @@ then
 	rm -rf "${APP_HOME}/dist"
 fi
 
+${APP_PYTHON} -m pip uninstall telemetry-gps
+
 ${APP_PYTHON} -m build .
 ls -l dist/*.whl
-${APP_PYTHON} -m pip install --force-reinstall dist/*.whl
+${APP_PYTHON} -m pip install dist/*.whl
 
 ${APP_PYTHON} -m gps_logger.gps_logger --help
 ${APP_PYTHON} -m gps_logger.usb_devices --help
