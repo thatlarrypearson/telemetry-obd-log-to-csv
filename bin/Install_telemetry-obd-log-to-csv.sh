@@ -20,9 +20,11 @@ then
 	rm -rf "${APP_HOME}/dist"
 fi
 
+${APP_PYTHON} -m pip uninstall telemetry-obd-log-to-csv
+
 ${APP_PYTHON} -m build .
 ls -l dist/*.whl
-${APP_PYTHON} -m pip install --force-reinstall dist/*.whl
+${APP_PYTHON} -m pip install dist/*.whl
 
 ${APP_PYTHON} -m obd_log_to_csv.csv_to_delta_csv --help
 ${APP_PYTHON} -m obd_log_to_csv.csv_to_ratio_csv --help
