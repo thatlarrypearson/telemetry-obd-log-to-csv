@@ -26,7 +26,7 @@ ${APP_PYTHON} -m build .
 ls -l dist/*.whl
 ${APP_PYTHON} -m pip install dist/*.whl
 
+${APP_PYTHON} -m obd_log_to_csv.obd_log_to_csv --help
+${APP_PYTHON} -m obd_log_to_csv.obd_log_evaluation --help
 ${APP_PYTHON} -m obd_log_to_csv.csv_to_delta_csv --help
 ${APP_PYTHON} -m obd_log_to_csv.csv_to_ratio_csv --help
-${APP_PYTHON} -m obd_log_to_csv.obd_log_evaluation --help
-${APP_PYTHON} -m obd_log_to_csv.obd_log_to_csv --help
