@@ -15,6 +15,7 @@ import json
 from tcounter.common import (
     default_shared_wthr_command_list as SHARED_DICTIONARY_COMMAND_LIST,
     SharedDictionaryManager,
+    get_output_file_name,
     get_next_application_counter_value,
     BASE_PATH,
 )
@@ -98,14 +99,9 @@ def get_directory(base_path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def get_output_file_name(base_name) -> Path:
-    """Create an output file name."""
-    dt_now = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S")
-    return Path(f"{base_name}-{dt_now}-utc.json")
-
 def get_log_file_handle(base_path:str, base_name="wthr"):
     """return a file handle opened for writing to a log file"""
-    full_path = get_directory(base_path) / get_output_file_name(base_name)
+    full_path = get_directory(base_path) / get_output_file_name(base_name, base_path=base_path)
 
     logger.info(f"log file full path: {full_path}")
 
@@ -114,10 +110,10 @@ def get_log_file_handle(base_path:str, base_name="wthr"):
 
     except FileExistsError:
         logger.error(f"get_log_file_handle(): FileExistsError: {full_path}")
-        wthr_counter = get_next_application_counter_value('wthr')
-        logger.error(f"get_log_file_handle(): Incremented 'wthr' counter to {wthr_counter}")
-        return get_log_file_handle(base_path=base_path)
-    
+        wthr_counter = get_next_application_counter_value(base_name)
+        logger.error(f"get_log_file_handle(): Incremented '{base_name}' counter to {wthr_counter}")
+        return get_log_file_handle(base_path, base_name=base_name)
+
     return log_file_handle
 
 def main():
