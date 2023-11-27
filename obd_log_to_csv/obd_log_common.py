@@ -800,10 +800,10 @@ def pint_to_value_type(obd_response_value:str, verbose:bool=False):
        In some cases a string will have a null character in it in which case
        the null character will be deleted from the string.
     """
-    if obd_response_value in {'no response', 'not supported'}:
+    if obd_response_value is None or isinstance(obd_response_value, list) or isinstance(obd_response_value, dict):
         return None, None
 
-    if obd_response_value is None or isinstance(obd_response_value, list) or isinstance(obd_response_value, dict):
+    if obd_response_value in {'no response', 'not supported'}:
         return None, None
 
     if verbose:
