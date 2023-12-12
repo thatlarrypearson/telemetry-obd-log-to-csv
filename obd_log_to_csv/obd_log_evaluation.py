@@ -38,13 +38,23 @@ def csv_print(raw_data:dict, verbose=False):
             value['pid'] = ""
         writer.writerow(value)
 
-def rich_output(raw_data:dict, title=None, verbose=False):
+def rich_output(raw_data:dict, title=None, width=None, verbose=False):
     console = Console()
 
     if not title:
-        table = Table(show_header=True, header_style="bold magenta", title="OBD Log Evaluation")
+        table = Table(
+            show_header=True,
+            header_style="bold magenta",
+            title="OBD Log Evaluation",
+            width=width,
+        )
     else:
-        table = Table(show_header=True, header_style="bold magenta", title=title)
+        table = Table(
+            show_header=True,
+            header_style="bold magenta",
+            title=title,
+            width=width,
+        )
     table.add_column("OBD Command", justify='left')
     table.add_column("Mode")
     table.add_column("PID")
