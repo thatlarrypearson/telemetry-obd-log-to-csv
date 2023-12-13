@@ -222,7 +222,7 @@ Computers wishing to receive weather data from a WeatherFlow Tempest need to be 
 
 ![Telemetry Weather Logging - Networking](docs/TelemetryWeatherLogging-Networking.PNG)
 
-The second view shows more of a hardware view.  Weather data originates from WeatherFlow Tempest sensors and is transmitted to a WeatherFlow Tempest base station via a proprietary communications method.  Using a smart phone application, the base station is configured to use WIFI provided by a local area network.  The local area network is represented as a WIFI hotspot/router connected to the Internet (not shown).  The computer running this software is represented by the Raspberry Pi 4 Model B.  It is also configured to use WIFI provided by the same local area network as the base station.
+The second view shows more of a hardware view.  Weather data originates from WeatherFlow Tempest sensors and is transmitted to a WeatherFlow Tempest base station via a proprietary communications method.  Using a smart phone application, the base station is configured to use WIFI provided by the computer running this software, a Raspberry Pi 4 Model B.  This Raspberry Pi provided local area network behaves like a normal WIFI hotspot/router that may or may not be connected to the Internet through an optional WIFI/Hotspot Router.
 
 ## Vehicle Mounting
 
