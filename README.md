@@ -220,7 +220,7 @@ python3.10 -m pip install dist/ telemetry_wthr-0.0.0-py3-none-any.whl
 
 Computers wishing to receive weather data from a WeatherFlow Tempest need to be on the same LAN (local area network) as the base station.  The following network context diagram provides two network views.  The first view shows the base station sending UDP broadcast messages to all computers on the local network.  Any computers on the LAN actively listening for broadcast messages on a specific port will process these messages.  Otherwise, the messages will be discarded.
 
-![Telemetry Weather Logging - Networking](docs/TelemetryWeatherLogging-Networking.PNG)
+![Telemetry Weather Logging - Networking](docs/TelemetryWeatherLogging-Networking.png)
 
 The second view shows more of a hardware view.  Weather data originates from WeatherFlow Tempest sensors and is transmitted to a WeatherFlow Tempest base station via a proprietary communications method.  Using a smart phone application, the base station is configured to use WIFI provided by the computer running this software, a Raspberry Pi 4 Model B.  This Raspberry Pi provided local area network behaves like a normal WIFI hotspot/router that may or may not be connected to the Internet through an optional WIFI/Hotspot Router.
 
