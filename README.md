@@ -1,6 +1,6 @@
 # Telemetry Weather Logging
 
-Under Construction
+## **Under Construction**
 
 The Telemetry Weather Logger captures weather/environment data using a [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) weather station. While the logger is running, weather data is written to files and/or shared memory.
 
@@ -25,7 +25,7 @@ Raspberry Pi 4 with 4 GB RAM (or more) and with a 32 GB (or more) SD card.
 
 ## Target Hardware
 
-The software is made to work with [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) weather station.
+The software is made to work with [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) weather station.  The software is being tested on a Raspberry Pi 4 running Raspberry Pi OS ```bookworm```.
 
 ## Logger Usage
 
@@ -69,7 +69,7 @@ for raw_weather_report, weather_report in weather_reports:
 
 ## Log File
 
-Logging is enabled by setting the log file directory ```--log_file_directory``` in the command line options.  The log file format is the same format used by [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd#telemetry-obd-logger-output-data-files).  Downstream processing of data captured by both **Telemetry OBD Logger**,  **Telemetry GPS Logger**, **Telemetry Weather Logger** and other data sources can be processed using the same analysis tools.
+Logging is enabled by setting the log file directory ```--log_file_directory``` in the command line options.  The log file format is the same format used by [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd#telemetry-obd-logger-output-data-files).  Downstream processing of data captured by **Telemetry OBD Logger**,  **Telemetry GPS Logger**, **Telemetry IMU Logger**, **Telemetry Weather Logger** and other data sources can be processed using the same analysis tools.
 
 ### Format
 
@@ -183,27 +183,47 @@ $
 
 Installation instructions were written for Raspberry Pi OS 64 bit:
 
-- ```/etc/debian_version``` shows *11.3*
-- ```/etc/release``` shows *bullseye*
+* ```/etc/debian_version``` shows ```12.4```
+* ```/etc/os-release``` shows ```VERSION="12 (bookworm)"```
 
 With some, little or no modification, the installation instructions should work for other Linux based systems.  The amount of effort will vary by Linux distribution with Debian based distributions the easiest.
+
+```bash
+lbp@telemetry4:~ $ cat /etc/debian_version
+12.4
+lbp@telemetry4:~ $
+```
+
+```bash
+lbp@telemetry4:~ $ cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+VERSION_ID="12"
+VERSION="12 (bookworm)"
+VERSION_CODENAME=bookworm
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+lbp@telemetry4:~ $
+```
 
 ### Dependencies
 
 *telemetry-gps* requires a number of Libraries and Python packages that need to be installed before installing this package.  Follow installation instruction links for the following:
 
-- [Pythoon 3.10](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
-  - provides the runtime environment for the application
-  - follow the above link
+* [Python 3.11](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
+  * provides the runtime environment for the application
+  * follow the above link
 
 The following are optional packages and are only required if weather data is to be combined with location and vehicle engine data using shared memory/dictionary.
 
-- [Telemetry OBD Logging](https://github.com/thatlarrypearson/telemetry-obd)
-  - Engine data logger supporting shared memory
-- [Telemetry GPS Location and Time Logging](https://github.com/thatlarrypearson/telemetry-gps)
-  - Captures location and time data using a GPS receiver and supports shared memory
-- [UltraDict](docs/README-UltraDict.md)
-  - Python library providing shared memory support
+* [Telemetry OBD Logging](https://github.com/thatlarrypearson/telemetry-obd)
+  * Engine data logger supporting shared memory
+* [Telemetry GPS Location and Time Logging](https://github.com/thatlarrypearson/telemetry-gps)
+  * Captures location and time data using a GPS receiver and supports shared memory
+* [UltraDict](docs/README-UltraDict.md)
+  * Python library providing shared memory support
 
 Once the dependencies are installed and working, the shared memory features can be tested.
 
@@ -222,9 +242,15 @@ Computers wishing to receive weather data from a WeatherFlow Tempest need to be 
 
 ![Telemetry Weather Logging - Networking](docs/TelemetryWeatherLogging-Networking.png)
 
-The second view shows more of a hardware view.  Weather data originates from WeatherFlow Tempest sensors and is transmitted to a WeatherFlow Tempest base station via a proprietary communications method.  Using a smart phone application, the base station is configured to use WIFI provided by the computer running this software, a Raspberry Pi 4 Model B.  This Raspberry Pi provided local area network behaves like a normal WIFI hotspot/router that may or may not be connected to the Internet through an optional WIFI/Hotspot Router.
+The second view shows more of a hardware view.  Weather data originates from WeatherFlow Tempest sensors and is transmitted to a WeatherFlow Tempest base station via a proprietary communications method.  Using a smart phone application, the base station is configured to use WIFI provided by the computer running this software, a Raspberry Pi 4 Model B.  This Raspberry Pi provided local area network behaves like a normal WIFI/hotspot/router that may or may not be connected via Ethernet to the Internet through an optional WIFI/hotspot/router.
 
-## Vehicle Mounting
+This method is being used for automotive weather data gathering.  Configuring a WIFI Access Point on a Raspberry Pi 4 running ```Debian 12 bookworm``` is tricky because, in this latest release of Raspberry Pi, network configuration has been dramatically changed to a new configuration subsystem called [Network Manager](https://networkmanager.dev/).   More rough spots need to be smoothed out. **Beware** - documentation regarding how to create a WIFI access point found on the Internet refers to the old way of configuring networks.
+
+Follow the instruction found in [Configuring Raspberry Pi WIFI/Hotspot/Router](docs/wifi-hotspot-router.md).  Once you have a hotspot up and running, the weather station needs to be reconfigured/configured to work with the in-vehicle hotspot.  Follow the instructions provided by [WeatherFlow](https://tempest.earth/).
+
+## Weather Station Vehicle Mounting
+
+Vehicle mounting requires some thought and creativity.  Here are some [Mounting Ideas](docs/vehicle-mounting.md).
 
 ## Raspberry Pi Headless Operation
 
