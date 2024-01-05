@@ -30,7 +30,7 @@ The software is made to work with [WeatherFlow Tempest](https://weatherflow.com/
 ## Logger Usage
 
 ```bash
-$ python3.10 -m wthr_logger.wthr_logger --help
+$ python3.11 -m wthr_logger.wthr_logger --help
 usage: wthr_logger.py [-h] [--log_file_directory LOG_FILE_DIRECTORY] [--shared_dictionary_name SHARED_DICTIONARY_NAME] [--shared_dictionary_command_list SHARED_DICTIONARY_COMMAND_LIST] [--verbose]
                       [--version]
 
@@ -232,8 +232,8 @@ Once the dependencies are installed and working, the shared memory features can 
 ```bash
 git clone https://github.com/thatlarrypearson/telemetry-wthr.git
 cd telemetry-gps
-python3.10 -m build .
-python3.10 -m pip install dist/ telemetry_wthr-0.0.0-py3-none-any.whl
+python3.11 -m build .
+python3.11 -m pip install dist/ telemetry_wthr-0.0.0-py3-none-any.whl
 ```
 
 ## Weather Station Configuration
@@ -371,7 +371,7 @@ See the ```bin/wthr_logger.sh``` ```bash``` shell program for an example.
 ```UltraDict``` can be difficult to install on some systems such as **Windows 10**.  This library will work without UltraDict installed.  However, there will be a log message on startup whenever the ```--shared_dictionary_name``` command line argument is used as shown below.
 
 ```powershell
-PS C:\Users\human\src\telemetry-wthr> python3.10 -m wthr_logger.wthr_logger --shared_dictionary_name weather
+PS C:\Users\human\src\telemetry-wthr> python3.11 -m wthr_logger.wthr_logger --shared_dictionary_name weather
 ERROR:wthr_logger:import error: Shared Dictionary (weather) feature unsupported: UltraDict Not installed.
 INFO:wthr_logger:shared_dictionary_command_list ['WTHR_rapid_wind', 'WTHR_hub_status', 'WTHR_device_status', 'WTHR_obs_st', 'WTHR_evt_strike']
 INFO:wthr_logger:shared_dictionary_name weather)
@@ -381,16 +381,16 @@ INFO:wthr_logger:UDP client ready on 0.0.0.0 port 50222
 The following provides a method to verify that the shared memory has been mapped into the ```wthr_logger``` process space.  These commands work on most Linux based computers including Raspberry Pi's running Raspberry Pi OS.
 
 ```bash
-$ ps -eaf | grep python3.10 | grep -v grep
-human     384572  380137  0 13:02 pts/2    00:00:00 python3.10 -m gps_logger.gps_logger --shared_dictionary_name GPS --log_file_directory data
+$ ps -eaf | grep python3.11 | grep -v grep
+human     384572  380137  0 13:02 pts/2    00:00:00 python3.11 -m gps_logger.gps_logger --shared_dictionary_name GPS --log_file_directory data
 $ pmap -x 384572 | grep -i GPS
-384572:   python3.10 -m gps_logger.gps_logger --shared_dictionary_name GPS --log_file_directory data
+384572:   python3.11 -m gps_logger.gps_logger --shared_dictionary_name GPS --log_file_directory data
 0000007f9027a000    1024       0       0 rw-s- GPS_memory
 0000007f91507000       4       4       4 rw-s- GPS
 $
 ```
 
-The first command gets a list of processes (```ps```) and sends its output to a filter (```grep```) that only passes through processes that contain the string ```python3.10```.  The first filter passes its output onto another filter (```-v```) that removes all output lines that contain ```grep```.  This results in process (```ps```) information that only includes process names with ```python3.10``` in them.
+The first command gets a list of processes (```ps```) and sends its output to a filter (```grep```) that only passes through processes that contain the string ```python3.11```.  The first filter passes its output onto another filter (```-v```) that removes all output lines that contain ```grep```.  This results in process (```ps```) information that only includes process names with ```python3.11``` in them.
 
 The ```pmap``` command requires a process ID number.  In the ```ps``` output above, the process ID number is the first number after the user name ```human```.  That number needs to be input with the ```pmap``` command.
 
