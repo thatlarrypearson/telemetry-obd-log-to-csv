@@ -564,6 +564,60 @@ After finishing with ```nmtui```,  ```NetworkManager```:
 sudo systemctl restart NetworkManager
 ```
 
+## Hotspot Client Info
+
+See connected hotspot clients (by WIFI MAC address) run the following command.  More info at [About iw](https://wireless.wiki.kernel.org/en/users/documentation/iw).
+
+* To get hotspot client information
+
+```bash
+iw dev wlan0 station dump
+```
+
+Example:
+
+```bash
+lbp@telemetry4:~ $ iw dev wlan0 station dump
+Station c0:ee:40:70:b4:d7 (on wlan0)
+        inactive time:  0 ms
+        rx bytes:       26260579
+        rx packets:     94421
+        tx bytes:       10286960
+        tx packets:     95979
+        tx failed:      113
+        tx bitrate:     72.2 MBit/s
+        rx bitrate:     72.2 MBit/s
+        authorized:     yes
+        authenticated:  yes
+        associated:     yes
+        WMM/WME:        yes
+        TDLS peer:      yes
+        DTIM period:    2
+        beacon interval:100
+        short slot time:yes
+        connected time: 64874 seconds
+        current time:   1704553088728 ms
+lbp@telemetry4:~ $
+```
+
+* Translate MAC address to IP address
+
+```bash
+arp -n -e -i <interface-name>
+```
+
+Example:
+
+```bash
+lbp@telemetry4:~ $ arp -n -e -i wlan0
+Address                  HWtype  HWaddress           Flags Mask            Iface
+192.168.2.100                    (incomplete)                              wlan0
+192.168.2.119            ether   c0:ee:40:70:b4:d7   C                     wlan0
+lbp@telemetry4:~ $
+```
+
+From the station dump (```iw dev wlan0 station dump``` command), the output MAC (media access control) address was shown as ```c0:ee:40:70:b4:d7``` (see the line ```Station c0:ee:40:70:b4:d7 (on wlan0)```).  Looking at the table created by the ```arp -n -e -i wlan0```, that same MAC address appears and is associated with IP address ```192.168.2.119``` (see the line ```192.168.2.119 ether c0:ee:40:70:b4:d7 C wlan0```).
+
 ## Hotspot Test
 
 Test the hotspot using your phone or another computer to connect to the hotspot.  The test will be successful when you can access any of the big social networking sites using the hotspot.
