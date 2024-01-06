@@ -210,11 +210,18 @@ lbp@telemetry4:~ $
 
 ### Dependencies
 
-*telemetry-gps* requires a number of Libraries and Python packages that need to be installed before installing this package.  Follow installation instruction links for the following:
+*telemetry-wthr* requires a number of Libraries and Python packages that need to be installed before installing this package.  Follow installation instruction links for the following:
 
 * [Python 3.11](https://github.com/thatlarrypearson/telemetry-obd#raspberry-pi-system-installation)
   * provides the runtime environment for the application
   * follow the above link
+
+* [UltraDict](https://github.com/thatlarrypearson/UltraDict)
+  * fork of the original UltraDict
+  * builds on Raspberry Pi
+
+* [Telemetry Counter](https://github.com/thatlarrypearson/telemetry-counter)
+  * increments and returns the system boot and application start counters for use by other telemetry applications
 
 The following are optional packages and are only required if weather data is to be combined with location and vehicle engine data using shared memory/dictionary.
 
@@ -231,9 +238,9 @@ Once the dependencies are installed and working, the shared memory features can 
 
 ```bash
 git clone https://github.com/thatlarrypearson/telemetry-wthr.git
-cd telemetry-gps
+cd telemetry-wthr
 python3.11 -m build .
-python3.11 -m pip install dist/ telemetry_wthr-0.0.0-py3-none-any.whl
+python3.11 -m pip install dist/telemetry_wthr-0.0.0-py3-none-any.whl
 ```
 
 ## Weather Station Configuration
