@@ -180,9 +180,9 @@ def main():
 
         if log_file_handle:
             log_file_handle.write(json.dumps(log_value) + "\n")
-            # want a command line option to enable forced buffer write to disk with default off
-            # log_file_handle.flush()
-            # fsync(log_file_handle.fileno())
+            # want a command line option to disable forced buffer write to disk with default on
+            log_file_handle.flush()
+            fsync(log_file_handle.fileno())
 
         if shared_dictionary is not None and log_value["command_name"] in shared_dictionary_command_list:
                 logger.debug( f"writing to shared dictionary {log_value['command_name']}")
