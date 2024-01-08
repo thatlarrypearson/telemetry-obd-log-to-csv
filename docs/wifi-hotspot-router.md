@@ -331,13 +331,13 @@ Network Manager Command Line Interface (```nmcli```) table.
 | ------- | ------- |
 | nmcli dev status | Show interfaces' status |
 | nmcli con show | List connections |
-| nmcli con show <interface-name> | List connection settings |
-| nmcli con add con-name <connection-name> <settings> | Create new connection with settings |
-| nmcli con mod <connection-name> <settings> | Modify connection with settings |
-| nmcli con reload <connection-name> | Reload and restart connection - Use after configuration file /etc/NetworkManager/system-connections/<connection-name>.nmconnection update. |
-| nmcli con up <connection-name> | Activate connection |
-| nmcli dev dis <connection-name> | Deactivate connection |
-| nmcli con del <connection-name> | Delete connection and configuration file /etc/NetworkManager/system-connections/<connection-name>.nmconnection |
+| nmcli con show \<interface-name> | List connection settings |
+| nmcli con add con-name \<connection-name> \<settings> | Create new connection with settings |
+| nmcli con mod \<connection-name> \<settings> | Modify connection with settings |
+| nmcli con reload \<connection-name> | Reload and restart connection - Use after configuration file /etc/NetworkManager/system-connections/\<connection-name>.nmconnection update. |
+| nmcli con up \<connection-name> | Activate connection |
+| nmcli dev dis \<connection-name> | Deactivate connection |
+| nmcli con del \<connection-name> | Delete connection and configuration file /etc/NetworkManager/system-connections/\<connection-name>.nmconnection |
 
 ## Debugging Network Configuration Problems
 
