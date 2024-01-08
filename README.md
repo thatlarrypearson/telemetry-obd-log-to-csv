@@ -208,6 +208,20 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 lbp@telemetry4:~ $
 ```
 
+If you are running Raspberry Pi OS version ```12.2``` (```bookworm```), you can upgrade the OS to ```12.4```.
+
+```bash
+sudo apt update
+sudo apt dist-upgrade
+sudo shutdown -r now
+```
+
+Once the Raspberry Pi reboots, remove unused packages.
+
+```bash
+sudo apt autoremove
+```
+
 ### Dependencies
 
 *telemetry-wthr* requires a number of Libraries and Python packages that need to be installed before installing this package.  Follow installation instruction links for the following:

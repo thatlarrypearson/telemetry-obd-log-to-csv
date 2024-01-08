@@ -325,7 +325,10 @@ The following table provides some useful commands you might need when configurin
 
 ### Network Manager Command Line Interface (```nmcli```)
 
+Network Manager Command Line Interface (```nmcli```) table.
+
 | Command | Purpose |
+| ------- | ------- |
 | nmcli dev status | Show interfaces' status |
 | nmcli con show | List connections |
 | nmcli con show <interface-name> | List connection settings |
