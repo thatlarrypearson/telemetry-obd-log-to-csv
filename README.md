@@ -50,13 +50,15 @@ sudo chown root /root/bin/telemetry.rc.local.wittypi4
 sudo chmod 0755 /root/bin/telemetry.rc.local.wittypi4
 ```
 
-### Test Install
+### Test Base Install
 
 ```bash
 sudo bash /root/bin/telemetry.rc.local.wittypi4
 ```
 
-Test results are in the last ```wittypi4``` log file in ```/root/tmp/```.   ```ls -tr telemetry-wittypi4_*``` returns a matching file list in reverse date order.  That is, the newest file is last in the list.  ```tail -n 1```  prints the last line.   ```cat``` prints out a file.
+Test results are in the most recent ```wittypi4``` log file in ```/root/tmp/```.  Log files are generated every time ```/root/bin/telemetry.rc.local.wittypi4``` is executed.
+
+```ls -tr telemetry-wittypi4_*``` returns a matching file list in reverse date/time order.  That is, the newest file is last in the list.  ```tail -n 1```  prints the last line, the newest file.   ```cat``` prints out the file.
 
 ```bash
 sudo -i
@@ -66,6 +68,76 @@ cat $(ls -tr /root/tmp/telemetry-wittypi4_* | tail -n 1)
 Example:
 
 ```bash
+```
+
+### Start On Boot
+
+The Witty Pi 4 configuration software needs to start during the boot process.  To prepare for running on boot, modify the ```/etc/rc.local``` file.
+
+To start the Witty Pi 4 configuration software at boot on a Raspberry Pi, add the section of code starting with ```# BEGIN TELEMETRY-WITTYPI4 SUPPORT``` and ending with ```# END TELEMETRY-WITTYPI4 SUPPORT``` to ```/etc/rc.local```.
+
+An example  ```/etc/rc.local``` file is provided at ```telemetry-WittyPi4/etc/rc.local```.
+
+```bash
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+# BEGIN TELEMETRY-WTHR SUPPORT
+# This section goes before the TELEMETRY_OBD section
+
+if [ -x "/root/bin/telemetry.rc.local.wthr" ]
+then
+    /bin/nohup "/root/bin/telemetry.rc.local.wthr" &
+fi
+
+# END TELEMETRY-WTHR SUPPORT
+
+# BEGIN TELEMETRY-GPS SUPPORT
+# This section goes before the TELEMETRY_OBD section
+
+if [ -x "/root/bin/telemetry.rc.local.gps" ]
+then
+    /bin/nohup "/root/bin/telemetry.rc.local.gps" &
+fi
+
+# END TELEMETRY-GPS SUPPORT
+
+# BEGIN TELEMETRY-OBD SUPPORT
+
+if [ -x "/root/bin/telemetry.rc.local" ]
+then
+    /bin/nohup "/root/bin/telemetry.rc.local" &
+fi
+
+# END TELEMETRY-OBD SUPPORT
+
+# BEGIN TELEMETRY-WITTYPI4 SUPPORT
+# This section goes last
+
+if [ -x "/root/bin/telemetry.rc.local.wittypi4" ]
+then
+    /bin/nohup "/root/bin/telemetry.rc.local.wittypi4" &
+fi
+
+# END TELEMETRY-WITTYPI4 SUPPORT
+
+exit 0
 ```
 
 ## License

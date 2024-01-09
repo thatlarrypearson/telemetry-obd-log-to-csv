@@ -46,7 +46,7 @@ fi
 
 if [ -x "/root/bin/telemetry.rc.local.wittypi4" ]
 then
-  /bin/nohup "/root/bin/telemetry.rc.local.wittypi4"
+  /bin/nohup "/root/bin/telemetry.rc.local.wittypi4" &
 fi
 
 # END TELEMETRY SUPPORT
