@@ -2,7 +2,7 @@
 #
 # telemetry.rc.local.wittypi4 - This script is executed by the system /etc/rc.local script on system boot
 
-export START_DELAY=10
+export START_DELAY=60
 export WITTYPI4_USER="lbp"
 export WITTYPI4_GROUP="i2c"
 export WITTYPI4_HOME="/home/${WITTYPI4_USER}"
