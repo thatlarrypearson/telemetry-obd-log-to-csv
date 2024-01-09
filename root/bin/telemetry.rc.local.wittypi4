@@ -31,5 +31,5 @@ fi
 sleep "${START_DELAY}"
 
 ## Run the script boot_config.sh as user "${WITTYPI4_USER}" and group "${WITTYPI4_GROUP}"
-runuser -u "${WITTYPI4_USER}" -g "${WITTYPI4_GROUP}" "${WITTYPI4_HOME}/telemetry-wittypi4/bin/boot_config.sh" &
+runuser -u "${WITTYPI4_USER}" -g "${WITTYPI4_GROUP}" "${WITTYPI4_HOME}/telemetry-WittyPi4/bin/boot_config.sh" &
 
