@@ -13,6 +13,20 @@ Linux ```bash``` shell programs included in this repo provide the necessary inst
 
 ## Installation
 
+### Enable I2C Support
+
+Enable ```i2c``` support using ```raspi-config``` as shown below.
+
+![Interface Options](docs/i2c-01.png)
+
+![I2C](docs/i2c-02.png)
+
+![Enable I2C?](docs/i2c-03.png)
+
+![OK, I2C Enabled](docs/i2c-04.png)
+
+![Finish](docs/i2c-05.png)
+
 ### Install Witty Pi 4
 
 Follow the software installation instructions found in the [Witty Pi 4 User Manual](https://www.uugear.com/doc/WittyPi4_UserManual.pdf) before continuing.
