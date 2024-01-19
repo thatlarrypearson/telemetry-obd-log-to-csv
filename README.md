@@ -84,9 +84,49 @@ $VIN ="FT8W4DT5HED00000"
 python3.11 -m obd_log_to_csv.obd_log_to_csv --csv=${VIN}.csv --commands=RPM,SPEED,FUEL_RATE data/${VIN}/*.json
 ```
 
+### ```ValueError: dict contains fields not in fieldnames```
+
+If you get a value error in the Python ```csv``` module as shown below, then you must be working with commands that return either a list of results or a dictionary of results.  Two solutions:
+
+- Run [```obd_log_to_csv.obd_log_evaluation```](docs/OBD_LOG_EVALUATION.md) to get a breakdown of all commands contained in your data.  Next, include only commands that show a data type in the "Data Type" column.  E.g. ```WTHR_rapid_wind``` doesn't show a data type (base command name) but ```WTHR_rapid_wind-wind_speed``` (base command dash sub command) does.
+- Look at the ```fieldnames``` listed in the ```ValueError``` message.  Add these field names to your ```--commands``` list of commands.
+
+```bash
+lbp@telemetry4:telemetry-data/data/telemetry2$ python3.11 -m obd_log_to_csv.obd_log_to_csv --commands "WTHR_obs_st,WTHR_rapid_wind" telemetry2-000
+0000076-wthr-0000000070.json
+WTHR_obs_st,WTHR_rapid_wind,iso_ts_pre,iso_ts_post,duration
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/lbp/.local/lib/python3.11/site-packages/obd_log_to_csv/obd_log_to_csv.py", line 236, in <module>
+    main()
+  File "/home/lbp/.local/lib/python3.11/site-packages/obd_log_to_csv/obd_log_to_csv.py", line 233, in main
+    cycle_through_input_files(json_input_files, commands, header, stdout, verbose=verbose)
+  File "/home/lbp/.local/lib/python3.11/site-packages/obd_log_to_csv/obd_log_to_csv.py", line 153, in cycle_through_input_files
+    input_file(json_input, commands, csv_output_file,
+  File "/home/lbp/.local/lib/python3.11/site-packages/obd_log_to_csv/obd_log_to_csv.py", line 110, in input_file
+    writer.writerow(output_record)
+  File "/home/lbp/.local/lib/python3.11/csv.py", line 154, in writerow
+    return self.writer.writerow(self._dict_to_list(rowdict))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lbp/.local/lib/python3.11/csv.py", line 149, in _dict_to_list
+    raise ValueError("dict contains fields not in fieldnames: "
+ValueError: dict contains fields not in fieldnames: 'WTHR_rapid_wind-wind_speed', 'WTHR_rapid_wind-time_epoch', 'WTHR_rapid_wind-wind_direction'
+lbp@telemetry4:telemetry-data/data/telemetry2$
+```
+
+
 ## ```obd_log_to_csv.obd_log_to_csv``` Jupyter Notebook Usage Example
 
 ```python
+from obd_log_to_csv.obd_log_to_csv import main as obd_log_to_csv_main
+
+obd_log_to_csv_main(
+  json_input_files=["telemetry-data/data/telemetry2/telemetry2-0000000076-obd-<vin>-0000000041.json", ],
+  csv_output_file_name="telemetry2-0000000076-obd-<vin>-0000000041.csv",
+  commands=['SPEED', 'RPM', 'FUEL_RATE_2', 'WTHR_rapid_wind-wind_speed',
+  'WTHR_rapid_wind-time_epoch', 'WTHR_rapid_wind-wind_direction']
+)
 ```
 
 ## Installation

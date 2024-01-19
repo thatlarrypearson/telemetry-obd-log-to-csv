@@ -61,10 +61,15 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         if isinstance(input_record['obd_response_value'], dict):
             for field_name, obd_response_value in input_record['obd_response_value'].items():
                 command_name = f"{input_record['command_name']}-{field_name}"
-                if command_name not in commands:
+                if command_name not in commands and input_record['command_name'] not in commands:
                     if verbose:
                         print(f"dict command_name {command_name} not in commands")
                     continue
+                if command_name not in commands:
+                    # then the root command name is in commands and the command with field name needs to be added to commands
+                    if verbose:
+                        print(f"dict command_name {command_name} added to commands")
+                    commands.append(command_name)
                 if verbose:
                     print(f"dict: {input_record['command_name']} to {command_name}: value: {obd_response_value}", file=stderr)
                 if command_name in output_record and output_record[command_name]:
@@ -74,10 +79,15 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         elif isinstance(input_record['obd_response_value'], list):
             for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
                 command_name = get_list_command_name(input_record['command_name'], obd_response_index)
-                if command_name not in commands:
+                if command_name not in commands and input_record['obd_response_value'] not in commands:
                     if verbose:
                         print(f"list command_name {command_name} not in commands")
                     continue
+                if command_name not in commands:
+                    # then the root command name is in commands and the command with field name needs to be added to commands
+                    if verbose:
+                        print(f"list command_name {command_name} added to commands")
+                    commands.append(command_name)
                 if verbose:
                     print(f"list: {input_record['command_name']} to {command_name}: value: {obd_response_value}", file=stderr)
                 if command_name in output_record and output_record[command_name]:
@@ -113,13 +123,13 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         if isinstance(input_record['obd_response_value'], dict):
             for field_name, obd_response_value in input_record['obd_response_value'].items():
                 command_name = f"{input_record['command_name']}-{field_name}"
-                if command_name not in commands:
+                if command_name not in commands and input_record['command_name'] not in commands:
                     continue
                 output_record[command_name], pint_value = pint_to_value_type(obd_response_value, verbose)
         elif isinstance(input_record['obd_response_value'], list):
             for obd_response_index, obd_response_value in enumerate(input_record['obd_response_value'], start=0):
                 command_name = get_list_command_name(input_record['command_name'], obd_response_index)
-                if command_name not in commands:
+                if command_name not in commands and input_record['obd_response_value'] not in commands:
                     continue
                 output_record[command_name], pint_value = pint_to_value_type(obd_response_value, verbose)
         else:
@@ -133,6 +143,8 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
         output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
         writer.writerow(output_record)
 
+    return
+
 def cycle_through_input_files(json_input_files:list, commands:list, header:bool, csv_output_file:TextIOWrapper, verbose=False):
     for json_input_file_name in json_input_files:
         if verbose:
@@ -142,6 +154,7 @@ def cycle_through_input_files(json_input_files:list, commands:list, header:bool,
                         header=header, verbose=verbose)
         header = False
 
+    return
 
 def command_line_options()->dict:
     parser = ArgumentParser(prog="obd_log_to_csv", description="Telemetry OBD Log To CSV")
