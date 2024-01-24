@@ -115,7 +115,6 @@ ValueError: dict contains fields not in fieldnames: 'WTHR_rapid_wind-wind_speed'
 lbp@telemetry4:telemetry-data/data/telemetry2$
 ```
 
-
 ## ```obd_log_to_csv.obd_log_to_csv``` Jupyter Notebook Usage Example
 
 ```python
