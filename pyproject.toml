@@ -18,9 +18,6 @@ homepage = "https://github.com/thatlarrypearson/telemetry-counter"
 repository = "https://github.com/thatlarrypearson/telemetry-counter"
 documentation = "https://github.com/thatlarrypearson/telemetry-counter"
 keywords = ["telematics", "vehicle"]
-dependencies = [
-    'UltrDict == 0.0.6',
-]
 
 classifiers = [
     "Development Status :: 4 - Beta",

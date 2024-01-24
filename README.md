@@ -58,6 +58,10 @@ python3.11 -m build .
 python3.11 -m pip install dist/telemetry_counter-0.0.1-py3-none-any.whl
 ```
 
+### Optional Dependency **UltraDict**
+
+If you are planning to use ```UltraDict``` to share Telemetry data at runtime between Telemetry modules, follow the instructions in [UltraDict Installation](docs/README-UltraDict.md).
+
 ## Common Library
 
 ### Goals
