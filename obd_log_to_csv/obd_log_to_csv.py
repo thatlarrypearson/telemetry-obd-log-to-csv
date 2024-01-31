@@ -99,7 +99,7 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
             if verbose:
                 print(f"{command_name}: value: {input_record['obd_response_value']}", file=stderr)
 
-            if output_record[command_name]:
+            if command_name in commands and output_record[command_name]:
                 output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
                 write_row = True
 
