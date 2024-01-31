@@ -141,7 +141,8 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
             print(f"====================================\noutput_record: {output_record}\n====================================", file=stderr)
         output_record['iso_ts_post'] = parser.isoparse(input_record['iso_ts_pre'])
         output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
-        writer.writerow(output_record)
+        final_output_record = {k: v for k, v in output_record.items() if k in commands}
+        writer.writerow(final_output_record)
 
     return
 
