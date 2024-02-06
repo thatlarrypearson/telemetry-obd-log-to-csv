@@ -154,6 +154,16 @@ This [README](./README.md) has other companion documents as shown below in [OBD 
 
 As an aid to determining which OBD commands should be in ```obd_logger``` configuration files, [```obd_log_evaluation```](./docs/OBD_LOG_EVALUATION.md) analyses output from  ```telemetry_obd.obd_command_tester``` and ```telemetry_obd.obd_logger```.
 
+### JSON Data Integrator
+
+The [JSON Data Integrator]() integrates telemetry JSON data from multiple sources into a single data file from multiple data sources:
+
+- telemetry_obd.obd_logger
+- gps_logger.gps_logger
+- wthr_logger.wthr_logger
+- imu_logger.imu_logger
+- other sources conforming to [Telemetry OBD Logger Output Data Files](https://github.com/thatlarrypearson/telemetry-obd#telemetry-obd-logger-output-data-files)
+
 ### Post Processing
 
 Additional data manipulation tools are available as part of this library and are described in [CSV File Post Processing](./docs/POST_PROCESSING.md).
