@@ -20,9 +20,13 @@ from tcounter.common import (
     BASE_PATH,
 )
 
-def write_json_data_to_integrated_file(records:list, base_path:str, hostname:str, boot_count:int, verbose=False):
+def write_json_data_to_integrated_file(records:list, base_path:str, hostname:str, boot_count:int, vin:str, verbose=False):
+    if vin is None:
+        vin = "UNKNOWN_VIN"
+
     boot_count_string =  (f"{boot_count:10d}").replace(' ', '0')
-    output_file_path = Path(f"{base_path}/{hostname}/{hostname}-{boot_count_string}-integrated.json")
+    output_file_path = Path(f"{base_path}/{hostname}/{hostname}-{boot_count_string}-integrated-{vin}.json")
+
     if verbose:
         print(f"writing integrated JSON data to {output_file_path}")
 
@@ -56,6 +60,19 @@ def get_json_file_list(base_path:str, hostname:str, boot_count:int, verbose=Fals
     if verbose:
         print(f"json file list {file_list}")
     return file_list
+
+def get_vin_from_json_file_list(json_file_list)->str:
+    """
+    Return VIN from get_json_file_list() output or return None if not found.
+    """
+    # json_file_list is really pathlib.Path values.
+    for json_data_file_path in json_file_list:
+        if '-obd-' in json_data_file_path.name:
+            file_name_parts = json_data_file_path.name.split('-')
+            if file_name_parts[2] == 'obd':
+                return file_name_parts[3]
+
+    return None
 
 def command_line_options()->dict:
     parser = ArgumentParser(prog="json_data_integrator", description="Telemetry JSON Data Integrator")
@@ -124,9 +141,9 @@ def main(args=None, base_path=BASE_PATH, hostname=None, boot_count=None, verbose
             print(f"file {file.name}")
         with open(file,  "r") as json_input:
             for line_number, json_record in enumerate(json_input, start=1):
-
                 try:
                     input_record = json.loads(json_record)
+
                 except json.decoder.JSONDecodeError as e:
                     # improperly closed JSON file
                     if verbose:
@@ -154,7 +171,8 @@ def main(args=None, base_path=BASE_PATH, hostname=None, boot_count=None, verbose
     if verbose:
         print("writing sorted list")
 
-    output_file_path = write_json_data_to_integrated_file(un_duplicate_list, base_path, hostname, boot_count, verbose=verbose)
+    vin = get_vin_from_json_file_list(get_json_file_list(base_path, hostname, boot_count, verbose=verbose))
+    output_file_path = write_json_data_to_integrated_file(un_duplicate_list, base_path, hostname, boot_count, vin, verbose=verbose)
 
     if verbose:
         print(f"un-duplicate sorted list written out to {output_file_path}")
