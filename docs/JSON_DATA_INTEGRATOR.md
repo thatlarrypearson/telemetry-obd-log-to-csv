@@ -36,21 +36,21 @@ Directory Structure
 
 ### DATA_PATH
 
-- "telemetry-data"
+- ```telemetry-data```
 
 ### BASE_PATH
 
-- "~/<DATA_PATH>/data"
-- "~/telemetry-data/data"
+- ```~/<DATA_PATH>/data```
+- ```~/telemetry-data/data```
 
-Where "~/" is the same as "${HOME}" or "<HOME>" or just the home directory.
+Where ```~/``` is the same as ```${HOME}``` or ```<HOME>``` or just the home directory.
 
 ### JSON Data Directory
 
-- "<HOME>/<DATA_PATH>/data/<HOSTNAME>"
-- "~/<DATA_PATH>/data/<HOSTNAME>"
-- "~/telemetry-data/data/<HOSTNAME>"
-- "C:\Users\lbp/telemetry-data/data/telemetry2"
+- ```<HOME>/<DATA_PATH>/data/<HOSTNAME>```
+- ```~/<DATA_PATH>/data/<HOSTNAME>```
+- ```~/telemetry-data/data/<HOSTNAME>```
+- ```C:\Users\lbp/telemetry-data/data/telemetry2```
 
 Where "<HOSTNAME>" is the hostname of the computer where the data was collected.
 
@@ -58,16 +58,16 @@ Where "<HOSTNAME>" is the hostname of the computer where the data was collected.
 
 Two different naming formats.
 
-- "<HOSTNAME>-<boot_count>-<application_name>-<application_count>.json"
-- "telemetry2-0000000072-gps-0000000113.json"
-- "telemetry2-0000000072-gps-0000000114.json"
-- "telemetry2-0000000072-imu-0000000078.json"
-- "telemetry2-0000000072-wthr-0000000066.json"
+- ```<HOSTNAME>-<boot_count>-<application_name>-<application_count>.json```
+- ```telemetry2-0000000072-gps-0000000113.json```
+- ```telemetry2-0000000072-gps-0000000114.json```
+- ```telemetry2-0000000072-imu-0000000078.json```
+- ```telemetry2-0000000072-wthr-0000000066.json```
 
 Where "<application_name>" is one of "gps", "imu", "wthr", 
 
-- "<HOSTNAME>-<boot_count>-<application_name>-<VIN>-<application_count>.json"
-- "telemetry2-0000000072-obd-C4HJWCG9DL9999-0000000039.json"
+- ```<HOSTNAME>-<boot_count>-<application_name>-<VIN>-<application_count>.json```
+- ```telemetry2-0000000072-obd-C4HJWCG9DL9999-0000000039.json```
 
 Where "<VIN>" is the vehicle VIN as provided through the OBD interface and the "<application_name>" is "obd".
 
@@ -96,7 +96,8 @@ When all three of the JSON record fields in two different records have the same 
 
 ## Output File Name
 
-```python
-    boot_count_string =  (f"{boot_count:10d}").replace(' ', '0')
-    output_file_path = Path(f"{base_path}-{hostname}-{boot_count_string}-integrated.json")
-```
+Format
+
+- ```<HOSTNAME>-<boot_count>-integrated-<VIN>.json```
+- ```telemetry2-0000000072-integrated-C4HJWCG9DL9999.json```
+
