@@ -52,7 +52,7 @@ Where ```~/``` is the same as ```${HOME}``` or ```<HOME>``` or just the home dir
 - ```~/telemetry-data/data/<HOSTNAME>```
 - ```C:\Users\lbp/telemetry-data/data/telemetry2```
 
-Where "<HOSTNAME>" is the hostname of the computer where the data was collected.
+Where ```<HOSTNAME>``` is the hostname of the computer where the data was collected.
 
 ### JSON Data File Names
 
@@ -64,12 +64,12 @@ Two different naming formats.
 - ```telemetry2-0000000072-imu-0000000078.json```
 - ```telemetry2-0000000072-wthr-0000000066.json```
 
-Where "<application_name>" is one of "gps", "imu", "wthr", 
+Where ```<application_name>``` is one of ```gps```, ```imu```, ```wthr```, etc. 
 
 - ```<HOSTNAME>-<boot_count>-<application_name>-<VIN>-<application_count>.json```
 - ```telemetry2-0000000072-obd-C4HJWCG9DL9999-0000000039.json```
 
-Where "<VIN>" is the vehicle VIN as provided through the OBD interface and the "<application_name>" is "obd".
+Where ```<VIN>``` is the vehicle VIN as provided through the OBD interface and the ```<application_name>``` is "obd".
 
 ## JSON Record Format
 
