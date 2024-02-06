@@ -154,7 +154,7 @@ def main(args=None, base_path=BASE_PATH, hostname=None, boot_count=None, verbose
     output_file_path = write_json_data_to_integrated_file(un_duplicate_list, base_path, hostname, boot_count, verbose=verbose)
 
     if verbose:
-        print("un-duplicate sorted list written out to {output_file_path.name}")
+        print(f"un-duplicate sorted list written out to {output_file_path.name}")
 
     return
 

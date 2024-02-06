@@ -13,6 +13,21 @@ The JSON Data Integrator integrates telemetry JSON data from multiple sources in
 ## Usage
 
 ```bash
+$ python -m obd_log_to_csv.json_data_integrator --help
+usage: json_data_integrator [-h] [--base_path BASE_PATH] --hostname HOSTNAME --boot_count BOOT_COUNT [--version VERSION] [--verbose]
+
+Telemetry JSON Data Integrator
+
+options:
+  -h, --help            show this help message and exit
+  --base_path BASE_PATH
+                        BASE_PATH directory variable. Defaults to C:\Users\runar/telemetry-data/data
+  --hostname HOSTNAME   The hostname of the computer where the data was collected.
+  --boot_count BOOT_COUNT
+                        A counter used to identify the number of times the data collection computer booted since telemetry-counter was installed and configured.
+  --version VERSION     Returns version and exit.
+  --verbose             Turn verbose output on. Default is off.
+$
 ```
 
 ## Directory Structure
