@@ -52,6 +52,9 @@ def get_json_file_list(base_path:str, hostname:str, boot_count:int, verbose=Fals
             if verbose:
                 print(f"boot_count {boot_count} file {json_data_file_path.name}")
             file_list.append(json_data_file_path)
+
+    if verbose:
+        print(f"json file list {file_list}")
     return file_list
 
 def command_line_options()->dict:
@@ -115,8 +118,8 @@ def main(args=None, base_path=BASE_PATH, hostname=None, boot_count=None, verbose
         print(f"hostname {hostname}")
         print(f"boot_count {boot_count}")
 
+    sortable_list = []
     for file in get_json_file_list(base_path, hostname, boot_count, verbose=verbose):
-        sortable_list = []
         if verbose:
             print(f"file {file.name}")
         with open(file,  "r") as json_input:
@@ -128,7 +131,7 @@ def main(args=None, base_path=BASE_PATH, hostname=None, boot_count=None, verbose
                     # improperly closed JSON file
                     if verbose:
                         print(f"Corrupted JSON info {file.name} line {line_number}:\n{e}")
-                    return
+                    break
 
                 sortable_list.append(input_record)
 
