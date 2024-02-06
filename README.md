@@ -156,7 +156,7 @@ As an aid to determining which OBD commands should be in ```obd_logger``` config
 
 ### JSON Data Integrator
 
-The [JSON Data Integrator](./Docs/JSON_DATA_INTEGRATOR.md) integrates telemetry JSON data from multiple sources into a single data file from multiple data sources:
+The [JSON Data Integrator](./docs/JSON_DATA_INTEGRATOR.md) integrates telemetry JSON data from multiple sources into a single data file from multiple data sources:
 
 - telemetry_obd.obd_logger
 - gps_logger.gps_logger
