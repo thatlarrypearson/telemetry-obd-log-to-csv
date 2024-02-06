@@ -22,9 +22,9 @@ from tcounter.common import (
 
 def write_json_data_to_integrated_file(records:list, base_path:str, hostname:str, boot_count:int, verbose=False):
     boot_count_string =  (f"{boot_count:10d}").replace(' ', '0')
-    output_file_path = Path(f"{base_path}-{hostname}-{boot_count_string}-integrated.json")
+    output_file_path = Path(f"{base_path}/{hostname}/{hostname}-{boot_count_string}-integrated.json")
     if verbose:
-        print(f"writing integrated JSON data to {output_file_path.name}")
+        print(f"writing integrated JSON data to {output_file_path}")
 
     with open(output_file_path, "w+", encoding='utf-8') as output_file:
         for record in records:
@@ -154,7 +154,7 @@ def main(args=None, base_path=BASE_PATH, hostname=None, boot_count=None, verbose
     output_file_path = write_json_data_to_integrated_file(un_duplicate_list, base_path, hostname, boot_count, verbose=verbose)
 
     if verbose:
-        print(f"un-duplicate sorted list written out to {output_file_path.name}")
+        print(f"un-duplicate sorted list written out to {output_file_path}")
 
     return
 
