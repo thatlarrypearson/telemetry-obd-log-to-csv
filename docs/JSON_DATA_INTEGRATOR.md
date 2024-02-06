@@ -2,7 +2,7 @@
 
 ## **UNDER CONSTRUCTION**
 
-The JSON Data Integrator integrates telemetry JSON data from multiple sources into a single data file from multiple data sources:
+The JSON Data Integrator integrates telemetry JSON data from multiple sources into a single data file:
 
 - telemetry_obd.obd_logger
 - gps_logger.gps_logger
