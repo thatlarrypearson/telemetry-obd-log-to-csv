@@ -88,7 +88,7 @@ json_record = {
 
 ## Output Sort Order
 
-When all three of the JSON record fields in two different records have the same values, then one of the records is a duplicate record.
+When all three of the JSON record fields in two different records have the same values, then one of the records is a duplicate record.  All of the records are sorted using the ordering shown below.
 
 - ```json_record["iso_ts_pre"]```
 - ```json_record["iso_ts_post"]```
@@ -101,3 +101,6 @@ Format
 - ```<HOSTNAME>-<boot_count>-integrated-<VIN>.json```
 - ```telemetry2-0000000072-integrated-C4HJWCG9DL9999.json```
 
+## License
+
+[MIT License](../LICENSE.md)

@@ -748,3 +748,6 @@ plt.show()
 ![png](./DataValidation-cycle_21_1.png)
     
 
+## LICENSE
+
+[MIT License](../LICENSE.md)
