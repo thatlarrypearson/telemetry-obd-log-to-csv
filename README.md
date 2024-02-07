@@ -77,11 +77,24 @@ Test results are in the most recent ```wittypi4``` log file in ```/root/tmp/```.
 ```bash
 sudo -i
 cat $(ls -tr /root/tmp/telemetry-wittypi4_* | tail -n 1)
+exit
 ```
 
 Example:
 
 ```bash
+lbp@telemetry2:~ $ sudo -i
+root@telemetry2:~# cat $(ls -tr /root/tmp/telemetry-wittypi4_* | tail -n 1)
++ sleep 60
++ runuser -u lbp -g i2c /home/lbp/telemetry-WittyPi4/bin/boot_config.sh
+  Applying network time to system...
+  Done :-)
+  Writing system time to RTC...
+  Done :-)
+Set to "Default ON"!
+root@telemetry2:~# exit
+logout
+lbp@telemetry2:~ $
 ```
 
 ### Start On Boot
