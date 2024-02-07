@@ -50,8 +50,9 @@ cd "${APP_HOME}"
 while date '+%Y/%m/%d %H:%M:%S'
 do
 	${APP_PYTHON} -m wthr_logger.wthr_logger \
-        --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
         --log_file_directory "${APP_BASE_PATH}"
+
+        # --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
 
 	export RtnVal="$?"
 	echo wthr_logger returns "${RtnVal}"

@@ -635,3 +635,7 @@ The following images show how the hotspot looks to my iPhone.
 The [WeatherFlow Tempest Weather Station](https://shop.weatherflow.com/products/tempest) is able to use the hotspot provided through a Raspberry Pi 4B after following these instructions.  All you need for the weather station setup is to have your Raspberry Pi connected to the Internet through its Ethernet port and the hotspot configured on its WIFI interface.  
 
 To connect the weather station to the hotspot, first download and install the [Tempest Weather](https://apps.apple.com/us/app/tempest-weather/id1125427067) application to your smartphone.  Before completing the installation/configuration steps requiring the mobile phone application, configure your mobile phone to the Raspberry Pi hotspot.  Then follow the installation and configuration instructions that came with the weather station.
+
+## LICENSE
+
+[MIT License](../LICENSE.md)
