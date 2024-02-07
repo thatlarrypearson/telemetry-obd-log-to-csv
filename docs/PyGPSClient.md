@@ -36,3 +36,7 @@ python3.10 -m pip install --user --upgrade pygpsclient
 # Test using this command
 python3.10 -m pygpsclient
 ```
+
+## LICENSE
+
+[MIT License](../LICENSE.md)

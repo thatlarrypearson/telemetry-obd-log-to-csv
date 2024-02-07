@@ -60,8 +60,9 @@ fi
 while date '+%Y/%m/%d %H:%M:%S'
 do
 	${APP_PYTHON} -m gps_logger.gps_logger \
-        --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
         "${APP_BASE_PATH}"
+
+        # --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
 
 	export RtnVal="$?"
 	echo gps_logger returns "${RtnVal}"
