@@ -1,4 +1,4 @@
-"""telemetry_counter/common.py: functions used by other telemetry modules"""
+"""telemetry-counter/tcounter/common.py: functions used by other telemetry modules"""
 
 import logging
 from pathlib import Path
@@ -127,6 +127,28 @@ def get_output_file_name(application_id:str, vin:str=None, base_path=BASE_PATH) 
     # - for telemetry-wthr, telemetry-gps, telemetry-imu, telemetry-trlr data
     return Path(f"{base_path}/{HOST_ID}/{HOST_ID}-{boot_count_string}-{application_id}-{counter_string}.json")
 
+def shared_dictionary_to_dictionary(shared_dictionary:UltraDict)->dict:
+    # sourcery skip: assign-if-exp, dict-comprehension
+    """
+    Convert UltraDict item to a real dictionary
+    so that the return value will work in json.dumps functions
+    """
+    logging.info(f"shared_dictionary type {type(shared_dictionary)}")
+
+    if 'UltraDict' not in str(type(shared_dictionary)):
+        return shared_dictionary
+
+    return_value = {}
+    
+    for key, value in shared_dictionary.items():
+        logging.info(f"key {key} value type {type(value)}")
+        if 'UltraDict' in str(type(shared_dictionary)):
+            return_value[key] = shared_dictionary_to_dictionary(value)
+        else:
+            return_value[key] = value
+    
+    return return_value
+
 try:
     # Not making UltraDict a requirement.
     from UltraDict import UltraDict
@@ -156,28 +178,6 @@ try:
                 auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
                 recurse=True            # dictionary can contain dictionary and updates are nested
             )
-
-    def shared_dictionary_to_dictionary(shared_dictionary:UltraDict)->dict:
-        # sourcery skip: assign-if-exp, dict-comprehension
-        """
-        Convert UltraDict item to a real dictionary
-        so that the return value will work in json.dumps functions
-        """
-        logging.info(f"shared_dictionary type {type(shared_dictionary)}")
-
-        if 'UltraDict' not in str(type(shared_dictionary)):
-            return shared_dictionary
- 
-        return_value = {}
-        
-        for key, value in shared_dictionary.items():
-            logging.info(f"key {key} value type {type(value)}")
-            if 'UltraDict' in str(type(shared_dictionary)):
-                return_value[key] = shared_dictionary_to_dictionary(value)
-            else:
-                return_value[key] = value
-        
-        return return_value
 
 except ImportError:
     logging.error(f"common.SharedDictionaryManager: ImportError")
