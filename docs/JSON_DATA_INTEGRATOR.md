@@ -56,22 +56,57 @@ Where ```<HOSTNAME>``` is the hostname of the computer where the data was collec
 
 ### JSON Data File Names
 
-Two different naming formats.
+Many different naming formats.
 
-- ```<HOSTNAME>-<boot_count>-<application_name>-<application_count>.json```
-- ```telemetry2-0000000072-gps-0000000113.json```
-- ```telemetry2-0000000072-gps-0000000114.json```
-- ```telemetry2-0000000072-imu-0000000078.json```
-- ```telemetry2-0000000072-wthr-0000000066.json```
+#### COUNTER (CURRENT) INPUT FILE NAMING FORMAT
 
-Where ```<application_name>``` is one of ```gps```, ```imu```, ```wthr```, etc. 
+There are two variations of the current format.  The one for ```OBD``` and the one for everything else.  The ```OBD``` naming format follows.
 
 - ```<HOSTNAME>-<boot_count>-<application_name>-<VIN>-<application_count>.json```
 - ```telemetry2-0000000072-obd-C4HJWCG9DL9999-0000000039.json```
 
-Where ```<VIN>``` is the vehicle VIN as provided through the OBD interface and the ```<application_name>``` is "obd".
+Where ```<VIN>``` is the vehicle VIN as provided through the ```OBD``` interface and the ```<application_name>``` is "obd".
+
+Everything other than ```OBD``` is as follows.
+
+- ```<HOSTNAME>-<boot_count>-<application_name>-<application_count>.json```
+- ```telemetry2-0000000072-gps-0000000114.json```
+- ```telemetry2-0000000072-imu-0000000078.json```
+- ```telemetry2-0000000072-wthr-0000000066.json```
+
+Where ```<application_name>``` is one of ```gps```, ```imu```, ```wthr```, etc.
+
+#### INTERIM INPUT FILE NAMING FORMAT
+
+The interim file naming format is similar to the current format in that it uses a ```boot_count```.  For ```OBD``` data files, this is as follows.
+
+- ```<VIN>-<boot_count>.json```
+- ```3FTTW8F97PRA99999-0000000007.json```
+
+For all other sensor file types, it is as follows:
+
+- ```<application_name>-<boot_count>.json```
+- ```NMEA-0000000032.json```
+
+```NMEA``` is the application name for ```gps``` before the current naming scheme.
+
+#### ORIGINAL INPUT FILE NAMING FORMAT
+
+The original file naming format used [Coordinated Universal Time or UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) timestamps in the file name.  These files all ended with the timestamp followed by ```-utc``` and used the file suffix ```.json```.  The ```OBD``` data file name format was
+
+- ```<VIN>-<utc_timestamp>-utc.json```
+- ```<VIN>-<YYYYmmddHHMMSS>-utc.json```
+- ```C4HJWCG5DL9999-20230112133422-utc.json```
+
+During the time this format was used, the only application name in use was ```NMEA```, now called ```gps```.
+
+- ```<application_name>-<utc_timestamp>-utc.json```
+- ```<application_name>-<YYYYmmddHHMMSS>-utc.json```
+- ```NMEA-20220610172050-utc.json```
 
 ## JSON Record Format
+
+The JSON record format hasn't changed.  It is still the same.
 
 ```python
 json_record = {
@@ -88,7 +123,7 @@ json_record = {
 
 ## Output Sort Order
 
-When all three of the JSON record fields in two different records have the same values, then one of the records is a duplicate record.  All of the records are sorted using the ordering shown below.
+When all three of the JSON record fields in two different records have the same values, then one of the records is a duplicate record.  All of the records are sorted using the ordering shown below.  Duplicate records are deleted.
 
 - ```json_record["iso_ts_pre"]```
 - ```json_record["iso_ts_post"]```
@@ -96,10 +131,23 @@ When all three of the JSON record fields in two different records have the same 
 
 ## Output File Name
 
-Format
+There will be some file name format differences between the current, interim and original input file naming conventions.
+
+### CURRENT
 
 - ```<HOSTNAME>-<boot_count>-integrated-<VIN>.json```
 - ```telemetry2-0000000072-integrated-C4HJWCG9DL9999.json```
+
+### INTERIM
+
+- ```INTERIM-<boot_count>-integrated-<VIN>.json```
+- ```INTERIM-0000000072-integrated-C4HJWCG9DL9999.json```
+
+### ORIGINAL
+
+- ```ORIGINAL-<utc_timestamp>-integrated-<VIN>.json```
+- ```ORIGINAL-<YYYYmmddHHMMSS>-integrated-<VIN>.json```
+- ```ORIGINAL-20230112133422-integrated-C4HJWCG5DL9999.json```
 
 ## License
 
