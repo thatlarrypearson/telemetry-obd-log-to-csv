@@ -130,6 +130,29 @@ try:
     # Not making UltraDict a requirement.
     from UltraDict import UltraDict
 
+    def shared_dictionary_to_dictionary(shared_dictionary:UltraDict)->dict:
+        # sourcery skip: assign-if-exp, dict-comprehension
+        """
+        Convert UltraDict item to a real dictionary
+        so that the return value will work in json.dumps functions
+        """
+        logging.info(f"shared_dictionary type {type(shared_dictionary)}")
+
+        if 'UltraDict' not in str(type(shared_dictionary)):
+            return shared_dictionary
+
+        return_value = {}
+        
+        for key, value in shared_dictionary.items():
+            logging.info(f"key {key} value type {type(value)}")
+            if 'UltraDict' in str(type(shared_dictionary)):
+                return_value[key] = shared_dictionary_to_dictionary(value)
+            else:
+                return_value[key] = value
+        
+        return return_value
+
+
     class SharedDictionaryManager(UltraDict):
         """
         Shared Dictionary Manager - Uses a dictionary as the shared memory metaphor.
@@ -157,7 +180,7 @@ try:
             )
 
 except ImportError:
-    logging.error(f"common.SharedDictionaryManager: ImportError")
+    # logging.error(f"common.SharedDictionaryManager: ImportError")
     SharedDictionaryManager = None
     default_shared_gps_command_list = None
     default_shared_weather_command_list = None
@@ -165,25 +188,4 @@ except ImportError:
     def shared_dictionary_to_dictionary(shared_dictionary:dict)->dict:
         return shared_dictionary
 
-def shared_dictionary_to_dictionary(shared_dictionary:UltraDict)->dict:
-    # sourcery skip: assign-if-exp, dict-comprehension
-    """
-    Convert UltraDict item to a real dictionary
-    so that the return value will work in json.dumps functions
-    """
-    logging.info(f"shared_dictionary type {type(shared_dictionary)}")
-
-    if 'UltraDict' not in str(type(shared_dictionary)):
-        return shared_dictionary
-
-    return_value = {}
-    
-    for key, value in shared_dictionary.items():
-        logging.info(f"key {key} value type {type(value)}")
-        if 'UltraDict' in str(type(shared_dictionary)):
-            return_value[key] = shared_dictionary_to_dictionary(value)
-        else:
-            return_value[key] = value
-    
-    return return_value
 
