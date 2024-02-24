@@ -112,7 +112,7 @@ def get_info_from_json_file_name(json_file_name, verbose=False):
     #
     #   <application_name>-<boot_count>.json
     #   NMEA-0000000032.json
-     elif len(sections) == 2 or (len(sections) == 3 and sections[1] == 'TEST'):
+    elif len(sections) == 2 or (len(sections) == 3 and sections[1] == 'TEST'):
         flavor = 'interim'
 
         if 'NMEA' in base_name:
