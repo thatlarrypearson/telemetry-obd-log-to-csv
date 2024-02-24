@@ -25,7 +25,7 @@ from tcounter.common import  BASE_PATH
 
 def string_timestamp_to_datetime(s:str)->datetime:
     # sourcery skip: remove-redundant-slice-index
-    if len(s) != 12:
+    if len(s) != 14:
         raise ValueError(f"string <{s}> not in timestamp format (YYYYMMDDhhmmss)")
 
     year    = int(s[0:4])
@@ -37,13 +37,13 @@ def string_timestamp_to_datetime(s:str)->datetime:
 
     return datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second, tzinfo=timezone.utc)
 
-def get_original_strategy_files(base_path:str, obd_file_name_timestamp:str)->list:
+def get_original_strategy_files(base_path:str, obd_timestamp:str)->list:
     """Get list of 'original' naming strategy files close to obd_file_name_timestamp"""
-    obd_timestamp = string_timestamp_to_datetime(obd_file_name_timestamp)
+    # obd_timestamp = string_timestamp_to_datetime(obd_file_name_timestamp)
     path_list = []
 
     #   <application_name>-<YYYYmmddHHMMSS>-utc.json
-    for p in Path(base_path).glob("*-utc.json"):
+    for p in Path(base_path).glob("**/*-utc.json"):
         parts = p.name.split('-')
         if len(parts) != 3 or len(parts[0]) > 4 or len(parts[1]) != 14:
             # application names are 3 or 4 characters (vins are greater than 4 characters)
@@ -51,7 +51,7 @@ def get_original_strategy_files(base_path:str, obd_file_name_timestamp:str)->lis
             continue
 
         application_timestamp = string_timestamp_to_datetime(parts[1])
-        delta_timestamp_seconds = abs(obd_timestamp - application_timestamp).to_seconds()
+        delta_timestamp_seconds = abs(obd_timestamp - application_timestamp).total_seconds()
 
         # 4 hour grace period for 'similar' enough file matching
         if delta_timestamp_seconds > float(4*60*60):
@@ -65,14 +65,14 @@ def get_interim_strategy_files(base_path:str, application_name:str, boot_count_s
     """Get list of 'interim' naming strategy files with the same boot count string"""
     #   <application_name>-<boot_count>.json
     return list(
-        Path(base_path).glob(f"{application_name}-{boot_count_string}.json")
+        Path(base_path).glob(f"**/{application_name}-{boot_count_string}.json")
     )
 
 def get_counter_strategy_files(base_path:str, hostname:str, vin:str, boot_count_string:str)->list:
     """Get list of 'counter' strategy files with same hostname and boot count string"""
     #   <hostname>-<boot_count>-<application_name>-<application_count>.json
     return list(
-        Path(base_path).glob(f"{hostname}-{boot_count_string}-*-*.json")
+        Path(base_path).glob(f"**/{hostname}-{boot_count_string}-*-*.json")
     )
 
 def get_info_from_json_file_name(json_file_name, verbose=False):
@@ -108,17 +108,21 @@ def get_info_from_json_file_name(json_file_name, verbose=False):
     # INTERIM
     #   <vin>-<boot_count>.json
     #   3FTTW8F97PRA99999-0000000007.json
+    #   3FTTW8F97PRA99999-TEST-0000000007.json
     #
     #   <application_name>-<boot_count>.json
     #   NMEA-0000000032.json
-    elif len(sections) == 2:
+     elif len(sections) == 2 or (len(sections) == 3 and sections[1] == 'TEST'):
         flavor = 'interim'
+
         if 'NMEA' in base_name:
             application = 'gps'
         else:
+            # 3FTTW8F97PRA99999-TEST-0000000001.json
             application = 'obd'
             vin = sections[0]
-        boot_count_string = sections[1]
+
+        boot_count_string = sections[1] if len(sections) == 2 else sections[2]
 
     # COUNTER (CURRENT)
     #   <hostname>-<boot_count>-<application_name>-<vin>-<application_count>.json
@@ -136,17 +140,22 @@ def get_info_from_json_file_name(json_file_name, verbose=False):
         if len(sections) == 5:
             vin = sections[3]
             application_count_string = sections[4]
-        else:
+        elif len(sections) == 4:
             application_count_string = sections[3]
+        else:
+            raise ValueError(f"len(sections) <{len(sections)}> doesn't match flavor {flavor} sections {sections}")
 
     return flavor, hostname, application, boot_count_string, application_count_string, vin
 
-def get_companion_json_file_list(base_path:str, obd_file_name:str)->list:
+def get_companion_json_file_list(base_path:str, obd_file_name:str, verbose=False)->list:
     """
     Returns a list containing file paths to files that are companions to the OBD file.
     """
     # determine the type of OBD file name convention - current, interim, original
     flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
+
+    if verbose:
+        print(f"get_companion_json_file_list() flavor {flavor}")
 
     # determine file search strategy
     # search files and return list
@@ -160,16 +169,15 @@ def get_companion_json_file_list(base_path:str, obd_file_name:str)->list:
 
     return []
 
-def write_json_data_to_integrated_file(records, base_path, obd_file_name, verbose=False):
+def write_json_data_to_integrated_file(records, base_path, obd_file_name, verbose=False)->Path:
     """write output file to integrated file"""
     flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
 
     if verbose:
         print(f"writing records {len(records)} for hostname {hostname}, boot_count {boot_count_string}, vin {vin}")
-        return
 
     if not records:
-        return
+        return None
 
     if vin is None:
         vin = "UNKNOWN_VIN"
@@ -180,9 +188,11 @@ def write_json_data_to_integrated_file(records, base_path, obd_file_name, verbos
         #   <application_name>-<boot_count>.json
         output_file_path = Path(f"{base_path}/interim/interim-{boot_count_string}-integrated-{vin}.json")
     elif flavor == 'original':
-        output_file_name = Path(f"{base_path}/original/original-{boot_count_string}-integrated-{vin}.json")
+        output_file_path = Path(f"{base_path}/original/original-{boot_count_string}-integrated-{vin}.json")
+    else:
+        raise ValueError(f"unknown flavor {flavor}, unable to create output file path")
 
-    output_file_name.parent.mkdir(parents=True, exist_ok=True)
+    output_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if verbose:
         print(f"writing integrated JSON data to {output_file_path}")
@@ -202,13 +212,12 @@ def sort_key(json_data_record:dict):
     """
     return json_data_record["iso_ts_pre"] + json_data_record["iso_ts_post"] + json_data_record["command_name"]
 
-def get_json_vin_file_list(base_path:str, vin:str, verbose=False)->list:
+def get_json_vin_file_list(base_path:str, vin:str, verbose=False) -> list:
     """Return a list of file paths to OBD files for a VIN."""
     if verbose:
         print(f"base path {base_path}, vin {vin}")
 
-    # file_list = [p for p in (Path(base_path).glob(f"*{vin}*.json")) if 'integrated' not in p.name]
-    file_list = [p for p in (Path(base_path).glob(f"*{vin}*.json"))]
+    file_list = list((Path(base_path).glob(f"**/*{vin}*.json")))
 
     if verbose:
         print(f"input {vin} file_list {file_list}")
@@ -286,7 +295,7 @@ def main(args=None, base_path=BASE_PATH, vin=None, verbose=False):
 
                 sortable_list.append(input_record)
 
-        for companion_file in get_companion_json_file_list(base_path, obd_file.name):
+        for companion_file in get_companion_json_file_list(base_path, obd_file.name, verbose=verbose):
             if verbose:
                 print(f"OBD file {obd_file.name} companion file {companion_file.name}")
 
