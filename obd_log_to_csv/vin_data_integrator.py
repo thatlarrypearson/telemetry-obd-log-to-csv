@@ -23,6 +23,26 @@ from argparse import ArgumentParser
 from .__init__ import __version__
 from tcounter.common import  BASE_PATH
 
+def get_output_file_path(base_path:Path, obd_file_name:str)->Path:
+    flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
+
+    if vin is None:
+        vin = "UNKNOWN_VIN"
+
+    if flavor == 'counter':
+        output_file_path = Path(f"{base_path}/{hostname}/{hostname}-{boot_count_string}-integrated-{vin}.json")
+    elif flavor == 'interim':
+        #   <application_name>-<boot_count>.json
+        output_file_path = Path(f"{base_path}/interim/interim-{boot_count_string}-integrated-{vin}.json")
+    elif flavor == 'original':
+        output_file_path = Path(f"{base_path}/original/original-{boot_count_string}-integrated-{vin}.json")
+    else:
+        raise ValueError(f"unknown flavor {flavor}, unable to create output file path")
+
+    output_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    return output_file_path
+
 def string_timestamp_to_datetime(s:str)->datetime:
     # sourcery skip: remove-redundant-slice-index
     if len(s) != 14:
@@ -93,6 +113,7 @@ def get_info_from_json_file_name(json_file_name, verbose=False):
     # ORIGINAL
     #   <vin>-<YYYYmmddHHMMSS>-utc.json
     #   C4HJWCG5DL9999-20230112133422-utc.json
+    #   C4HJWCG5DL9999-TEST-20230112133422-utc.json
     #
     #   <application_name>-<YYYYmmddHHMMSS>-utc.json
     #   NMEA-20220610172050-utc.json
@@ -103,7 +124,8 @@ def get_info_from_json_file_name(json_file_name, verbose=False):
         else:
             application = 'obd'
             vin = sections[0]
-        boot_count_string = sections[1]
+
+        boot_count_string = sections[2] if 'TEST' in base_name else sections[1]
 
     # INTERIM
     #   <vin>-<boot_count>.json
@@ -155,7 +177,7 @@ def get_companion_json_file_list(base_path:str, obd_file_name:str, verbose=False
     flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
 
     if verbose:
-        print(f"get_companion_json_file_list() flavor {flavor}")
+        print(f"get_companion_json_file_list({obd_file_name}) flavor {flavor}")
 
     # determine file search strategy
     # search files and return list
@@ -169,40 +191,17 @@ def get_companion_json_file_list(base_path:str, obd_file_name:str, verbose=False
 
     return []
 
-def write_json_data_to_integrated_file(records, base_path, obd_file_name, verbose=False)->Path:
+def write_json_data_to_integrated_file(records, output_file_path, verbose=False)->Path:
     """write output file to integrated file"""
-    flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
-
     if verbose:
-        print(f"writing records {len(records)} for hostname {hostname}, boot_count {boot_count_string}, vin {vin}")
-
-    if not records:
-        return None
-
-    if vin is None:
-        vin = "UNKNOWN_VIN"
-
-    if flavor == 'counter':
-        output_file_path = Path(f"{base_path}/{hostname}/{hostname}-{boot_count_string}-integrated-{vin}.json")
-    elif flavor == 'interim':
-        #   <application_name>-<boot_count>.json
-        output_file_path = Path(f"{base_path}/interim/interim-{boot_count_string}-integrated-{vin}.json")
-    elif flavor == 'original':
-        output_file_path = Path(f"{base_path}/original/original-{boot_count_string}-integrated-{vin}.json")
-    else:
-        raise ValueError(f"unknown flavor {flavor}, unable to create output file path")
-
-    output_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if verbose:
-        print(f"writing integrated JSON data to {output_file_path}")
+        print(f"writing {len(records)} records of integrated JSON data to {output_file_path}")
 
     # truncate file on open for write
     with open(output_file_path, "w", encoding='utf-8') as output_file:
         for record in records:
             output_file.write(json.dumps(record) + "\n")
 
-    return output_file_path
+    return
 
 def sort_key(json_data_record:dict):
     """
@@ -217,7 +216,7 @@ def get_json_vin_file_list(base_path:str, vin:str, verbose=False) -> list:
     if verbose:
         print(f"base path {base_path}, vin {vin}")
 
-    file_list = list((Path(base_path).glob(f"**/*{vin}*.json")))
+    file_list = [file_path for file_path in list((Path(base_path).glob(f"**/*{vin}*.json"))) if 'integrated' not in file_path.name]
 
     if verbose:
         print(f"input {vin} file_list {file_list}")
@@ -240,6 +239,13 @@ def command_line_options()->dict:
     )
 
     parser.add_argument(
+        "--skip",
+        help="Skip processing if output file already exists.",
+        default=False,
+        action='store_true',
+    )
+
+    parser.add_argument(
         "--version",
         help="Returns version and exit.",
         default=False,
@@ -255,7 +261,7 @@ def command_line_options()->dict:
 
     return vars(parser.parse_args())
 
-def main(args=None, base_path=BASE_PATH, vin=None, verbose=False):
+def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
     if args is not None:
         # Called from command line
         if args['version']:
@@ -266,6 +272,7 @@ def main(args=None, base_path=BASE_PATH, vin=None, verbose=False):
         base_path = args['base_path']
         vin = args['vin']
         verbose = args['verbose']
+        skip = args['skip']
 
     elif vin is None:
         # External call to main, required args not provided.
@@ -277,12 +284,18 @@ def main(args=None, base_path=BASE_PATH, vin=None, verbose=False):
 
     sortable_list = []
     for obd_file in get_json_vin_file_list(base_path, vin, verbose=verbose):
+
+        output_file_path = get_output_file_path(base_path, obd_file.name)
+
         if verbose:
-            print(f"OBD file {obd_file.name}")
+            print(f"Input OBD file {obd_file.name}, Output integrated file {output_file_path.name}")
+
+        if output_file_path.exists() and skip:
+            if verbose:
+                print(f"skipping input {obd_file.name} output {output_file_path.name}")
+            continue
 
         with open(obd_file,  "r") as json_input:
-            # flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file.name)
-
             for line_number, json_record in enumerate(json_input, start=1):
                 try:
                     input_record = json.loads(json_record)
@@ -330,10 +343,7 @@ def main(args=None, base_path=BASE_PATH, vin=None, verbose=False):
         if verbose:
             print("writing sorted list")
 
-        output_file_path = write_json_data_to_integrated_file(un_duplicate_list, base_path, obd_file.name, verbose=verbose)
-
-        if verbose:
-            print(f"un-duplicate sorted list written out to {output_file_path}")
+        write_json_data_to_integrated_file(un_duplicate_list, output_file_path, verbose=verbose)
 
     return
 
