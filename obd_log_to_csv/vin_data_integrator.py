@@ -64,8 +64,11 @@ def get_original_strategy_files(base_path:str, obd_timestamp:str)->list:
 
     #   <application_name>-<YYYYmmddHHMMSS>-utc.json
     for p in Path(base_path).glob("**/*-utc.json"):
+        if 'interim' in str(p):
+            continue
+
         parts = p.name.split('-')
-        if len(parts) != 3 or len(parts[0]) > 4 or len(parts[1]) != 14:
+        if len(parts) != 3 or len(parts[0]) > 4 or len(parts[1]) != 14 or 'interim' in str(p):
             # application names are 3 or 4 characters (vins are greater than 4 characters)
             # the timestamp string must be 14 characters
             continue
@@ -84,16 +87,12 @@ def get_original_strategy_files(base_path:str, obd_timestamp:str)->list:
 def get_interim_strategy_files(base_path:str, application_name:str, boot_count_string:str) -> list:
     """Get list of 'interim' naming strategy files with the same boot count string"""
     #   <application_name>-<boot_count>.json
-    return list(
-        Path(base_path).glob(f"**/{application_name}-{boot_count_string}.json")
-    )
+    return [p for p in Path(base_path).glob(f"**/{application_name}-{boot_count_string}.json") if 'integrated' not in str(p)]
 
 def get_counter_strategy_files(base_path:str, hostname:str, vin:str, boot_count_string:str)->list:
     """Get list of 'counter' strategy files with same hostname and boot count string"""
     #   <hostname>-<boot_count>-<application_name>-<application_count>.json
-    return list(
-        Path(base_path).glob(f"**/{hostname}-{boot_count_string}-*-*.json")
-    )
+    return [p for p in Path(base_path).glob(f"**/{hostname}-{boot_count_string}-*-*.json") if 'integrated' not in str(p)]
 
 def get_info_from_json_file_name(json_file_name, verbose=False):
     # sourcery skip: hoist-statement-from-if
@@ -274,6 +273,9 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
         verbose = args['verbose']
         skip = args['skip']
 
+        skipped_files = 0
+        written_files = 0
+
     elif vin is None:
         # External call to main, required args not provided.
         raise ValueError("boot_count and hostname must have valid values (can't be None)")
@@ -291,10 +293,12 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
             print(f"Input OBD file {obd_file.name}, Output integrated file {output_file_path.name}")
 
         if output_file_path.exists() and skip:
+            skipped_files += 1
             if verbose:
                 print(f"skipping input {obd_file.name} output {output_file_path.name}")
             continue
 
+        written_files += 1
         with open(obd_file,  "r") as json_input:
             for line_number, json_record in enumerate(json_input, start=1):
                 try:
@@ -344,6 +348,8 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
             print("writing sorted list")
 
         write_json_data_to_integrated_file(un_duplicate_list, output_file_path, verbose=verbose)
+
+    print(f"Integrated Files Written {written_files}, Files Skipped {skipped_files}")
 
     return
 
