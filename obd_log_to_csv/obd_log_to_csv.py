@@ -107,7 +107,9 @@ def input_file(json_input:TextIOWrapper, commands:list, csv_output:TextIOWrapper
             if verbose:
                 print(f"====================================\noutput_record: {output_record}\n====================================", file=stderr)
             output_record['duration'] = output_record['iso_ts_post'] - output_record['iso_ts_pre']
-            writer.writerow(output_record)
+            # remove keys/value pairs from output_record where the key doesn't match a command in commands
+            filtered_output_record = {k: v for k, v in output_record.items() if k in commands}
+            writer.writerow(filtered_output_record)
 
             null_out_output_record(output_record, commands)
             output_record_is_nulled_out = True
