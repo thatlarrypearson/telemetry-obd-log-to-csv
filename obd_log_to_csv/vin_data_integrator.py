@@ -273,9 +273,6 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
         verbose = args['verbose']
         skip = args['skip']
 
-        skipped_files = 0
-        written_files = 0
-
     elif vin is None:
         # External call to main, required args not provided.
         raise ValueError("boot_count and hostname must have valid values (can't be None)")
@@ -283,6 +280,9 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
     if verbose:
         print(f"base_path {base_path}")
         print(f"vin {vin}")
+
+    skipped_files = 0
+    written_files = 0
 
     sortable_list = []
     for obd_file in get_json_vin_file_list(base_path, vin, verbose=verbose):
