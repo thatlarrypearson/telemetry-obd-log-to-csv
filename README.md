@@ -99,11 +99,11 @@ git clone https://github.com/thatlarrypearson/telemetry-trailer-connector.git
 
 In order to receive data from the FeatherS3 microcontroller, the deployment system and the FeatherS3 need to be on the same LAN (local area network).  The following network context diagram provides two network views.  The first view shows the FeatherS3 sending UDP broadcast messages to the deployment system on the local network.  When the deployment computer on the LAN actively listens for broadcast messages on a specific port, ti can process these messages.  Otherwise, the messages will be discarded.
 
-![Telemetry Weather Logging - Networking](docs/TelemetryTrailerConnectorLogging-Networking1.jpg)
+![Telemetry Weather Logging - Networking](docs/TelemetryTrailerConnectorLogging-Networking1.JPG)
 
 The second view shows more of a hardware view.  Weather data originates from WeatherFlow Tempest sensors and is transmitted to a WeatherFlow Tempest base station via a proprietary communications method.  Using a smart phone application, the base station is configured to use WIFI provided by the computer running this software, a Raspberry Pi 4 Model B.  This Raspberry Pi provided local area network behaves like a normal WIFI/hotspot/router that may or may not be connected via Ethernet to the Internet through an optional WIFI/hotspot/router.
 
-![Telemetry Weather Logging - Networking](docs/TelemetryTrailerConnectorLogging-Networking2.jpg)
+![Telemetry Weather Logging - Networking](docs/TelemetryTrailerConnectorLogging-Networking2.JPG)
 
 This method is being used for automotive trailer connector data collection.  Configuring a WIFI Access Point on a Raspberry Pi 4 running ```Debian 12 bookworm``` is tricky because, in this latest release of Raspberry Pi, network configuration has been dramatically changed to a new configuration subsystem called [Network Manager](https://networkmanager.dev/).   More rough spots need to be smoothed out. **Beware** - documentation regarding how to create a WIFI access point found on the Internet often refers to the old way of configuring networks.
 
