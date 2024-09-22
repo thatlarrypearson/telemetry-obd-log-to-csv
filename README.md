@@ -24,7 +24,7 @@ Raspberry Pi 4 with 4 GB RAM (or more) and with a 32 GB (or more) SD card.
 
 ### WIFI Enabled Microcontroller/Sensors
 
-![WIFI Enabled Microcontroller/Sensors](docs\WIFIEnabledMicrocontrollerSensors.JPG)
+![WIFI Enabled Microcontroller/Sensors](docs/WIFIEnabledMicrocontrollerSensors.JPG)
 
 ### Wiring Diagram
 
