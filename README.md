@@ -107,7 +107,7 @@ The second view shows more of a hardware view.  Weather data originates from Wea
 
 This method is being used for automotive trailer connector data collection.  Configuring a WIFI Access Point on a Raspberry Pi 4 running ```Debian 12 bookworm``` is tricky because, in this latest release of Raspberry Pi, network configuration has been dramatically changed to a new configuration subsystem called [Network Manager](https://networkmanager.dev/).   More rough spots need to be smoothed out. **Beware** - documentation regarding how to create a WIFI access point found on the Internet often refers to the old way of configuring networks.
 
-Follow the instruction found in [Configuring Raspberry Pi WIFI/Hotspot/Router](https://github.com/thatlarrypearson/telemetry-wthr/docs/wifi-hotspot-router.md).  Once you have a hotspot up and running, the FeatherS3 needs to be configured to work with the in-vehicle hotspot.  Follow the instructions provided [below](#FeatherS3).
+Follow the instruction found in [Configuring Raspberry Pi WIFI/Hotspot/Router](https://github.com/thatlarrypearson/telemetry-wthr/blob/main/docs/wifi-hotspot-router.md).  Once you have a hotspot up and running, the FeatherS3 needs to be configured to work with the in-vehicle hotspot.  Follow the instructions provided [below](#FeatherS3).
 
 ### FeatherS3
 
