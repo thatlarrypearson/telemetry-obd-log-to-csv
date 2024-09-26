@@ -37,7 +37,7 @@ default_shared_imu_command_list = [
 ]
 
 # Known application shortcuts
-APPLICATION_LIST = ['obd', 'obd-cmd-test', 'gps', 'wthr', 'imu', ]
+APPLICATION_LIST = ['obd', 'obd-cmd-test', 'gps', 'wthr', 'imu', 'trlr', ]
 
 # Default data file paths and names
 
