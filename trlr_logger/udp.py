@@ -1,4 +1,4 @@
-# telemetry-trailer-connector/tc_logger/udp.py
+# telemetry-trailer-connector/trlr_logger/udp.py
 """
 Telemetry Trailer Connector Logger - UDP Communications Module
 

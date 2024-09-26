@@ -199,15 +199,15 @@ exit 0
 * Rasberry Pi OS (```Bullseye```) invokes /etc/rc.local with ```/bin/sh``` (soft link to ```/bin/dash```) which is not the same as ```/usr/bin/bash```, the required shell.
 * ```/bin/sh``` is invoked with ```-e``` flag meaning that ```/etc/rc.local``` will stop execution when a pipe fails.  See [bash documentation](https://www.gnu.org/software/bash/manual/bash.pdf).
 
-##### ```telemetry-obd/root/bin/telemetry.rc.local.trlr```
+##### ```telemetry-trailer-connector/root/bin/telemetry.rc.local.trlr```
 
-```telemetry-obd/root/bin/telemetry.rc.local.trlr``` must be run as root.  It will invoke ```bin/trlr_logger.sh``` which invokes ```trlr_logger.py``` provided in this distribution.
+```telemetry-trailer-connector/root/bin/telemetry.rc.local.trlr``` must be run as root.  It will invoke ```bin/trlr_logger.sh``` which invokes ```trlr_logger.py``` provided in this distribution.
 
-Shell variables, like ```TRLR_USER``` must be changed in ```root/bin/telemetry.rc.local``` to match the target system.
+Shell variables, like ```TRLR_USER``` must be changed in ```root/bin/telemetry.rc.local.trlr``` to match the target system.
 
-The ```runuser``` command in "```telemetry-obd/root/bin/telemetry.rc.local.trlr```" file runs the "```telemetry-obd/bin/trlr_logger.sh```" ```bash``` shell program as user "```human```" and group "```dialout```".
+The ```runuser``` command in "```telemetry-obd/root/bin/telemetry.rc.local.trlr```" file runs the "```telemetry-trailer-connector/bin/trlr_logger.sh```" ```bash``` shell program as user "```human```" and group "```dialout```".
 
-Once the ```telemetry-obd/root/bin/telemetry.rc.local.trlr``` file has been modified, it must be copied to ```/root/bin``` and the file permissions changed:
+Once the ```telemetry-trailer-connector/root/bin/telemetry.rc.local.trlr``` file has been modified, it must be copied to ```/root/bin``` and the file permissions changed:
 
 ```bash
 cd

@@ -1,12 +1,12 @@
 #!/usr/bin/bash
-# wthr_logger.sh
+# trlr_logger.sh
 #
 # Runs Weather Logger
 
 # Need time for Weather interface recover after failure
 export RESTART_DELAY=10
 
-export APP_ID="wthr"
+export APP_ID="trlr"
 export APP_HOME="/home/$(whoami)/telemetry-data"
 export APP_TMP_DIR="${APP_HOME}/tmp"
 export APP_BASE_PATH="${APP_HOME}/data"
@@ -49,13 +49,13 @@ cd "${APP_HOME}"
 
 while date '+%Y/%m/%d %H:%M:%S'
 do
-	${APP_PYTHON} -m wthr_logger.wthr_logger \
+	${APP_PYTHON} -m trlr_logger.trlr_logger \
         --log_file_directory "${APP_BASE_PATH}"
 
         # --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
 
 	export RtnVal="$?"
-	echo wthr_logger returns "${RtnVal}"
+	echo trlr_logger returns "${RtnVal}"
 
 	sleep "${RESTART_DELAY}"
 done

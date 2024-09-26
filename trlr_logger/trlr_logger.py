@@ -83,7 +83,7 @@ def get_directory(base_path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def get_log_file_handle(base_path:str, base_name="tc"):
+def get_log_file_handle(base_path:str, base_name="trlr"):
     """return a file handle opened for writing to a log file"""
     full_path = get_directory(base_path) / get_output_file_name(base_name, base_path=base_path)
 

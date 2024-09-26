@@ -22,6 +22,6 @@ fi
 0<&-
 
 ## Run the script trlr_logger.sh as user "${TRLR_USER}" and group "${TRLR_GROUP}"
-runuser -u "${TRLR_USER}" -g dialout "${TRLR_HOME}/telemetry-trlr/bin/trlr_logger.sh" &
+runuser -u "${TRLR_USER}" -g dialout "${TRLR_HOME}/telemetry-trailer-connector/bin/trlr_logger.sh" &
 
 exit 0
