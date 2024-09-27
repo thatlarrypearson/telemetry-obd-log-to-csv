@@ -12,7 +12,6 @@ export APP_TMP_DIR="${APP_HOME}/tmp"
 export APP_BASE_PATH="${APP_HOME}/data"
 export APP_PYTHON="/home/$(whoami)/.local/bin/python3.11"
 export DEBUG="True"
-export SHARED_DICTIONARY_NAME="TELEMETRY"
 
 # get next application startup counter
 export APP_COUNT=$(${APP_PYTHON} -m tcounter.app_counter ${APP_ID})
@@ -51,8 +50,6 @@ while date '+%Y/%m/%d %H:%M:%S'
 do
 	${APP_PYTHON} -m wthr_logger.wthr_logger \
         --log_file_directory "${APP_BASE_PATH}"
-
-        # --shared_dictionary_name "${SHARED_DICTIONARY_NAME}" \
 
 	export RtnVal="$?"
 	echo wthr_logger returns "${RtnVal}"

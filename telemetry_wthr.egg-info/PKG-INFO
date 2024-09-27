@@ -1,8 +1,32 @@
+Metadata-Version: 2.1
+Name: telemetry-wthr
+Version: 0.0.0
+Summary: Telemetry Weather Data Logger.
+Home-page: https://github.com/thatlarrypearson?tab=repositories
+Author: Larry Pearson
+Author-email: not-an-email-address@gmail.com
+License: MIT
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: telemetry-counter==0.0.1
+
 # Telemetry Weather Logging
 
 ## **Under Construction**
 
-The Telemetry Weather Logger captures weather/environment data using a [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) weather station.
+The Telemetry Weather Logger captures weather/environment data using a [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) weather station. While the logger is running, weather data is written to files and/or shared memory.
 
 ## Motivation
 
@@ -14,8 +38,10 @@ At higher speeds, wind speed and direction relative to vehicle motion become mat
 
 * Collects all weather data provided by [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) weather station.
 * ```WeatherReports``` class can be used independently to collect weather data by custom applications.
+* Shares data through shared memory for real time integration with other applications such as [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd).
 * Works with Python 3.10 and newer.
 * Raspberry Pi 4 hardware and Raspberry Pi OS target environment.
+* When using the shared memory feature, it doesn't matter which program is started first - generating programs like this one, ```wthr_logger.wthr_logger``` or ```gps_logger.gps_logger``` (location data generator), can start first or consuming programs like ```telemetry_obd.obd_logger``` (vehicle engine data generator) can start first
 
 ## Target System
 
@@ -29,7 +55,7 @@ The software is made to work with [WeatherFlow Tempest](https://weatherflow.com/
 
 ```bash
 $ python3.11 -m wthr_logger.wthr_logger --help
-usage: wthr_logger.py [-h] [--log_file_directory LOG_FILE_DIRECTORY] [--verbose]
+usage: wthr_logger.py [-h] [--log_file_directory LOG_FILE_DIRECTORY] [--shared_dictionary_name SHARED_DICTIONARY_NAME] [--shared_dictionary_command_list SHARED_DICTIONARY_COMMAND_LIST] [--verbose]
                       [--version]
 
 Telemetry Weather Logger
@@ -38,6 +64,10 @@ options:
   -h, --help            show this help message and exit
   --log_file_directory LOG_FILE_DIRECTORY
                         Enable logging and place log files into this directory
+  --shared_dictionary_name SHARED_DICTIONARY_NAME
+                        Enable shared memory/dictionary using this name
+  --shared_dictionary_command_list SHARED_DICTIONARY_COMMAND_LIST
+                        Comma separated list of WeatherFlow Tempest message types to be shared (no spaces), defaults to all.
   --verbose             Turn DEBUG logging on. Default is off.
   --version             Print version number and exit.
 $
@@ -224,8 +254,23 @@ sudo apt autoremove
   * provides the runtime environment for the application
   * follow the above link
 
+* [UltraDict](https://github.com/thatlarrypearson/UltraDict)
+  * fork of the original UltraDict
+  * builds on Raspberry Pi
+
 * [Telemetry Counter](https://github.com/thatlarrypearson/telemetry-counter)
   * increments and returns the system boot and application start counters for use by other telemetry applications
+
+The following are optional packages and are only required if weather data is to be combined with location and vehicle engine data using shared memory/dictionary.
+
+* [Telemetry OBD Logging](https://github.com/thatlarrypearson/telemetry-obd)
+  * Engine data logger supporting shared memory
+* [Telemetry GPS Location and Time Logging](https://github.com/thatlarrypearson/telemetry-gps)
+  * Captures location and time data using a GPS receiver and supports shared memory
+* [UltraDict](docs/README-UltraDict.md)
+  * Python library providing shared memory support
+
+Once the dependencies are installed and working, the shared memory features can be tested.
 
 ### Building and Installing ```wthr_logger``` Python Package
 
@@ -343,7 +388,10 @@ $ sudo chmod 0755 /root/bin/telemetry.rc.local.wthr
 $ cd
 ```
 
-```/root/bin/telemetry.rc.local.wthr``` executes ```telemetry-wthr/bin/wthr_logger.sh```
+```/root/bin/telemetry.rc.local.wthr``` executes ```telemetry-wthr/bin/wthr_logger.sh```  Lines 47 and 48 of ```wthr_logger.sh``` have ```--shared_dictionary_name``` and ```--log_file_directory``` arguments.
+
+If the shared dictionary/memory feature is going to be used, leave that line in place.  If logging to a file is needed, leave that line in place.  Otherwise, remove the unwanted argument lines.  One final note.  Lines ending in ```\``` indicate a line continuation in the shell environment.  The last line shouldn't have a ```\``` at the end as there wouldn't be any lines to continue to.
+
 
 Finally, set ```wthr_logger.sh``` file permissions to executable.
 
@@ -363,6 +411,56 @@ See the ```bin/wthr_logger.sh``` ```bash``` shell program for an example.
 
 ## Known Limitations
 
+## Diagnosing UltraDict Related Problems
+
+```UltraDict``` can be difficult to install on some systems such as **Windows 10**.  This library will work without UltraDict installed.  However, there will be a log message on startup whenever the ```--shared_dictionary_name``` command line argument is used as shown below.
+
+```powershell
+PS C:\Users\human\src\telemetry-wthr> python3.11 -m wthr_logger.wthr_logger --shared_dictionary_name weather
+ERROR:wthr_logger:import error: Shared Dictionary (weather) feature unsupported: UltraDict Not installed.
+INFO:wthr_logger:shared_dictionary_command_list ['WTHR_rapid_wind', 'WTHR_hub_status', 'WTHR_device_status', 'WTHR_obs_st', 'WTHR_evt_strike']
+INFO:wthr_logger:shared_dictionary_name weather)
+INFO:wthr_logger:UDP client ready on 0.0.0.0 port 50222
+```
+
+The following provides a method to verify that the shared memory has been mapped into the ```wthr_logger``` process space.  These commands work on most Linux based computers including Raspberry Pi's running Raspberry Pi OS.
+
+```bash
+$ ps -eaf | grep python3.11 | grep -v grep
+human     384572  380137  0 13:02 pts/2    00:00:00 python3.11 -m gps_logger.gps_logger --shared_dictionary_name GPS --log_file_directory data
+$ pmap -x 384572 | grep -i GPS
+384572:   python3.11 -m gps_logger.gps_logger --shared_dictionary_name GPS --log_file_directory data
+0000007f9027a000    1024       0       0 rw-s- GPS_memory
+0000007f91507000       4       4       4 rw-s- GPS
+$
+```
+
+The first command gets a list of processes (```ps```) and sends its output to a filter (```grep```) that only passes through processes that contain the string ```python3.11```.  The first filter passes its output onto another filter (```-v```) that removes all output lines that contain ```grep```.  This results in process (```ps```) information that only includes process names with ```python3.11``` in them.
+
+The ```pmap``` command requires a process ID number.  In the ```ps``` output above, the process ID number is the first number after the user name ```human```.  That number needs to be input with the ```pmap``` command.
+
+The second field in the process output is the process ID number.  This number (```384572```) is unique to an individual process running on the system.
+
+Using the process ID number (```384572```), the process memory map command (```pmap```) is used to get that specific process's shared memory (```-x```) information.  We use the filter (```grep```) to pull out the lines that contain the shared dictionary name (```--shared_dictionary_name```) command line parameter (```GPS```) in a case independent way (```-i```).
+
+The result is two memory mapped regions supporting the shared dictionary between ```gps_logger``` and other running processes like ```gps_logger```.
+
+The following also shows shared memory owned by user ```human```.  It doesn't identify the use for the shared memory like the above example does.  This **is** useful because it shows the shared memory access permissions in the **perms** column.  The value ```600``` means the shared memory segment is accessible for read and write only by the owner ```human```.
+
+```bash
+$ ipcs -m
+
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status
+0x00000000 2          human      600        134217728  2          dest
+0x00000000 8          human      600        524288     2          dest
+0x00000000 11         human      600        524288     2          dest
+0x00000000 16         human      600        524288     2          dest
+0x00000000 28         human      600        524288     2          dest
+
+$
+```
+
 ## Related
 
 - [Telemetry OBD Data To CSV File](https://github.com/thatlarrypearson/telemetry-obd-log-to-csv)
@@ -371,9 +469,11 @@ See the ```bin/wthr_logger.sh``` ```bash``` shell program for an example.
 
 - [Telemetry OBD Logger](https://github.com/thatlarrypearson/telemetry-obd)
   - Logs vehicle engine data gathered using OBD interface
+  - Accepts shared dictionary/memory information from this library for integration into its own log files
 
 - [Telemetry GPS Logger](https://github.com/thatlarrypearson/telemetry-gps)
   - Logs location data gathered using a U-Blox GPS unit
+  - Generates shared dictionary/memory information from this library for integration into **Telemetry OBD Logger** log files
 
 ## License
 

@@ -13,8 +13,6 @@ from os import fsync
 import json
 
 from tcounter.common import (
-    default_shared_wthr_command_list as SHARED_DICTIONARY_COMMAND_LIST,
-    SharedDictionaryManager,
     get_output_file_name,
     get_next_application_counter_value,
     BASE_PATH,
@@ -40,16 +38,6 @@ def argument_parsing()-> dict:
         "--log_file_directory",
         default=BASE_PATH,
         help=f"Place log files into this directory - defaults to {BASE_PATH}"
-    )
-    parser.add_argument(
-        "--shared_dictionary_name",
-        default=None,
-        help="Enable shared memory/dictionary using this name"
-    )
-    parser.add_argument(
-        "--shared_dictionary_command_list",
-        default=None,
-        help="Comma separated list of WeatherFlow Tempest message types to be shared (no spaces), defaults to all."
     )
     parser.add_argument(
         "--verbose",
@@ -127,9 +115,6 @@ def main():
 
     verbose = args['verbose']
     log_file_directory = args['log_file_directory']
-    shared_dictionary_name = args['shared_dictionary_name']
-    shared_dictionary_command_list = args['shared_dictionary_command_list']
-
     logging_level = logging.DEBUG if verbose else logging.INFO
 
     logging.basicConfig(stream=stderr, level=logging_level)
@@ -141,19 +126,6 @@ def main():
         log_file_handle = get_log_file_handle(log_file_directory)
     else:
         log_file_handle = None
-
-    if shared_dictionary_command_list:
-        shared_dictionary_command_list = shared_dictionary_command_list.split(sep=',')
-    else:
-        shared_dictionary_command_list = SHARED_DICTIONARY_COMMAND_LIST
-
-    if shared_dictionary_name:
-        shared_dictionary = SharedDictionaryManager(shared_dictionary_name)
-        logger.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
-    else:
-        shared_dictionary = None
-
-    logger.info(f"shared_dictionary_name {shared_dictionary_name})")
 
     # reads Weather input
     weather_reports = WeatherReports(logger)
@@ -183,10 +155,6 @@ def main():
             # want a command line option to disable forced buffer write to disk with default on
             log_file_handle.flush()
             fsync(log_file_handle.fileno())
-
-        if shared_dictionary is not None and log_value["command_name"] in shared_dictionary_command_list:
-                logger.debug( f"writing to shared dictionary {log_value['command_name']}")
-                shared_dictionary[log_value['command_name']] = log_value
 
         iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 
