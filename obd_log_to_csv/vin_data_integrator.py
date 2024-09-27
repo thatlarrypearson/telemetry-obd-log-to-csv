@@ -19,9 +19,12 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from argparse import ArgumentParser
+from rich.console import Console
 
 from .__init__ import __version__
 from tcounter.common import  BASE_PATH
+
+console = Console(width=140)
 
 def get_output_file_path(base_path:Path, obd_file_name:str)->Path:
     flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
@@ -176,7 +179,7 @@ def get_companion_json_file_list(base_path:str, obd_file_name:str, verbose=False
     flavor, hostname, application, boot_count_string, application_count_string, vin = get_info_from_json_file_name(obd_file_name)
 
     if verbose:
-        print(f"get_companion_json_file_list({obd_file_name}) flavor {flavor}")
+        console.print(f"get_companion_json_file_list({obd_file_name}) flavor {flavor}")
 
     # determine file search strategy
     # search files and return list
@@ -193,7 +196,7 @@ def get_companion_json_file_list(base_path:str, obd_file_name:str, verbose=False
 def write_json_data_to_integrated_file(records, output_file_path, verbose=False)->Path:
     """write output file to integrated file"""
     if verbose:
-        print(f"writing {len(records)} records of integrated JSON data to {output_file_path}")
+        console.print(f"writing {len(records)} records of integrated JSON data to {output_file_path}")
 
     # truncate file on open for write
     with open(output_file_path, "w", encoding='utf-8') as output_file:
@@ -213,12 +216,12 @@ def sort_key(json_data_record:dict):
 def get_json_vin_file_list(base_path:str, vin:str, verbose=False) -> list:
     """Return a list of file paths to OBD files for a VIN."""
     if verbose:
-        print(f"base path {base_path}, vin {vin}")
+        console.print(f"base path {base_path}, vin {vin}")
 
     file_list = [file_path for file_path in list((Path(base_path).glob(f"**/*{vin}*.json"))) if 'integrated' not in file_path.name]
 
     if verbose:
-        print(f"input {vin} file_list {file_list}")
+        console.print(f"input {vin} file_list {file_list}")
 
     return file_list
 
@@ -265,7 +268,7 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
         # Called from command line
         if args['version']:
             # return version and exit
-            print(f"Version {__version__}")
+            console.print(f"Version {__version__}")
             exit(0)
 
         base_path = args['base_path']
@@ -278,8 +281,8 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
         raise ValueError("boot_count and hostname must have valid values (can't be None)")
 
     if verbose:
-        print(f"base_path {base_path}")
-        print(f"vin {vin}")
+        console.print(f"base_path {base_path}")
+        console.print(f"vin {vin}")
 
     skipped_files = 0
     written_files = 0
@@ -290,12 +293,12 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
         output_file_path = get_output_file_path(base_path, obd_file.name)
 
         if verbose:
-            print(f"Input OBD file {obd_file.name}, Output integrated file {output_file_path.name}")
+            console.print(f"Input OBD file {obd_file.name}, Output integrated file {output_file_path.name}")
 
         if output_file_path.exists() and skip:
             skipped_files += 1
             if verbose:
-                print(f"skipping input {obd_file.name} output {output_file_path.name}")
+                console.print(f"skipping input {obd_file.name} output {output_file_path.name}")
             continue
 
         written_files += 1
@@ -314,7 +317,7 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
 
         for companion_file in get_companion_json_file_list(base_path, obd_file.name, verbose=verbose):
             if verbose:
-                print(f"OBD file {obd_file.name} companion file {companion_file.name}")
+                console.print(f"OBD file {obd_file.name} companion file {companion_file.name}")
 
             with open (companion_file, "r") as json_input:
                 for line_number, json_record in enumerate(json_input, start=1):
@@ -330,12 +333,12 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
 
         # Sort using key "<iso_ts_pre><iso_ts_post><command_name>"
         if verbose:
-            print(f"sorting {len(sortable_list)}")
+            console.print(f"sorting {len(sortable_list)}")
         sortable_list.sort(key=sort_key)
 
         # Remove duplicate records
         if verbose:
-            print(f"sorted list {len(sortable_list)} before un-duplicating")
+            console.print(f"sorted list {len(sortable_list)} before un-duplicating")
 
         un_duplicate_list = {sort_key(record): record for record in sortable_list}
         un_duplicate_list = [record for k, record in un_duplicate_list.items()]
@@ -345,11 +348,12 @@ def main(args=None, base_path=BASE_PATH, vin=None, skip=False, verbose=False):
 
         # write sorted_list to file
         if verbose:
-            print("writing sorted list")
+            console.print("writing sorted list")
 
         write_json_data_to_integrated_file(un_duplicate_list, output_file_path, verbose=verbose)
 
-    print(f"Integrated Files Written {written_files}, Files Skipped {skipped_files}")
+    if verbose:
+        console.print(f"Integrated Files Written {written_files}, Files Skipped {skipped_files}")
 
     return
 
