@@ -22,8 +22,6 @@ from .connection import (
 )
 from .usb_devices import get_serial_device_name
 from tcounter.common import (
-    default_shared_gps_command_list as SHARED_DICTIONARY_COMMAND_LIST,
-    SharedDictionaryManager,
     BASE_PATH
 )
 
@@ -43,18 +41,6 @@ def argument_parsing()-> dict:
         metavar="base_path",
         default=BASE_PATH,
         help=f"Relative or absolute output data directory. Defaults to '{BASE_PATH}'."
-    )
-
-    parser.add_argument(
-        "--shared_dictionary_name",
-        default=None,
-        help="Enable shared memory/dictionary using this name"
-    )
-
-    parser.add_argument(
-        "--shared_dictionary_command_list",
-        default=None,
-        help=f"Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to {SHARED_DICTIONARY_COMMAND_LIST}."
     )
 
     parser.add_argument(
@@ -97,8 +83,6 @@ def main():
 
     verbose = args['verbose']
     serial_device = args['serial']
-    shared_dictionary_name = args['shared_dictionary_name']
-    shared_dictionary_command_list = args['shared_dictionary_command_list']
     message_rate = args['message_rate']
     base_path = args['base_path']
 
@@ -112,22 +96,6 @@ def main():
 
     log_file_handle = get_log_file_handle(base_path=base_path)
     logging.info(f"main(): log file name: {log_file_handle.name}")
-
-    if shared_dictionary_command_list:
-        shared_dictionary_command_list = shared_dictionary_command_list.split(sep=',')
-    else:
-        shared_dictionary_command_list = SHARED_DICTIONARY_COMMAND_LIST
-
-    logging.info(f"shared_dictionary_command_list {shared_dictionary_command_list}")
-
-    if shared_dictionary_name:
-        logging.info(f"main(): enabling shared_dictionary_name {shared_dictionary_name}")
-        shared_dictionary = SharedDictionaryManager(shared_dictionary_name)
-    else:
-        logging.info("main(): shared_dictionary disabled")
-        shared_dictionary = None
-
-    logging.info(f"main(): shared_dictionary_name {shared_dictionary_name}")
 
     io_handle = initialize_gps(serial_device, message_rate)
 
@@ -168,10 +136,6 @@ def main():
             log_file_handle.write(json.dumps(log_value) + "\n")
             log_file_handle.flush()
             fsync(log_file_handle.fileno())
-
-        if shared_dictionary and 'GPS_' + log_value["command_name"] in shared_dictionary_command_list:
-                logging.debug( f"main(): writing to shared dictionary {log_value['command_name']}")
-                shared_dictionary['GPS_' + log_value['command_name']] = log_value
 
         iso_ts_pre = datetime.isoformat(datetime.now(tz=timezone.utc))
 

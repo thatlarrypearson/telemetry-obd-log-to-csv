@@ -2,7 +2,7 @@
 
 ## **STILL UNDER CONSTRUCTION** but it is getting closer
 
-The Telemetry GPS Logger captures location and time data using a GPS receiver. While the logger is running, location and time output is written to files and/or shared memory.
+The Telemetry GPS Logger captures location and time data using a GPS receiver. While the logger is running, location and time output is written to files.
 
 ## Motivation
 
@@ -10,12 +10,11 @@ Integrate GPS location and time data collection with vehicle engine data for bet
 
 ## Features
 
-- Logs location data to file and/or to shared memory
+- Logs location data to file
 - Works with a chip set family ([u-blox]((https://www.u-blox.com)) supporting GPS, GLONASS, Galileo and BeiDou Global Navigation Satellite Systems (GNSS)
 - Works with large family of GNSS enabling multiple constellations of satellites transmitting positioning and timing data
 - Works with Python 3.10 and newer
 - Raspberry Pi 4 hardware and Raspberry Pi OS target environment
-- When using the shared memory feature, it doesn't matter which program is started first - this program ```gps_logger.gps_logger```, the location data generator, can start first or consuming programs like ```telemetry_obd.obd_logger``` can start first
 - Two forms of data file naming based on the existence of the parameter ```--output_file_name_counter```.  The first form without the parameter is ```data/NMEA-<YYYYMMDDhhmmss>-utc.json```.  The second form with the parameter is ```data/NMEA-<counter>``` where counter would be ```0000000001``` for the first file, ```0000000002``` for the second file and so on.
 
 ## Target System
@@ -36,17 +35,13 @@ The **u-blox** device on the reference hardware is a [NEO-M8T](https://www.u-blo
 
 ```bash
 $ python3.11 -m gps_logger.gps_logger --help
-usage: gps_logger.py [-h] [--log_file_directory LOG_FILE_DIRECTORY] [--shared_dictionary_name SHARED_DICTIONARY_NAME]
-                     [--shared_dictionary_command_list SHARED_DICTIONARY_COMMAND_LIST] [--serial SERIAL] [--verbose] [--version]
+usage: gps_logger.py [-h] [--log_file_directory LOG_FILE_DIRECTORY]
+                     [--serial SERIAL] [--verbose] [--version]
 
 Telemetry GPS Logger
 
 options:
   -h, --help            show this help message and exit
-  --shared_dictionary_name SHARED_DICTIONARY_NAME
-                        Enable shared memory/dictionary using this name
-  --shared_dictionary_command_list SHARED_DICTIONARY_COMMAND_LIST
-                        Comma separated list of NMEA commands/sentences to be shared (no spaces), defaults to all.
   --message_rate MESSAGE_RATE
                         Number of whole seconds between each GPS fix.  Defaults to 1.
   --serial SERIAL       Full path to the serial device where the GPS can be found, defaults to /dev/ttyACM0
@@ -54,15 +49,6 @@ options:
   --version             Print version number and exit.
 $
 ```
-
-### ```--shared_dictionary_command_list```
-
-List of NMEA commands/sentences that are known to this application:
-
-- ```NMEA_GNGNS```: Fix data
-- ```NMEA_GNGST```: Pseudorange error statistics
-- ```NMEA_GNTHS```: True heading and status
-- ```NMEA_GNZTD```: Time and data
 
 ### ```--version```
 
@@ -226,6 +212,7 @@ Then install the following in no particular order.
 - [pyubx2](https://github.com/semuconsulting/pyubx2)
 - [pynmeagps](https://github.com/semuconsulting/pynmeagps)
 - [telemetry-obd](https://github.com/thatlarrypearson/telemetry-obd)
+- [telemetry-counter](https://github.com/thatlarrypearson/telemetry-counter)
 
 ```bash
 # Serial Interface Library
@@ -235,16 +222,11 @@ python3.11 -m pip install pyserial
 python3.11 -m pip install --user --upgrade pyubx2 pynmeagps
 ```
 
-The following are optional packages and are only required if vehicle location data is to be combined with weather and vehicle engine data using shared memory.
+### Install Telemetry Counter
 
-- [Telemetry OBD Logging](https://github.com/thatlarrypearson/telemetry-obd)
-  - Engine data logger supporting shared memory
-- [Telemetry Weather Logging](https://github.com/thatlarrypearson/telemetry-wthr)
-  - Weather data logger supporting shared memory
-- [UltraDict](https://github.com/thatlarrypearson/telemetry-obd/blob/master/docs/README-UltraDict.md)
-  - Python library providing shared memory support
+The [telemetry counter](https://github.com/thatlarrypearson/telemetry-counter) application needs to be installed before this application.
 
-Once the dependencies are installed and working, the shared memory features can be tested.
+To install ```telemetry-counter```, follow the installation instructions found [here](https://github.com/thatlarrypearson/telemetry-counter#installation).
 
 ### Building and Installing ```gps_logger``` Python Package
 
@@ -333,9 +315,9 @@ $ sudo chmod 0755 /root/bin/telemetry.rc.local.gps
 $ cd
 ```
 
-```/root/bin/telemetry.rc.local``` executes ```telemetry-gps/bin/gps_logger.sh```.  ```gps_logger.sh``` has ```--shared_dictionary_name``` and ```--log_file_directory``` arguments.  You may change these parameters as needed.
+```/root/bin/telemetry.rc.local``` executes ```telemetry-gps/bin/gps_logger.sh```.  You may change these parameters as needed.
 
-If the shared dictionary/memory feature is going to be used, leave that line in place.  If logging to a file is needed, leave that line in place.  Otherwise, remove the unwanted argument lines.  One final note.  Lines ending in ```\``` indicate a line continuation in the shell environment.  The last line shouldn't have a ```\``` at the end as there wouldn't be any lines to continue to.
+If logging to a file is needed, leave that line in place.  Otherwise, remove the unwanted argument lines.  One final note.  Lines ending in ```\``` indicate a line continuation in the shell environment.  The last line shouldn't have a ```\``` at the end as there wouldn't be any lines to continue to.
 
 If the GPS serial device isn't ```/dev/ttyACM0```, the serial device command line option will need to be added to the list of parameters (remember to at the line continuation backslash ```\``` if needed).  If adding the default device, the added line might look like:
 
@@ -504,8 +486,13 @@ $
   - Accepts shared dictionary/memory information from this library for integration into its own log files
 
 - [Telemetry Weather Logging](https://github.com/thatlarrypearson/telemetry-wthr)
-  - Weather data logger supporting shared memory
-  - Uses shared memory to share data with **Telemetry OBD Logger**
+  - Logs weather data gathered from WeatherFlow Tempest weather station
+
+- [Telemetry Inertial Motion Unit (IMU) Logger](https://github.com/thatlarrypearson/telemetry-imu)
+  - Logs 9 degrees of freedom motion data from IMU device
+
+- [Telemetry Trailer Connector Logger](https://github.com/thatlarrypearson/telemetry-trailer-connector)
+  - Logs braking information provided by 4 and 7 pin trailer connector plugs
 
 ## License
 
