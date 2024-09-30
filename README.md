@@ -1,4 +1,6 @@
-# Telemetry Trailer Connector
+# Telemetry Trailer Connector Logger
+
+Collect and log data from 7 and 4-way trailer connectors.
 
 On tow vehicles, 7-Way Trailer Connectors are used to determine brakes (on/off), brake controller output (brake pressure), lights (on/off) and reverse (engaged/not engaged).  The wiring and applications also support 4-Way Trailer Connectors.  The 4-Way Connectors can only provide taillights, right/left blinkers and brake light signals.
 
