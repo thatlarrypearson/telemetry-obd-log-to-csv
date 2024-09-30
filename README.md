@@ -8,6 +8,7 @@ Increments and returns the *system boot* and *application start* counters for us
 - [Telemetry GPS Location and Time Logger](https://github.com/thatlarrypearson/telemetry-gps)
 - [Telemetry Weather Logger](https://github.com/thatlarrypearson/telemetry-wthr)
 - [Telemetry IMU (inertial motion unit) Logger](https://github.com/thatlarrypearson/telemetry-imu)
+- [Telemetry Trailer Connector](https://github.com/thatlarrypearson/telemetry-trailer-connector)
 
 ## Usage
 
