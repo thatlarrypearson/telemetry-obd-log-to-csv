@@ -14,10 +14,10 @@ authors = [
 license = "MIT"
 readme = "README.md"
 python = "3.11"
-homepage = "https://github.com/thatlarrypearson/telemetry-imu"
-repository = "https://github.com/thatlarrypearson/telemetry-imu"
-documentation = "https://github.com/thatlarrypearson/telemetry-imu"
-keywords = ["imu", "telematics", "vehicle"]
+homepage = "https://github.com/thatlarrypearson/telemetry-wthr"
+repository = "https://github.com/thatlarrypearson/telemetry-wthr"
+documentation = "https://github.com/thatlarrypearson/telemetry-wthr"
+keywords = ["weather", "telematics", "vehicle"]
 dependencies = [
     'telemetry-counter == 0.5.0',
 ]
