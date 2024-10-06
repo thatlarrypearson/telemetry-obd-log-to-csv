@@ -22,12 +22,14 @@ var/
 wheels/
 config/
 DataAnalysis/
+wthr_logger/__pycache__/
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 *.swp
+*.pyc
 MANIFEST
 
 # PyInstaller
