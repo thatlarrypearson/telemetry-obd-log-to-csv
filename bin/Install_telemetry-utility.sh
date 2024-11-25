@@ -26,4 +26,4 @@ ${APP_PYTHON} -m build .
 ls -l dist/*.whl
 ${APP_PYTHON} -m pip install dist/*.whl
 
-${APP_PYTHON} -m telemetry_utility.file_system_info --help
+${APP_PYTHON} -m u_tools.file_system_info --help

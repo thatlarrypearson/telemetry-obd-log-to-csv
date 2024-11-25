@@ -31,18 +31,13 @@ fi
 0<&-
 
 # redirect all stdout and stderr to file
-exec &> "${APP_TMP_DIR}/${APP_LOG_FILE}"
+exec &> "${APP_LOG_FILE}"
 
 date '+%Y/%m/%d %H:%M:%S'
 
-if [ ! -d "${APP_BASE_PATH}" ]
-then
-	mkdir --parents "${APP_BASE_PATH}"
-fi
-
 cd "${APP_HOME}"
 
-# check to see if 
+${APP_PYTHON} -m u_tools.file_system_info --verbose
 
 date '+%Y/%m/%d %H:%M:%S'
 
@@ -51,6 +46,7 @@ export MOUNT_POINT="$(${APP_PYTHON} -m u_tools.file_system_info --match_field vo
 date '+%Y/%m/%d %H:%M:%S'
 
 if [ -z  "${MOUNT_POINT}" ]
+then
 	echo Did not find a match for volume_label ${VOLUME_LABEL}
 	exit 0
 fi
