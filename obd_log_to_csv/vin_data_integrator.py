@@ -193,7 +193,7 @@ def get_companion_json_file_list(base_path:str, obd_file_name:str, verbose=False
 
     return []
 
-def write_json_data_to_integrated_file(records, output_file_path, verbose=False)->Path:
+def write_json_data_to_integrated_file(records, output_file_path, verbose=True)->Path:
     """write output file to integrated file"""
     if verbose:
         console.print(f"writing {len(records)} records of integrated JSON data to {output_file_path}")
