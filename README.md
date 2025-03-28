@@ -1,10 +1,12 @@
 # Vehicle Telemetry System
 
+System for collecting and processing motor vehicle data using included sensor modules.
+
 ## **Under Construction**
 
 When completed, this repository will be a combination of the following repositories:
 
-- [engine data]([telemetry-obd[(https://github.com/thatlarrypearson/telemetry-obd))
+- [engine data](https://github.com/thatlarrypearson/telemetry-obd)
 - [location data](https://github.com/thatlarrypearson/telemetry-gps)
 - [motion data](https://github.com/thatlarrypearson/telemetry-imu)
 - [weather data](https://github.com/thatlarrypearson/telemetry-wthr)
