@@ -13,12 +13,15 @@ wheels/
 *.csv
 *.egg
 *.egg-info/
+*.gif
 *.html
+*.jpg
 *.ipynb
 *.json
 *.log
 *.manifest
 *.mo
+*.png
 *.o
 *.pot
 *.pptx
@@ -27,6 +30,7 @@ wheels/
 *.sh
 *.so
 *.spec
+*.sh
 *.swp
 *.txt
 *.whl
@@ -53,6 +57,7 @@ wheels/
 .spyderproject
 .spyproject
 .tox/
+.vscode/
 .webassets-cache
 site/
 DataAnalysis/
