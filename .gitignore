@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+/initial_data_analysis
+/.ipynb_checkpoints
+/.vscode
+*.ipynb
+/docs
+*.csv
+*.xlsx
+*.sh
